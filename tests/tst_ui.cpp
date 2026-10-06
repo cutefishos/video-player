@@ -48,6 +48,7 @@ private slots:
     void emptyWindow_data();
     void emptyWindow();
     void playbackLayout();
+    void replayAtEnd();
 
 private:
     QQuickWindow *load(QQmlApplicationEngine &engine, Application &application, bool dark);
@@ -313,4 +314,37 @@ void UiTest::playbackLayout()
 }
 
 QTEST_MAIN(UiTest)
+void UiTest::replayAtEnd()
+{
+    if (QStandardPaths::findExecutable(QStringLiteral("ffmpeg")).isEmpty())
+        QSKIP("ffmpeg is needed to make the test clip");
+    const QString clip = makeClip();
+    QVERIFY(!clip.isEmpty());
+
+    Application application(m_dir.filePath(QStringLiteral("replay.conf")));
+    QQmlApplicationEngine engine;
+    QQuickWindow *window = load(engine, application, false);
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    auto player = window->findChild<MpvItem *>(QStringLiteral("player"));
+    QVERIFY(player);
+    application.openUrls({QUrl::fromLocalFile(clip)});
+    QTRY_VERIFY_WITH_TIMEOUT(player->loaded(), 10000);
+
+    player->seek(19, true);
+    player->setPaused(false);
+    QTRY_VERIFY_WITH_TIMEOUT(player->endReached(), 10000);
+    QTRY_VERIFY(player->paused());
+
+    // The play button at the end starts the file over.
+    auto play = window->findChild<QQuickItem *>(QStringLiteral("playButton"));
+    QVERIFY(play);
+    QTRY_VERIFY(play->isVisible());
+    QTest::qWait(500);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, sceneRect(play).center().toPoint());
+    QTRY_VERIFY_WITH_TIMEOUT(!player->endReached() && !player->paused(), 5000);
+    QTRY_VERIFY_WITH_TIMEOUT(player->position() > 0.5 && player->position() < 5, 5000);
+}
+
 #include "tst_ui.moc"
