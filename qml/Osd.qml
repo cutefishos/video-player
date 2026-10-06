@@ -15,8 +15,6 @@ FishUI.RoundedRectangle {
     property string text
     property string actionText
     property var action: null
-    // Shown at the leading edge rather than centred.
-    property bool leading: false
     // From the plate's edge to its text when there is no action.
     readonly property real textInset: 12
     readonly property bool hovered: hover.hovered
@@ -34,11 +32,10 @@ FishUI.RoundedRectangle {
         NumberAnimation { duration: 180 }
     }
 
-    function show(message, timeout, actionLabel, callback, atLeadingEdge) {
+    function show(message, timeout, actionLabel, callback) {
         text = message
         actionText = actionLabel || ""
         action = callback || null
-        leading = !!atLeadingEdge
         hideTimer.interval = timeout || (actionText.length > 0 ? 5000 : 1500)
         hideTimer.restart()
         opacity = 1

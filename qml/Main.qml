@@ -122,7 +122,6 @@ FishUI.Window {
                 Layout.fillWidth: true
                 text: rootWindow.title
                 textFormat: Text.PlainText
-                font.pointSize: 11
                 elide: Text.ElideMiddle
                 color: rootWindow.active ? "white" : Qt.rgba(1, 1, 1, 0.6)
             }
@@ -350,6 +349,12 @@ FishUI.Window {
         onOpenFileRequested: rootWindow.openFiles(false)
         onOpenUrlRequested: rootWindow.openDialog("openUrl")
         onRecentRequested: function (url) { App.openUrls([url]) }
+
+        DragHandler {
+            target: null
+            grabPermissions: PointerHandler.CanTakeOverFromHandlersOfDifferentType
+            onActiveChanged: if (active) rootWindow.controller.startSystemMove()
+        }
     }
 
     // A file that cannot be played says why, in place of the picture.
@@ -456,9 +461,8 @@ FishUI.Window {
 
     Osd {
         id: osd
-        // A leading message starts under the title, its text in line with it.
-        anchors.horizontalCenter: leading ? undefined : parent.horizontalCenter
-        anchors.left: leading ? parent.left : undefined
+        // Starts under the title, its text in line with it.
+        anchors.left: parent.left
         anchors.leftMargin: 20 - textInset
         anchors.top: parent.top
         anchors.topMargin: rootWindow.header.height + 8
@@ -1070,7 +1074,7 @@ FishUI.Window {
         player.load(url, options, false)
         recentPending = true
         if (resumed > 0) {
-            osd.show(qsTr("Resumed from %1").arg(App.formatTime(resumed)), 5000, "", null, true)
+            osd.show(qsTr("Resumed from %1").arg(App.formatTime(resumed)), 5000)
         }
         poke()
     }
