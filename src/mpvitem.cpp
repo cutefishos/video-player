@@ -167,6 +167,9 @@ bool MpvItem::ensurePlayer()
 
     setOption("vo", QStringLiteral("libmpv"));
     setOption("hwdec", QStringLiteral("auto-safe"));
+    // Chroma upscaled with the default lanczos is about half the GPU time of
+    // a 4K picture, enough to drop frames until the GPU clocks up.
+    setOption("cscale", QStringLiteral("bilinear"));
     // Playback stops on the last frame; the playlist decides what comes next.
     setOption("keep-open", QStringLiteral("yes"));
     setOption("idle", QStringLiteral("yes"));
