@@ -14,9 +14,11 @@
 #include <QDBusMessage>
 #include <QDBusPendingCall>
 #include <QDir>
+#include <QEvent>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QLocale>
+#include <QWindow>
 
 #include <cmath>
 
@@ -153,4 +155,16 @@ void Application::open(const QStringList &arguments)
 void Application::activateWindow()
 {
     Q_EMIT activationRequested();
+}
+
+void Application::watchRatio(QWindow *window)
+{
+    window->installEventFilter(this);
+}
+
+bool Application::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::DevicePixelRatioChange)
+        Q_EMIT windowRatioChanged(static_cast<QWindow *>(watched)->devicePixelRatio());
+    return QObject::eventFilter(watched, event);
 }

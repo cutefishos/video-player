@@ -10,7 +10,10 @@
 #include "thumbnailer.h"
 
 #include <QObject>
+#include <QSize>
 #include <QUrl>
+
+class QWindow;
 
 // What the window works with, and the D-Bus face of the running player:
 // a second launch hands its files over through open().
@@ -23,6 +26,9 @@ class Application : public QObject
     Q_PROPERTY(ResumeStore *resume READ resume CONSTANT)
     Q_PROPERTY(SleepInhibitor *inhibitor READ inhibitor CONSTANT)
     Q_PROPERTY(Thumbnailer *thumbnailer READ thumbnailer CONSTANT)
+    // The picture size of the file on the command line, known before the
+    // window first shows so that it opens already fitted to it.
+    Q_PROPERTY(QSize launchVideoSize READ launchVideoSize CONSTANT)
 
 public:
     explicit Application(const QString &settingsFile, QObject *parent = nullptr);
@@ -32,6 +38,12 @@ public:
     ResumeStore *resume() const { return m_resume; }
     SleepInhibitor *inhibitor() const { return m_inhibitor; }
     Thumbnailer *thumbnailer() const { return m_thumbnailer; }
+    QSize launchVideoSize() const { return m_launchVideoSize; }
+    void setLaunchVideoSize(const QSize &size) { m_launchVideoSize = size; }
+    // Reports window's device pixel ratio as soon as it changes: the
+    // fractional scale arrives just ahead of the first frame, and QML hears
+    // of it only after that frame.
+    void watchRatio(QWindow *window);
 
     // 1:05 or 1:02:05; hours are shown whenever reference reaches an hour,
     // so elapsed and total times keep the same shape.
@@ -60,6 +72,10 @@ public Q_SLOTS:
 Q_SIGNALS:
     void openRequested(const QList<QUrl> &media, const QList<QUrl> &subtitles);
     void activationRequested();
+    void windowRatioChanged(qreal ratio);
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     Playlist *m_playlist;
@@ -67,4 +83,5 @@ private:
     ResumeStore *m_resume;
     SleepInhibitor *m_inhibitor;
     Thumbnailer *m_thumbnailer;
+    QSize m_launchVideoSize;
 };

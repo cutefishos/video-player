@@ -16,6 +16,7 @@
 #include <QDBusMessage>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QLocale>
@@ -79,6 +80,14 @@ int main(int argc, char *argv[])
         }
     }
 
+    for (const QString &argument : std::as_const(arguments)) {
+        const QUrl url(argument);
+        if (url.isLocalFile() && QFileInfo(url.toLocalFile()).isFile() && !Application::isSubtitle(url)) {
+            application.setLaunchVideoSize(MpvItem::probeVideoSize(url, 1000));
+            break;
+        }
+    }
+
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("thumbnail"), new ThumbnailProvider(application.thumbnailer()));
     engine.rootContext()->setContextProperty(QStringLiteral("App"), &application);
@@ -87,6 +96,7 @@ int main(int argc, char *argv[])
         return 1;
 
     auto window = qobject_cast<QQuickWindow *>(engine.rootObjects().first());
+    application.watchRatio(window);
     QObject::connect(&application, &Application::activationRequested, window, [window] {
         if (window->visibility() == QWindow::Minimized)
             window->showNormal();

@@ -5,6 +5,7 @@
 #include "mpvnode.h"
 #include "tracks.h"
 
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QMutex>
@@ -244,6 +245,64 @@ MpvItem::~MpvItem()
         // Silences the player now; the handle itself may live on in the renderer.
         command({QStringLiteral("stop")});
     }
+}
+
+QSize MpvItem::probeVideoSize(const QUrl &url, int timeout)
+{
+    if (!url.isLocalFile())
+        return {};
+    std::setlocale(LC_NUMERIC, "C");
+    mpv_handle *mpv = mpv_create();
+    if (!mpv)
+        return {};
+    mpv_set_option_string(mpv, "vo", "null");
+    mpv_set_option_string(mpv, "ao", "null");
+    mpv_set_option_string(mpv, "aid", "no");
+    mpv_set_option_string(mpv, "sid", "no");
+    mpv_set_option_string(mpv, "pause", "yes");
+    mpv_set_option_string(mpv, "load-scripts", "no");
+    mpv_set_option_string(mpv, "ytdl", "no");
+
+    QSize size;
+    const QByteArray path = url.toLocalFile().toUtf8();
+    const char *command[] = {"loadfile", path.constData(), nullptr};
+    if (mpv_initialize(mpv) >= 0 && mpv_command(mpv, command) >= 0) {
+        QElapsedTimer timer;
+        timer.start();
+        while (timer.elapsed() < timeout) {
+            const mpv_event_id event = mpv_wait_event(mpv, (timeout - timer.elapsed()) / 1000.0)->event_id;
+            if (event == MPV_EVENT_END_FILE || event == MPV_EVENT_SHUTDOWN)
+                break;
+            if (event != MPV_EVENT_FILE_LOADED)
+                continue;
+            mpv_node node;
+            if (mpv_get_property(mpv, "track-list", MPV_FORMAT_NODE, &node) < 0)
+                break;
+            const QVariantList tracks = MpvNode::toVariant(&node).toList();
+            mpv_free_node_contents(&node);
+            for (const QVariant &entry : tracks) {
+                const QVariantMap track = entry.toMap();
+                if (track.value(QStringLiteral("type")).toString() != QLatin1String("video")
+                        || !track.value(QStringLiteral("selected")).toBool() || track.value(QStringLiteral("albumart")).toBool())
+                    continue;
+                // The display size as mpv derives it: the pixel aspect widens
+                // the picture or makes it taller, never narrower.
+                int width = track.value(QStringLiteral("demux-w")).toInt();
+                int height = track.value(QStringLiteral("demux-h")).toInt();
+                const double aspect = track.value(QStringLiteral("demux-par"), 1.0).toDouble();
+                if (aspect > 1)
+                    width = int(width * aspect + 1e-6);
+                else if (aspect > 0 && aspect < 1)
+                    height = int(height / aspect + 1e-6);
+                if (width > 0 && height > 0)
+                    size = QSize(width, height);
+                break;
+            }
+            break;
+        }
+    }
+    mpv_terminate_destroy(mpv);
+    return size;
 }
 
 QQuickFramebufferObject::Renderer *MpvItem::createRenderer() const

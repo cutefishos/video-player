@@ -71,6 +71,30 @@ FishUI.Window {
     WindowHints.resizeAroundCenter: true
     WindowHints.alwaysOnTop: miniMode
 
+    // A window opened with a file starts fitted to it instead of shrinking to
+    // it on the first frame.
+    property bool launchFitPending: App.launchVideoSize.width > 0 && App.launchVideoSize.height > 0
+    visible: false
+
+    Component.onCompleted: {
+        fitToLaunch(FishUI.Dpi.ratio)
+        visible = true
+    }
+
+    // Until the window is shown its ratio is the output's whole one; the
+    // fractional scale follows, still ahead of the first frame.
+    Connections {
+        target: App
+        enabled: rootWindow.launchFitPending
+        function onWindowRatioChanged(ratio) { rootWindow.fitToLaunch(ratio) }
+    }
+
+    Connections {
+        target: rootWindow
+        enabled: rootWindow.launchFitPending
+        function onFrameSwapped() { rootWindow.launchFitPending = false }
+    }
+
     // The title bar fades with the controls.
     property real chromeOpacity: hasMedia && !controlsVisible ? 0 : 1
 
@@ -1266,21 +1290,33 @@ FishUI.Window {
         }
     }
 
-    // Fits the window to the picture on each file's first frame: device pixels
-    // one to one, within three quarters of the work area.
+    function fitToLaunch(ratio) {
+        if (!launchFitPending)
+            return
+        const size = fittedSize(App.launchVideoSize, ratio)
+        width = size.width
+        height = size.height
+    }
+
+    // Fits the window to the picture on each file's first frame.
     function fitToVideo() {
         if (!fitPending || player.videoSize.width <= 0 || player.videoSize.height <= 0)
             return
         fitPending = false
         if (isFullScreen || isMaximized || miniMode || !player.hasVideo)
             return
-        const ratio = FishUI.Dpi.ratio > 0 ? FishUI.Dpi.ratio : 1
-        var w = player.videoSize.width / ratio
-        var h = player.videoSize.height / ratio
-        const scale = Math.min(1, Screen.desktopAvailableWidth * 0.75 / w, Screen.desktopAvailableHeight * 0.75 / h)
-        w = Math.max(minimumWidth, Math.round(w * scale))
-        h = Math.max(minimumHeight, Math.round(h * scale))
-        if (w !== width || h !== height)
-            setGeometry(x, y, w, h)
+        const size = fittedSize(player.videoSize, FishUI.Dpi.ratio)
+        if (size.width !== width || size.height !== height)
+            setGeometry(x, y, size.width, size.height)
+    }
+
+    // The window size for a picture: device pixels one to one, within three
+    // quarters of the work area.
+    function fittedSize(videoSize, ratio) {
+        var w = videoSize.width / (ratio > 0 ? ratio : 1)
+        var h = videoSize.height / (ratio > 0 ? ratio : 1)
+        // The window's screen, as the Screen attached type knows none before the first show.
+        const scale = Math.min(1, screen.desktopAvailableWidth * 0.75 / w, screen.desktopAvailableHeight * 0.75 / h)
+        return Qt.size(Math.max(minimumWidth, Math.round(w * scale)), Math.max(minimumHeight, Math.round(h * scale)))
     }
 }

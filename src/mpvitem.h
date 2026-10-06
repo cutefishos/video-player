@@ -54,6 +54,10 @@ public:
     explicit MpvItem(QQuickItem *parent = nullptr);
     ~MpvItem() override;
 
+    // The picture size the player would report for a local file, read from
+    // its container without decoding; empty if mpv cannot tell within timeout ms.
+    static QSize probeVideoSize(const QUrl &url, int timeout);
+
     Renderer *createRenderer() const override;
     // Called by the renderer once mpv can draw: files load only after that,
     // or mpv would find no video output and play them without a picture.
