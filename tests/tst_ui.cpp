@@ -500,6 +500,18 @@ void UiTest::outsideClickClosesSidePanel()
     QTest::qWait(interval + 400);
     QVERIFY(!player->paused());
 
+    // A tab click reaches no further, and the next click on the video only closes.
+    openPanel();
+    const QRectF panel = sceneRect(window->findChild<QQuickItem *>(QStringLiteral("sidePanel")));
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(panel.center().x(), panel.top() + 23));
+    QTRY_COMPARE(window->property("panelTab").toInt(), 1);
+    QTest::qWait(interval + 400);
+    QVERIFY2(!player->paused(), "the tab click paused");
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QVERIFY(!window->property("panelOpen").toBool());
+    QTest::qWait(interval + 400);
+    QVERIFY(!player->paused());
+
     // So does a double click: no full screen.
     openPanel();
     QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, video);

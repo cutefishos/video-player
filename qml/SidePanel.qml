@@ -70,7 +70,7 @@ Item {
                             continuousCorners: false
                             anchors.fill: parent
                             radius: FishUI.Theme.smallRadius - 2
-                            color: Qt.rgba(1, 1, 1, control.tab === tabItem.index ? 0.2 : tabHover.hovered ? 0.06 : 0)
+                            color: Qt.rgba(1, 1, 1, control.tab === tabItem.index ? 0.2 : tabArea.containsMouse ? 0.06 : 0)
                         }
 
                         FishUI.Label {
@@ -80,11 +80,12 @@ Item {
                             font.weight: control.tab === tabItem.index ? Font.Medium : Font.Normal
                         }
 
-                        HoverHandler {
-                            id: tabHover
-                        }
-                        TapHandler {
-                            onTapped: control.root.panelTab = tabItem.index
+                        // A TapHandler would let the press through to the video's.
+                        MouseArea {
+                            id: tabArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: control.root.panelTab = tabItem.index
                         }
                     }
                 }
