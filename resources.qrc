@@ -1,0 +1,55 @@
+<!-- SPDX-FileCopyrightText: 2026 Reion Wong <reionwong@gmail.com> -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<RCC>
+    <qresource prefix="/qml">
+        <file alias="AudioMenu.qml">qml/AudioMenu.qml</file>
+        <file alias="ChapterMenu.qml">qml/ChapterMenu.qml</file>
+        <file alias="ControlBar.qml">qml/ControlBar.qml</file>
+        <file alias="ControlButton.qml">qml/ControlButton.qml</file>
+        <file alias="EmptyPage.qml">qml/EmptyPage.qml</file>
+        <file alias="InfoRow.qml">qml/InfoRow.qml</file>
+        <file alias="ListCard.qml">qml/ListCard.qml</file>
+        <file alias="Main.qml">qml/Main.qml</file>
+        <file alias="MediaInfoDialog.qml">qml/MediaInfoDialog.qml</file>
+        <file alias="OpenUrlDialog.qml">qml/OpenUrlDialog.qml</file>
+        <file alias="Osd.qml">qml/Osd.qml</file>
+        <file alias="PanelRow.qml">qml/PanelRow.qml</file>
+        <file alias="PanelSection.qml">qml/PanelSection.qml</file>
+        <file alias="PillButton.qml">qml/PillButton.qml</file>
+        <file alias="PreferenceRow.qml">qml/PreferenceRow.qml</file>
+        <file alias="PreferencesDialog.qml">qml/PreferencesDialog.qml</file>
+        <file alias="RecentRow.qml">qml/RecentRow.qml</file>
+        <file alias="SectionLabel.qml">qml/SectionLabel.qml</file>
+        <file alias="SeekBar.qml">qml/SeekBar.qml</file>
+        <file alias="Separator.qml">qml/Separator.qml</file>
+        <file alias="ShortcutsDialog.qml">qml/ShortcutsDialog.qml</file>
+        <file alias="SidePanel.qml">qml/SidePanel.qml</file>
+        <file alias="SpeedMenu.qml">qml/SpeedMenu.qml</file>
+        <file alias="SubtitleMenu.qml">qml/SubtitleMenu.qml</file>
+        <file alias="VideoGlass.qml">qml/VideoGlass.qml</file>
+        <file alias="VolumeControl.qml">qml/VolumeControl.qml</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="add.svg">icons/add.svg</file>
+        <file alias="check.svg">icons/check.svg</file>
+        <file alias="close.svg">icons/close.svg</file>
+        <file alias="fullscreen-exit.svg">icons/fullscreen-exit.svg</file>
+        <file alias="fullscreen.svg">icons/fullscreen.svg</file>
+        <file alias="minus.svg">icons/minus.svg</file>
+        <file alias="pause.svg">icons/pause.svg</file>
+        <file alias="pip-exit.svg">icons/pip-exit.svg</file>
+        <file alias="pip.svg">icons/pip.svg</file>
+        <file alias="play.svg">icons/play.svg</file>
+        <file alias="repeat-one.svg">icons/repeat-one.svg</file>
+        <file alias="repeat.svg">icons/repeat.svg</file>
+        <file alias="replay.svg">icons/replay.svg</file>
+        <file alias="sidebar.svg">icons/sidebar.svg</file>
+        <file alias="skip-back.svg">icons/skip-back.svg</file>
+        <file alias="skip-forward.svg">icons/skip-forward.svg</file>
+        <file alias="volume-high.svg">icons/volume-high.svg</file>
+        <file alias="volume-low.svg">icons/volume-low.svg</file>
+        <file alias="volume-medium.svg">icons/volume-medium.svg</file>
+        <file alias="volume-muted.svg">icons/volume-muted.svg</file>
+    </qresource>
+</RCC>
