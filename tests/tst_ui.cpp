@@ -53,6 +53,7 @@ private slots:
     void clickAndDoubleClick();
     void muteIsRemembered();
     void sidePanelKeepsInput();
+    void outsideClickClosesSidePanel();
 
 private:
     QQuickWindow *load(QQmlApplicationEngine &engine, Application &application, bool dark);
@@ -463,6 +464,72 @@ void UiTest::sidePanelKeepsInput()
     QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, QPoint(rect.center().x(), rect.bottom() - 12));
     QTest::qWait(300);
     QVERIFY2(!window->property("menuOpen").toBool(), "a right click opened the video menu");
+}
+
+void UiTest::outsideClickClosesSidePanel()
+{
+    if (QStandardPaths::findExecutable(QStringLiteral("ffmpeg")).isEmpty())
+        QSKIP("ffmpeg is needed to make the test clip");
+    const QString clip = makeClip();
+    QVERIFY(!clip.isEmpty());
+
+    Application application(m_dir.filePath(QStringLiteral("dismiss.conf")));
+    QQmlApplicationEngine engine;
+    QQuickWindow *window = load(engine, application, false);
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    auto player = window->findChild<MpvItem *>(QStringLiteral("player"));
+    auto bar = window->findChild<QQuickItem *>(QStringLiteral("controlBar"));
+    QVERIFY(player && bar);
+    application.openUrls({QUrl::fromLocalFile(clip)});
+    QTRY_VERIFY_WITH_TIMEOUT(player->loaded(), 10000);
+    QTRY_VERIFY(!player->paused());
+
+    const int interval = QGuiApplication::styleHints()->mouseDoubleClickInterval();
+    const QPoint video(40, window->height() / 2);
+    auto openPanel = [&] {
+        QVERIFY(QMetaObject::invokeMethod(window, "togglePanel", Q_ARG(QVariant, 0), Q_ARG(QVariant, false)));
+        QTRY_VERIFY(window->property("panelOpen").toBool());
+    };
+
+    // A click on the video only closes the panel.
+    openPanel();
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QVERIFY(!window->property("panelOpen").toBool());
+    QTest::qWait(interval + 400);
+    QVERIFY(!player->paused());
+
+    // So does a double click: no full screen.
+    openPanel();
+    QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QVERIFY(!window->property("panelOpen").toBool());
+    QTest::qWait(interval + 400);
+    QVERIFY(!window->property("isFullScreen").toBool());
+    QVERIFY(!player->paused());
+
+    // A press that drags leaves it open.
+    openPanel();
+    QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, video);
+    for (int step = 1; step <= 4; ++step)
+        QTest::mouseMove(window, video + QPoint(step * 10, 0));
+    QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, video + QPoint(40, 0));
+    QTest::qWait(interval + 400);
+    QVERIFY(window->property("panelOpen").toBool());
+    QVERIFY(!player->paused());
+
+    // The bottom controls keep it open.
+    QTRY_VERIFY(bar->isVisible());
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, sceneRect(bar).topLeft().toPoint() + QPoint(24, 6));
+    QTest::qWait(interval + 400);
+    QVERIFY(window->property("panelOpen").toBool());
+
+    // A later click on the video pauses again as usual.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QVERIFY(!window->property("panelOpen").toBool());
+    QTest::qWait(interval + 400);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QTRY_VERIFY_WITH_TIMEOUT(player->paused(), interval + 1000);
 }
 
 #include "tst_ui.moc"

@@ -254,10 +254,11 @@ FishUI.Window {
         TapHandler {
             acceptedButtons: Qt.LeftButton
             gesturePolicy: TapHandler.DragThreshold
-            onSingleTapped: singleClick.restart()
+            onSingleTapped: if (!panelDismissed.running) singleClick.restart()
             onDoubleTapped: {
                 singleClick.stop()
-                rootWindow.toggleFullScreen()
+                if (!panelDismissed.running)
+                    rootWindow.toggleFullScreen()
             }
         }
 
@@ -495,6 +496,43 @@ FishUI.Window {
         HoverHandler {
             id: controlsHover
         }
+    }
+
+    // A click outside the side panel and the controls closes the panel, and
+    // does nothing else; a press that drags the window leaves it open. A
+    // PointHandler watches without taking the press.
+    Item {
+        parent: rootWindow.contentItem
+        anchors.fill: parent
+        z: 1000
+
+        PointHandler {
+            acceptedButtons: Qt.LeftButton
+            enabled: rootWindow.panelOpen && sidePanel.visible
+
+            property bool outside: false
+
+            onActiveChanged: {
+                if (active) {
+                    outside = !rootWindow.hits(sidePanel, point.scenePressPosition)
+                            && !(controlBar.visible && rootWindow.hits(controlBar, point.scenePressPosition))
+                    if (outside)
+                        panelDismissed.restart()
+                    return
+                }
+                const moved = Math.hypot(point.scenePosition.x - point.scenePressPosition.x,
+                                         point.scenePosition.y - point.scenePressPosition.y)
+                if (outside && moved < Qt.styleHints.startDragDistance)
+                    rootWindow.togglePanel(rootWindow.panelTab, false)
+                outside = false
+            }
+        }
+    }
+
+    // The click that closed the panel, and a second one making it a double click.
+    Timer {
+        id: panelDismissed
+        interval: Qt.styleHints.mouseDoubleClickInterval + 300
     }
 
     DropArea {
@@ -955,6 +993,11 @@ FishUI.Window {
             sidePanel.focusList()
         else if (!panelOpen)
             rootWindow.contentItem.forceActiveFocus()
+    }
+
+    function hits(item, scenePoint) {
+        const point = item.mapFromItem(null, scenePoint.x, scenePoint.y)
+        return item.contains(point)
     }
 
     function openFiles(append) {
