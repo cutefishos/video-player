@@ -52,6 +52,7 @@ private slots:
     void replayAtEnd();
     void clickAndDoubleClick();
     void muteIsRemembered();
+    void sidePanelKeepsInput();
 
 private:
     QQuickWindow *load(QQmlApplicationEngine &engine, Application &application, bool dark);
@@ -411,6 +412,57 @@ void UiTest::muteIsRemembered()
     QVERIFY(QMetaObject::invokeMethod(window, "toggleMute"));
     QVERIFY(!application.settings()->muted());
     QTRY_VERIFY(!player->muted());
+}
+
+void UiTest::sidePanelKeepsInput()
+{
+    if (QStandardPaths::findExecutable(QStringLiteral("ffmpeg")).isEmpty())
+        QSKIP("ffmpeg is needed to make the test clip");
+    const QString clip = makeClip();
+    QVERIFY(!clip.isEmpty());
+
+    Application application(m_dir.filePath(QStringLiteral("panel.conf")));
+    QQmlApplicationEngine engine;
+    QQuickWindow *window = load(engine, application, false);
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    auto player = window->findChild<MpvItem *>(QStringLiteral("player"));
+    QVERIFY(player);
+    application.openUrls({QUrl::fromLocalFile(clip)});
+    QTRY_VERIFY_WITH_TIMEOUT(player->loaded(), 10000);
+    QTRY_VERIFY(!player->paused());
+
+    QVERIFY(QMetaObject::invokeMethod(window, "togglePanel", Q_ARG(QVariant, 0), Q_ARG(QVariant, false)));
+    auto list = window->findChild<QQuickItem *>(QStringLiteral("playlistView"));
+    QVERIFY(list);
+    // One row of 36 px, then empty list.
+    QTRY_VERIFY(list->isVisible() && list->height() > 60);
+    const QRectF rect = sceneRect(list);
+    const int volume = player->volume();
+    const int interval = QGuiApplication::styleHints()->mouseDoubleClickInterval();
+
+    // A row, and the empty list below it: nothing reaches the video behind.
+    for (const QPoint point : {QPoint(rect.center().x(), rect.top() + 18), QPoint(rect.center().x(), rect.bottom() - 12)}) {
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, point);
+        QTest::qWait(interval + 300);
+        QVERIFY2(!player->paused(), "a click paused the video");
+
+        QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, point);
+        QTest::qWait(interval + 300);
+        QVERIFY2(!window->property("isFullScreen").toBool(), "a double click went full screen");
+        QTRY_VERIFY2(!player->paused(), "a double click paused the video");
+
+        QWheelEvent wheel(point, window->mapToGlobal(point), QPoint(), QPoint(0, 120), Qt::NoButton, Qt::NoModifier,
+                          Qt::NoScrollPhase, false);
+        QCoreApplication::sendEvent(window, &wheel);
+        QTest::qWait(200);
+        QCOMPARE(player->volume(), volume);
+    }
+
+    QTest::mouseClick(window, Qt::RightButton, Qt::NoModifier, QPoint(rect.center().x(), rect.bottom() - 12));
+    QTest::qWait(300);
+    QVERIFY2(!window->property("menuOpen").toBool(), "a right click opened the video menu");
 }
 
 #include "tst_ui.moc"
