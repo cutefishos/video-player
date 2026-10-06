@@ -418,17 +418,6 @@ FishUI.Window {
         }
     }
 
-    // At the end with nothing to follow.
-    PillButton {
-        objectName: "playAgainButton"
-        anchors.centerIn: parent
-        visible: rootWindow.hasMedia && player.endReached && !player.loopFile && rootWindow.errorMessage.length === 0
-        text: qsTr("Play Again")
-        prominent: true
-        implicitHeight: 36
-        onClicked: rootWindow.togglePause(false)
-    }
-
     Osd {
         id: osd
         anchors.horizontalCenter: parent.horizontalCenter

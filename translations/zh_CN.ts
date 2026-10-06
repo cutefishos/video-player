@@ -148,11 +148,6 @@
         <translation>下一个文件</translation>
     </message>
     <message>
-        <location filename="../../home/reion/cutefish-dev/video-player/qml/Main.qml" line="425"/>
-        <source>Play Again</source>
-        <translation>重新播放</translation>
-    </message>
-    <message>
         <location filename="../../home/reion/cutefish-dev/video-player/qml/Main.qml" line="489"/>
         <location filename="../../home/reion/cutefish-dev/video-player/qml/Main.qml" line="686"/>
         <source>Back to Window</source>
