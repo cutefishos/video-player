@@ -35,7 +35,7 @@ ItemDelegate {
         anchors.fill: parent
         anchors.margins: 4
         radius: FishUI.Theme.mediumRadius
-        color: Qt.alpha(FishUI.Theme.textColor, control.pressed ? 0.08 : 0.04)
+        color: Qt.rgba(1, 1, 1, control.pressed ? 0.12 : 0.06)
         visible: control.hovered || control.pressed
     }
 
@@ -50,13 +50,14 @@ ItemDelegate {
                 Layout.fillWidth: true
                 text: control.file.name || ""
                 textFormat: Text.PlainText
+                color: "white"
                 elide: Text.ElideMiddle
             }
             FishUI.Label {
                 Layout.fillWidth: true
                 text: control.file.folder || ""
                 textFormat: Text.PlainText
-                color: FishUI.Theme.disabledTextColor
+                color: Qt.rgba(1, 1, 1, 0.5)
                 font.pointSize: 9
                 elide: Text.ElideMiddle
             }
@@ -65,7 +66,7 @@ ItemDelegate {
         FishUI.Label {
             visible: control.resumeAt > 0
             text: App.formatTime(control.resumeAt)
-            color: FishUI.Theme.disabledTextColor
+            color: Qt.rgba(1, 1, 1, 0.5)
             font.features: { "tnum": 1 }
         }
     }
@@ -76,6 +77,8 @@ ItemDelegate {
         anchors.bottom: parent.bottom
         anchors.leftMargin: 16
         anchors.rightMargin: 16
+        color: "white"
+        opacity: 0.12
         visible: !control.lastItem
     }
 }

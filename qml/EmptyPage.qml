@@ -34,6 +34,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 16
             text: qsTr("Drop a Video Here")
+            color: "white"
             font.pointSize: 15
             font.weight: Font.Medium
         }
@@ -42,22 +43,22 @@ Item {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 6
             text: qsTr("Or open a file or a web address to start watching.")
-            color: FishUI.Theme.disabledTextColor
+            color: Qt.rgba(1, 1, 1, 0.65)
         }
 
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 20
-            spacing: 12
+            spacing: 8
 
-            FishUI.Button {
+            PillButton {
                 objectName: "openFileButton"
                 text: qsTr("Open File…")
-                flat: true
+                prominent: true
                 onClicked: control.openFileRequested()
             }
 
-            FishUI.Button {
+            PillButton {
                 objectName: "openUrlButton"
                 text: qsTr("Open URL…")
                 onClicked: control.openUrlRequested()
@@ -73,6 +74,7 @@ Item {
             SectionLabel {
                 Layout.fillWidth: true
                 text: qsTr("Recent")
+                color: Qt.rgba(1, 1, 1, 0.5)
             }
 
             FishUI.Label {
@@ -92,6 +94,7 @@ Item {
         ListCard {
             objectName: "recentList"
             visible: control.recent.length > 0
+            color: Qt.rgba(1, 1, 1, 0.08)
 
             Repeater {
                 model: control.recent.slice(0, 5)

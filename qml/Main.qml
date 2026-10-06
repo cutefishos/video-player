@@ -60,9 +60,10 @@ FishUI.Window {
     header.visible: chromeOpacity > 0
     header.opacity: chromeOpacity
     windowButtonsTopMargin: (header.height - header.buttonSize) / 2
-    headerDarkMode: hasMedia || FishUI.Theme.darkMode
+    // Dark with or without a file, so opening one changes nothing but the picture.
+    headerDarkMode: true
     blurEnabled: false
-    background.color: hasMedia ? "black" : FishUI.Theme.backgroundColor
+    background.color: "black"
     background.opacity: 1
     // Full screen is the video alone: no window buttons, only the fading title.
     minimizeButtonVisible: !miniMode && !isFullScreen
@@ -99,8 +100,7 @@ FishUI.Window {
                 textFormat: Text.PlainText
                 font.pointSize: 11
                 elide: Text.ElideMiddle
-                color: rootWindow.hasMedia ? (rootWindow.active ? "white" : Qt.rgba(1, 1, 1, 0.6))
-                                           : rootWindow.active ? FishUI.Theme.textColor : FishUI.Theme.disabledTextColor
+                color: rootWindow.active ? "white" : Qt.rgba(1, 1, 1, 0.6)
             }
 
             FishUI.HeaderButton {
@@ -523,7 +523,7 @@ FishUI.Window {
             text: qsTr("Drop to Play")
             font.pointSize: 14
             font.weight: Font.Medium
-            color: rootWindow.hasMedia ? "white" : FishUI.Theme.textColor
+            color: "white"
         }
     }
 
