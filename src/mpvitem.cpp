@@ -149,6 +149,10 @@ MpvItem::MpvItem(QQuickItem *parent)
     std::setlocale(LC_NUMERIC, "C");
 
     m_handle->item = this;
+    // The margin is relative to the height, so a resize moves it.
+    connect(this, &QQuickItem::heightChanged, this, [this] {
+        setSubtitleBottomInset(m_subtitleInset);
+    });
 }
 
 // mpv starts with the first file, so an empty window costs no player.
@@ -742,4 +746,12 @@ void MpvItem::setPreferredLanguages(const QStringList &audio, const QStringList 
 void MpvItem::setSubtitleScale(double scale)
 {
     setMpvProperty("sub-scale", qBound(0.5, scale, 2.0));
+}
+
+void MpvItem::setSubtitleBottomInset(qreal inset)
+{
+    m_subtitleInset = inset;
+    // mpv's margin is in units of 1/720 of the window height; 22 is its default.
+    const double margin = height() > 0 ? inset / height() * 720 : 0;
+    setMpvProperty("sub-margin-y", qRound(qMax(22.0, margin)));
 }

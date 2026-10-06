@@ -47,6 +47,9 @@ FishUI.Window {
     property bool recentPending: false
     property int lastSubtitle: 0
     property bool wasMaximized: false
+    // Subtitles clear the bottom controls while those show.
+    readonly property real subtitleInset: hasMedia && controlsVisible ? player.height - controlBar.y + 8 : 0
+    onSubtitleInsetChanged: player.setSubtitleBottomInset(subtitleInset)
 
     title: hasMedia ? mediaName : qsTr("Video Player")
     width: 960

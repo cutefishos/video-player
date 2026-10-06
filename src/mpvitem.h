@@ -116,6 +116,9 @@ public:
     // Languages to pick audio and subtitle tracks by, most wanted first.
     Q_INVOKABLE void setPreferredLanguages(const QStringList &audio, const QStringList &subtitle);
     Q_INVOKABLE void setSubtitleScale(double scale);
+    // Keeps subtitles above the bottom inset logical pixels of the item, such
+    // as controls drawn over the video.
+    Q_INVOKABLE void setSubtitleBottomInset(qreal inset);
 
 Q_SIGNALS:
     void sourceChanged();
@@ -203,6 +206,7 @@ private:
     int m_audioTrack = 0;
     int m_subtitleTrack = 0;
     double m_subtitleDelay = 0;
+    qreal m_subtitleInset = 0;
     QVariantList m_chapters;
     int m_chapter = -1;
     int m_rotation = 0;
