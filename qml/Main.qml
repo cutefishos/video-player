@@ -254,8 +254,19 @@ FishUI.Window {
         TapHandler {
             acceptedButtons: Qt.LeftButton
             gesturePolicy: TapHandler.DragThreshold
-            onSingleTapped: rootWindow.togglePause(true)
-            onDoubleTapped: rootWindow.toggleFullScreen()
+            onSingleTapped: singleClick.restart()
+            onDoubleTapped: {
+                singleClick.stop()
+                rootWindow.toggleFullScreen()
+            }
+        }
+
+        // TapHandler reports the first click of a double click at once; it
+        // pauses only once no second click follows.
+        Timer {
+            id: singleClick
+            interval: Qt.styleHints.mouseDoubleClickInterval
+            onTriggered: rootWindow.togglePause(true)
         }
 
         TapHandler {

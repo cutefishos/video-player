@@ -17,6 +17,7 @@
 #include <QQuickItem>
 #include <QQuickWindow>
 #include <QStandardPaths>
+#include <QStyleHints>
 #include <QTemporaryDir>
 #include <QSignalSpy>
 #include <QtTest>
@@ -49,6 +50,7 @@ private slots:
     void emptyWindow();
     void playbackLayout();
     void replayAtEnd();
+    void clickAndDoubleClick();
 
 private:
     QQuickWindow *load(QQmlApplicationEngine &engine, Application &application, bool dark);
@@ -345,6 +347,42 @@ void UiTest::replayAtEnd()
     QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, sceneRect(play).center().toPoint());
     QTRY_VERIFY_WITH_TIMEOUT(!player->endReached() && !player->paused(), 5000);
     QTRY_VERIFY_WITH_TIMEOUT(player->position() > 0.5 && player->position() < 5, 5000);
+}
+
+void UiTest::clickAndDoubleClick()
+{
+    if (QStandardPaths::findExecutable(QStringLiteral("ffmpeg")).isEmpty())
+        QSKIP("ffmpeg is needed to make the test clip");
+    const QString clip = makeClip();
+    QVERIFY(!clip.isEmpty());
+
+    Application application(m_dir.filePath(QStringLiteral("click.conf")));
+    QQmlApplicationEngine engine;
+    QQuickWindow *window = load(engine, application, false);
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    auto player = window->findChild<MpvItem *>(QStringLiteral("player"));
+    QVERIFY(player);
+    application.openUrls({QUrl::fromLocalFile(clip)});
+    QTRY_VERIFY_WITH_TIMEOUT(player->loaded(), 10000);
+    QTRY_VERIFY(!player->paused());
+
+    // Clear of the title bar and the controls.
+    const QPoint video(40, window->height() / 2);
+    const int interval = QGuiApplication::styleHints()->mouseDoubleClickInterval();
+
+    // A click pauses once the double-click interval has passed.
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QVERIFY(!player->paused());
+    QTRY_VERIFY_WITH_TIMEOUT(player->paused(), interval + 1000);
+
+    // A double click goes full screen and leaves playback alone.
+    QTest::qWait(interval + 100);
+    QTest::mouseDClick(window, Qt::LeftButton, Qt::NoModifier, video);
+    QTRY_VERIFY(window->property("isFullScreen").toBool());
+    QTest::qWait(interval + 200);
+    QVERIFY(player->paused());
 }
 
 #include "tst_ui.moc"
