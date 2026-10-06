@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import FishUI as FishUI
 
 // A short message over the video (volume, seek target, speed, tracks), with
-// an optional action such as "Start Over".
+// an optional action such as "Show".
 FishUI.RoundedRectangle {
     continuousCorners: false
     id: control
@@ -15,9 +15,13 @@ FishUI.RoundedRectangle {
     property string text
     property string actionText
     property var action: null
+    // Shown at the leading edge rather than centred.
+    property bool leading: false
+    // From the plate's edge to its text when there is no action.
+    readonly property real textInset: 12
     readonly property bool hovered: hover.hovered
 
-    width: row.implicitWidth + (actionText.length > 0 ? 8 : 24)
+    width: row.implicitWidth + (actionText.length > 0 ? 8 : textInset * 2)
     height: 36
     radius: height / 2
     color: Qt.rgba(0.09, 0.09, 0.1, 0.78)
@@ -30,10 +34,11 @@ FishUI.RoundedRectangle {
         NumberAnimation { duration: 180 }
     }
 
-    function show(message, timeout, actionLabel, callback) {
+    function show(message, timeout, actionLabel, callback, atLeadingEdge) {
         text = message
         actionText = actionLabel || ""
         action = callback || null
+        leading = !!atLeadingEdge
         hideTimer.interval = timeout || (actionText.length > 0 ? 5000 : 1500)
         hideTimer.restart()
         opacity = 1

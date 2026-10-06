@@ -452,7 +452,10 @@ FishUI.Window {
 
     Osd {
         id: osd
-        anchors.horizontalCenter: parent.horizontalCenter
+        // A leading message starts under the title, its text in line with it.
+        anchors.horizontalCenter: leading ? undefined : parent.horizontalCenter
+        anchors.left: leading ? parent.left : undefined
+        anchors.leftMargin: 20 - textInset
         anchors.top: parent.top
         anchors.topMargin: rootWindow.header.height + 8
     }
@@ -1021,9 +1024,7 @@ FishUI.Window {
         player.load(url, options, false)
         recentPending = true
         if (resumed > 0) {
-            osd.show(qsTr("Resumed from %1").arg(App.formatTime(resumed)), 5000, qsTr("Start Over"), function () {
-                player.seek(0, true)
-            })
+            osd.show(qsTr("Resumed from %1").arg(App.formatTime(resumed)), 5000, "", null, true)
         }
         poke()
     }
