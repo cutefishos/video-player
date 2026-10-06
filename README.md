@@ -1,9 +1,8 @@
 # Video Player
 
 The video player of Cutefish Desktop. It plays local files and network
-streams through libmpv, with subtitles, folder playlists, resume, seek-bar
-previews and picture in picture, behind overlay controls that hide while
-the video plays.
+streams through libmpv, with subtitles, folder playlists, resume and seek-bar
+previews, behind overlay controls that hide while the video plays.
 
 ## Dependencies
 

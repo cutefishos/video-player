@@ -24,7 +24,6 @@ FishUI.Window {
                                                                               : App.displayName(player.source)
     }
     property string errorMessage: ""
-    property bool miniMode: false
     // The side panel: playlist, tracks and playback settings.
     property bool panelOpen: false
     property int panelTab: 0
@@ -47,14 +46,13 @@ FishUI.Window {
     // Set on load; the file goes to Recent once it shows a picture or sound.
     property bool recentPending: false
     property int lastSubtitle: 0
-    property size normalSize: Qt.size(960, 600)
     property bool wasMaximized: false
 
     title: hasMedia ? mediaName : qsTr("Video Player")
     width: 960
     height: 600
-    minimumWidth: miniMode ? 240 : 480
-    minimumHeight: miniMode ? 135 : 320
+    minimumWidth: 480
+    minimumHeight: 320
     contentTopMargin: 0
     header.height: 44
     header.visible: chromeOpacity > 0
@@ -66,10 +64,9 @@ FishUI.Window {
     background.color: "black"
     background.opacity: 1
     // Full screen is the video alone: no window buttons, only the fading title.
-    minimizeButtonVisible: !miniMode && !isFullScreen
+    minimizeButtonVisible: !isFullScreen
     closeButtonVisible: !isFullScreen
     WindowHints.resizeAroundCenter: true
-    WindowHints.alwaysOnTop: miniMode
 
     // A window opened with a file starts fitted to it instead of shrinking to
     // it on the first frame.
@@ -130,7 +127,7 @@ FishUI.Window {
             FishUI.HeaderButton {
                 id: menuButton
                 objectName: "mainMenuButton"
-                visible: !rootWindow.miniMode && !rootWindow.isFullScreen
+                visible: !rootWindow.isFullScreen
                 size: rootWindow.header.buttonSize
                 artwork: "menu"
                 checked: !!rootWindow.mainMenuPopup && rootWindow.mainMenuPopup.visible
@@ -446,7 +443,7 @@ FishUI.Window {
         id: osd
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: rootWindow.miniMode ? 8 : rootWindow.header.height + 8
+        anchors.topMargin: rootWindow.header.height + 8
     }
 
     SidePanel {
@@ -462,7 +459,7 @@ FishUI.Window {
         // Above the controls only where the two would meet.
         anchors.bottomMargin: controlBar.x + controlBar.width > x - 12 ? parent.height - controlBar.y + 12 : 16
         width: Math.min(300, parent.width * 0.45)
-        visible: rootWindow.panelOpen && !rootWindow.miniMode && rootWindow.hasMedia
+        visible: rootWindow.panelOpen && rootWindow.hasMedia
     }
 
     ControlBar {
@@ -474,7 +471,7 @@ FishUI.Window {
         // Centred on the device pixel grid.
         x: Math.round((parent.width - width) / 2 * FishUI.Dpi.ratio) / FishUI.Dpi.ratio
         y: parent.height - height - 16
-        visible: opacity > 0 && rootWindow.hasMedia && !rootWindow.miniMode
+        visible: opacity > 0 && rootWindow.hasMedia
         opacity: rootWindow.controlsVisible ? 1 : 0
 
         Behavior on opacity {
@@ -483,40 +480,6 @@ FishUI.Window {
 
         HoverHandler {
             id: controlsHover
-        }
-    }
-
-    // Picture in picture: play or pause, back to the full window, close.
-    Row {
-        objectName: "miniControls"
-        anchors.centerIn: parent
-        spacing: 8
-        visible: rootWindow.miniMode && opacity > 0
-        opacity: rootWindow.controlsVisible ? 1 : 0
-
-        Behavior on opacity {
-            NumberAnimation { duration: 200 }
-        }
-
-        Repeater {
-            model: [
-                { icon: "pip-exit", tip: qsTr("Back to Window"), action: function () { rootWindow.setMiniMode(false) } },
-                { icon: player.paused || player.endReached ? "play" : "pause", tip: qsTr("Play or Pause"), action: function () { rootWindow.togglePause(false) } }
-            ]
-
-            ControlButton {
-                required property var modelData
-                implicitWidth: 40
-                implicitHeight: 40
-                iconName: modelData.icon
-                toolTip: modelData.tip
-                background: FishUI.RoundedRectangle {
-                    continuousCorners: false
-                    radius: height / 2
-                    color: Qt.rgba(0, 0, 0, parent.hovered ? 0.65 : 0.45)
-                }
-                onClicked: modelData.action()
-            }
         }
     }
 
@@ -698,15 +661,9 @@ FishUI.Window {
                 onTriggered: rootWindow.toggleFullScreen()
             }
             FishUI.MenuItem {
-                text: rootWindow.miniMode ? qsTr("Back to Window") : qsTr("Picture in Picture")
-                enabled: player.hasVideo
-                onTriggered: rootWindow.setMiniMode(!rootWindow.miniMode)
-            }
-            FishUI.MenuItem {
                 text: qsTr("Playlist")
                 shortcut: "P"
                 checked: rootWindow.panelOpen && rootWindow.panelTab === 0
-                visible: !rootWindow.miniMode
                 onTriggered: rootWindow.togglePanel(0, false)
             }
 
@@ -834,7 +791,7 @@ FishUI.Window {
         FishUI.AboutDialog {
             id: about
             name: qsTr("Video Player")
-            description: qsTr("Plays videos with subtitles, playlists and picture in picture.")
+            description: qsTr("Plays videos with subtitles and playlists.")
             iconSource: "image://icontheme/multimedia-video-player"
             link: "https://github.com/cutefishos/video-player"
 
@@ -920,7 +877,7 @@ FishUI.Window {
     Shortcut { sequence: "Down"; autoRepeat: true; enabled: !playlistKeysWanted.value; onActivated: rootWindow.setVolume(player.volume - 5) }
     Shortcut { sequence: "M"; onActivated: rootWindow.toggleMute() }
     Shortcut { sequences: ["F", "F11"]; enabled: rootWindow.hasMedia; onActivated: rootWindow.toggleFullScreen() }
-    Shortcut { sequence: "Escape"; enabled: (rootWindow.isFullScreen || rootWindow.miniMode) && !sidePanel.busy; onActivated: rootWindow.miniMode ? rootWindow.setMiniMode(false) : rootWindow.toggleFullScreen() }
+    Shortcut { sequence: "Escape"; enabled: rootWindow.isFullScreen && !sidePanel.busy; onActivated: rootWindow.toggleFullScreen() }
     Shortcut { sequence: "["; autoRepeat: true; onActivated: rootWindow.stepSpeed(-1) }
     Shortcut { sequence: "]"; autoRepeat: true; onActivated: rootWindow.stepSpeed(1) }
     Shortcut { sequence: "Backspace"; onActivated: rootWindow.setSpeed(1) }
@@ -935,7 +892,7 @@ FishUI.Window {
     Shortcut { sequence: "Z"; autoRepeat: true; onActivated: rootWindow.shiftSubtitles(-0.1) }
     Shortcut { sequence: "Shift+Z"; autoRepeat: true; onActivated: rootWindow.shiftSubtitles(0.1) }
     Shortcut { sequence: "Ctrl+Alt+S"; onActivated: rootWindow.takeScreenshot() }
-    Shortcut { sequence: "P"; enabled: rootWindow.hasMedia && !rootWindow.miniMode; onActivated: rootWindow.togglePanel(0, true) }
+    Shortcut { sequence: "P"; enabled: rootWindow.hasMedia; onActivated: rootWindow.togglePanel(0, true) }
     Shortcut { sequence: "Ctrl+O"; onActivated: rootWindow.openFiles(false) }
     Shortcut { sequence: "Ctrl+L"; onActivated: rootWindow.openDialog("openUrl") }
     Shortcut { sequence: "Ctrl+I"; onActivated: rootWindow.showMediaInfo() }
@@ -1254,8 +1211,6 @@ FishUI.Window {
     }
 
     function toggleFullScreen() {
-        if (miniMode)
-            setMiniMode(false)
         if (isFullScreen) {
             if (wasMaximized)
                 showMaximized()
@@ -1264,29 +1219,6 @@ FishUI.Window {
         } else {
             wasMaximized = isMaximized
             showFullScreen()
-        }
-    }
-
-    function setMiniMode(on) {
-        if (on === miniMode)
-            return
-        if (on) {
-            if (isFullScreen)
-                showNormal()
-            wasMaximized = isMaximized
-            if (isMaximized)
-                showNormal()
-            normalSize = Qt.size(width, height)
-            panelOpen = false
-            miniMode = true
-            const ratio = player.videoSize.width > 0 ? player.videoSize.height / player.videoSize.width : 9 / 16
-            const w = 400
-            setGeometry(x, y, w, Math.round(w * ratio))
-        } else {
-            miniMode = false
-            setGeometry(x, y, normalSize.width, normalSize.height)
-            if (wasMaximized)
-                showMaximized()
         }
     }
 
@@ -1303,7 +1235,7 @@ FishUI.Window {
         if (!fitPending || player.videoSize.width <= 0 || player.videoSize.height <= 0)
             return
         fitPending = false
-        if (isFullScreen || isMaximized || miniMode || !player.hasVideo)
+        if (isFullScreen || isMaximized || !player.hasVideo)
             return
         const size = fittedSize(player.videoSize, FishUI.Dpi.ratio)
         if (size.width !== width || size.height !== height)

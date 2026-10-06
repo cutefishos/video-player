@@ -38,8 +38,6 @@
         <file alias="fullscreen.svg">icons/fullscreen.svg</file>
         <file alias="minus.svg">icons/minus.svg</file>
         <file alias="pause.svg">icons/pause.svg</file>
-        <file alias="pip-exit.svg">icons/pip-exit.svg</file>
-        <file alias="pip.svg">icons/pip.svg</file>
         <file alias="play.svg">icons/play.svg</file>
         <file alias="repeat-one.svg">icons/repeat-one.svg</file>
         <file alias="repeat.svg">icons/repeat.svg</file>

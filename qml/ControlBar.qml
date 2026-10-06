@@ -6,8 +6,8 @@ import QtQuick.Layouts
 import FishUI as FishUI
 
 // The floating control panel: a fixed-width plate of blurred video centred at
-// the bottom. Volume on the left, the transport in the middle, the side panel,
-// picture in picture and full screen on the right; the timeline below.
+// the bottom. Volume on the left, the transport in the middle, the side panel
+// and full screen on the right; the timeline below.
 // Tracks, speed and the rest live in the side panel and the menus.
 Item {
     id: control
@@ -129,14 +129,6 @@ Item {
                         toolTip: qsTr("Playlist, Tracks and Playback")
                         checked: control.root.panelOpen
                         onClicked: control.root.togglePanel(-1, false)
-                    }
-
-                    ControlButton {
-                        objectName: "pipButton"
-                        iconName: "pip"
-                        toolTip: qsTr("Picture in Picture")
-                        enabled: control.player.hasVideo
-                        onClicked: control.root.setMiniMode(true)
                     }
 
                     ControlButton {
