@@ -1117,9 +1117,11 @@ FishUI.Window {
     }
 
     function toggleMute() {
-        player.muted = !player.muted
-        App.settings.muted = player.muted
-        osd.show(player.muted ? qsTr("Muted") : qsTr("Volume %1%").arg(player.volume))
+        // player.muted follows mpv a moment later.
+        const muted = !player.muted
+        player.muted = muted
+        App.settings.muted = muted
+        osd.show(muted ? qsTr("Muted") : qsTr("Volume %1%").arg(player.volume))
     }
 
     function speedText(speed) {

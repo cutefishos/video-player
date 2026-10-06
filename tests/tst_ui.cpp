@@ -51,6 +51,7 @@ private slots:
     void playbackLayout();
     void replayAtEnd();
     void clickAndDoubleClick();
+    void muteIsRemembered();
 
 private:
     QQuickWindow *load(QQmlApplicationEngine &engine, Application &application, bool dark);
@@ -383,6 +384,33 @@ void UiTest::clickAndDoubleClick()
     QTRY_VERIFY(window->property("isFullScreen").toBool());
     QTest::qWait(interval + 200);
     QVERIFY(player->paused());
+}
+
+void UiTest::muteIsRemembered()
+{
+    if (QStandardPaths::findExecutable(QStringLiteral("ffmpeg")).isEmpty())
+        QSKIP("ffmpeg is needed to make the test clip");
+    const QString clip = makeClip();
+    QVERIFY(!clip.isEmpty());
+
+    Application application(m_dir.filePath(QStringLiteral("mute.conf")));
+    QQmlApplicationEngine engine;
+    QQuickWindow *window = load(engine, application, false);
+    QVERIFY(window);
+    QVERIFY(QTest::qWaitForWindowExposed(window));
+
+    auto player = window->findChild<MpvItem *>(QStringLiteral("player"));
+    QVERIFY(player);
+    application.openUrls({QUrl::fromLocalFile(clip)});
+    QTRY_VERIFY_WITH_TIMEOUT(player->loaded(), 10000);
+
+    // Each toggle is saved as it is made, before mpv reports it back.
+    QVERIFY(QMetaObject::invokeMethod(window, "toggleMute"));
+    QVERIFY(application.settings()->muted());
+    QTRY_VERIFY(player->muted());
+    QVERIFY(QMetaObject::invokeMethod(window, "toggleMute"));
+    QVERIFY(!application.settings()->muted());
+    QTRY_VERIFY(!player->muted());
 }
 
 #include "tst_ui.moc"
