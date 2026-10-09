@@ -6,7 +6,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import FishUI as FishUI
 
-FishUI.Window {
+FishUI.DialogWindow {
     id: dialog
     objectName: "preferencesDialog"
 
@@ -32,29 +32,12 @@ FishUI.Window {
     ]
 
     title: qsTr("Settings")
-    visible: false
-    flags: Qt.Dialog | Qt.FramelessWindowHint
-    modality: Qt.WindowModal
-    minimizeButtonVisible: false
-    restorationBehavior: FishUI.Window.Disabled
     width: 460
-    // The header, the layout's 4px top inset, and the same 16px below as at the sides.
-    readonly property int dialogHeight: Math.ceil(layout.implicitHeight) + 44 + 4 + 16
-    height: dialogHeight
-    minimumWidth: 460
-    maximumWidth: 460
-    minimumHeight: dialogHeight
-    maximumHeight: dialogHeight
-    header.height: 44
+    // The layout's 4px top inset, and the same 16px below as at the sides.
+    contentHeight: Math.ceil(layout.implicitHeight) + 4 + 16
     blurEnabled: false
     background.color: FishUI.Theme.backgroundColor
     background.opacity: 1
-
-    function open() {
-        show()
-        raise()
-        requestActivate()
-    }
 
     function indexOf(list, key, value) {
         for (var i = 0; i < list.length; ++i) {
@@ -62,16 +45,6 @@ FishUI.Window {
                 return i
         }
         return 0
-    }
-
-    headerItem: Item {
-        FishUI.Label {
-            anchors.left: parent.left
-            anchors.leftMargin: 16
-            anchors.verticalCenter: parent.verticalCenter
-            text: dialog.title
-            font.pointSize: 10
-        }
     }
 
     ColumnLayout {

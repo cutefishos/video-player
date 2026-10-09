@@ -7,7 +7,7 @@ import FishUI as FishUI
 
 // What the playing file is: where it is, how long and large, and how its
 // picture and sound are encoded.
-FishUI.Window {
+FishUI.DialogWindow {
     id: dialog
     objectName: "mediaInfoDialog"
 
@@ -15,20 +15,9 @@ FishUI.Window {
     property string name
 
     title: qsTr("Media Info")
-    visible: false
-    flags: Qt.Dialog | Qt.FramelessWindowHint
-    modality: Qt.WindowModal
-    minimizeButtonVisible: false
-    restorationBehavior: FishUI.Window.Disabled
     width: 440
-    // The header, the layout's 4px top inset, and the same 16px below as at the sides.
-    readonly property int dialogHeight: Math.ceil(layout.implicitHeight) + 44 + 4 + 16
-    height: dialogHeight
-    minimumWidth: 440
-    maximumWidth: 440
-    minimumHeight: dialogHeight
-    maximumHeight: dialogHeight
-    header.height: 44
+    // The layout's 4px top inset, and the same 16px below as at the sides.
+    contentHeight: Math.ceil(layout.implicitHeight) + 4 + 16
     blurEnabled: false
     background.color: FishUI.Theme.backgroundColor
     background.opacity: 1
@@ -49,16 +38,6 @@ FishUI.Window {
     function bitrate(key) {
         const v = value(key)
         return v ? qsTr("%1 kb/s").arg(Math.round(v / 1000)) : ""
-    }
-
-    headerItem: Item {
-        FishUI.Label {
-            anchors.left: parent.left
-            anchors.leftMargin: 16
-            anchors.verticalCenter: parent.verticalCenter
-            text: dialog.title
-            font.pointSize: 10
-        }
     }
 
     ColumnLayout {

@@ -5,7 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import FishUI as FishUI
 
-FishUI.Window {
+FishUI.DialogWindow {
     id: dialog
     objectName: "shortcutsDialog"
 
@@ -43,36 +43,11 @@ FishUI.Window {
     ]
 
     title: qsTr("Keyboard Shortcuts")
-    visible: false
-    flags: Qt.Dialog | Qt.FramelessWindowHint
-    modality: Qt.WindowModal
-    minimizeButtonVisible: false
-    restorationBehavior: FishUI.Window.Disabled
     width: 480
-    height: 600
-    minimumWidth: 480
-    maximumWidth: 480
-    minimumHeight: 600
-    maximumHeight: 600
+    contentHeight: 600 - header.height
     blurEnabled: false
     background.color: FishUI.Theme.backgroundColor
     background.opacity: 1
-
-    function open() {
-        show()
-        raise()
-        requestActivate()
-    }
-
-    headerItem: Item {
-        FishUI.Label {
-            anchors.left: parent.left
-            anchors.leftMargin: 16
-            anchors.verticalCenter: parent.verticalCenter
-            text: dialog.title
-            font.pointSize: 10
-        }
-    }
 
     Flickable {
         id: flickable
