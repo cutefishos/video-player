@@ -154,6 +154,8 @@ FishUI.Window {
             rootWindow.pendingSubtitles = []
         }
         onVideoSizeChanged: rootWindow.fitToVideo()
+        // Streams are not probed; the playlist learns their length from playback.
+        onDurationChanged: if (loaded && duration > 0) App.playlist.setDuration(source, duration)
         onTracksChanged: rootWindow.rememberRecent()
         onPlaybackFailed: function (message) {
             rootWindow.errorMessage = message
@@ -214,7 +216,8 @@ FishUI.Window {
     Binding {
         target: App.thumbnailer
         property: "source"
-        value: player.loaded && player.hasVideo ? player.source : ""
+        // Audio files too, for their embedded picture as the cover.
+        value: player.loaded ? player.source : ""
     }
 
     Binding {
@@ -894,6 +897,8 @@ FishUI.Window {
             data[Mpris.metadataToString(Mpris.Title)] = rootWindow.hasMedia ? rootWindow.mediaName : ""
             data[Mpris.metadataToString(Mpris.Length)] = Math.round(player.duration * 1000000)
             data[Mpris.metadataToString(Mpris.Url)] = player.source.toString()
+            if (App.thumbnailer.cover.toString().length > 0)
+                data[Mpris.metadataToString(Mpris.ArtUrl)] = App.thumbnailer.cover.toString()
             return data
         }
 

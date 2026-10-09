@@ -39,6 +39,19 @@ static QRectF sceneRect(QQuickItem *item)
     return item->mapRectToScene(QRectF(0, 0, item->width(), item->height()));
 }
 
+// By the visual tree: view delegates are not QObject children of their view.
+static QQuickItem *findItem(QQuickItem *root, const QString &name)
+{
+    const QList<QQuickItem *> children = root->childItems();
+    for (QQuickItem *child : children) {
+        if (child->objectName() == name)
+            return child;
+        if (QQuickItem *found = findItem(child, name))
+            return found;
+    }
+    return nullptr;
+}
+
 class UiTest : public QObject
 {
     Q_OBJECT
@@ -439,6 +452,10 @@ void UiTest::sidePanelKeepsInput()
     QVERIFY(list);
     // One row of 36 px, then empty list.
     QTRY_VERIFY(list->isVisible() && list->height() > 60);
+    QQuickItem *duration = nullptr;
+    QTRY_VERIFY((duration = findItem(list, QStringLiteral("playlistDuration"))));
+    QTRY_VERIFY(duration->isVisible());
+    QCOMPARE(duration->property("text").toString(), QStringLiteral("0:20"));
     const QRectF rect = sceneRect(list);
     const int volume = player->volume();
     const int interval = QGuiApplication::styleHints()->mouseDoubleClickInterval();

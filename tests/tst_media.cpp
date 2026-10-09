@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Reion Wong <reionwong@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "durationprobe.h"
 #include "mpvitem.h"
 #include "thumbnailer.h"
 
@@ -29,6 +30,8 @@ private slots:
     void itemGoesWhilePlaying();
     void reportsFailure();
     void thumbnails();
+    void cover();
+    void probesDurations();
 
 private:
     std::unique_ptr<MpvItem> showPlayer();
@@ -279,6 +282,90 @@ void MediaTest::thumbnails()
         busy.reset();
         QVERIFY2(timer.elapsed() < 1000, qPrintable(QString::number(timer.elapsed())));
     }
+}
+
+void MediaTest::cover()
+{
+    // Black at first, so a frame from the file's start shows up as one.
+    const QString clip = m_dir.filePath(QStringLiteral("dark-start.mkv"));
+    QVERIFY(ffmpeg({QStringLiteral("-filter_complex"),
+                    QStringLiteral("color=c=black:size=320x240:rate=25:duration=1[a];"
+                                   "testsrc=size=320x240:rate=25:duration=19[b];[a][b]concat"),
+                    QStringLiteral("-c:v"), QStringLiteral("libx264"), QStringLiteral("-g"), QStringLiteral("25"),
+                    QStringLiteral("-pix_fmt"), QStringLiteral("yuv420p"), clip}));
+
+    auto thumbnailer = std::make_unique<Thumbnailer>();
+    // Either order: the length often arrives after the file.
+    thumbnailer->setDuration(20);
+    thumbnailer->setSource(QUrl::fromLocalFile(clip));
+    QTRY_VERIFY_WITH_TIMEOUT(thumbnailer->cover().isLocalFile(), 10000);
+    const QString path = thumbnailer->cover().toLocalFile();
+    const QImage image(path);
+    QCOMPARE(image.size(), QSize(180, 180));
+    int lit = 0;
+    for (int y = 0; y < image.height(); y += 10) {
+        for (int x = 0; x < image.width(); x += 10)
+            lit += qGray(image.pixel(x, y)) > 40;
+    }
+    QVERIFY2(lit > 100, qPrintable(QString::number(lit)));
+
+    // Each file gets its own name, and the old one goes.
+    thumbnailer->setSource(QUrl());
+    QVERIFY(thumbnailer->cover().isEmpty());
+    QVERIFY(!QFile::exists(path));
+    thumbnailer->setSource(QUrl::fromLocalFile(clip));
+    QTRY_VERIFY_WITH_TIMEOUT(thumbnailer->cover().isLocalFile(), 10000);
+    const QString second = thumbnailer->cover().toLocalFile();
+    QVERIFY(second != path);
+    thumbnailer.reset();
+    QVERIFY(!QFile::exists(second));
+
+    // An audio file's embedded picture.
+    const QString picture = m_dir.filePath(QStringLiteral("picture.png"));
+    const QString song = m_dir.filePath(QStringLiteral("song.mp3"));
+    QVERIFY(ffmpeg({QStringLiteral("-f"), QStringLiteral("lavfi"), QStringLiteral("-i"),
+                    QStringLiteral("color=c=red:size=300x300:duration=1"), QStringLiteral("-frames:v"), QStringLiteral("1"), picture}));
+    QVERIFY(ffmpeg({QStringLiteral("-f"), QStringLiteral("lavfi"), QStringLiteral("-i"),
+                    QStringLiteral("sine=frequency=440:duration=3"), QStringLiteral("-i"), picture,
+                    QStringLiteral("-map"), QStringLiteral("0"), QStringLiteral("-map"), QStringLiteral("1"),
+                    QStringLiteral("-c:a"), QStringLiteral("libmp3lame"), QStringLiteral("-c:v"), QStringLiteral("png"),
+                    QStringLiteral("-disposition:v"), QStringLiteral("attached_pic"), song}));
+    Thumbnailer audio;
+    audio.setSource(QUrl::fromLocalFile(song));
+    audio.setDuration(3);
+    QTRY_VERIFY_WITH_TIMEOUT(audio.cover().isLocalFile(), 10000);
+    const QImage art(audio.cover().toLocalFile());
+    QCOMPARE(art.size(), QSize(240, 240));
+    const QColor centre = art.pixelColor(120, 120);
+    QVERIFY2(centre.red() > 200 && centre.green() < 60, qPrintable(centre.name()));
+}
+
+void MediaTest::probesDurations()
+{
+    const QString broken = m_dir.filePath(QStringLiteral("broken.mkv"));
+    QFile file(broken);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("not a video");
+    file.close();
+
+    const QUrl clip = QUrl::fromLocalFile(m_clip);
+    const QUrl bad = QUrl::fromLocalFile(broken);
+    const QUrl stream(QStringLiteral("https://example.com/live.m3u8"));
+    DurationProbe probe;
+    QSignalSpy found(&probe, &DurationProbe::found);
+    probe.probe({bad, stream, clip});
+    QTRY_COMPARE_WITH_TIMEOUT(found.count(), 2, 15000);
+    QCOMPARE(found.at(0).at(0).toUrl(), bad);
+    QCOMPARE(found.at(0).at(1).toDouble(), 0.0);
+    QCOMPARE(found.at(1).at(0).toUrl(), clip);
+    QVERIFY2(qAbs(found.at(1).at(1).toDouble() - 8) < 0.1, qPrintable(QString::number(found.at(1).at(1).toDouble())));
+
+    // The same mpv reads file after file.
+    probe.probe({clip});
+    QTRY_COMPARE_WITH_TIMEOUT(found.count(), 3, 10000);
+    QVERIFY(qAbs(found.at(2).at(1).toDouble() - 8) < 0.1);
+    QTest::qWait(200);
+    QCOMPARE(found.count(), 3);
 }
 
 QTEST_MAIN(MediaTest)

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QHash>
 #include <QList>
 #include <QUrl>
 
@@ -31,6 +32,8 @@ public:
         UrlRole = Qt::UserRole + 1,
         TitleRole,
         CurrentRole,
+        // Seconds, 0 while unknown.
+        DurationRole,
     };
 
     explicit Playlist(QObject *parent = nullptr);
@@ -49,6 +52,10 @@ public:
     bool hasPrevious() const { return previousIndex() >= 0; }
 
     QList<QUrl> urls() const { return m_urls; }
+    // The queued files whose length has not been read yet.
+    QList<QUrl> unprobed() const;
+    // Kept per URL across queues, so a file is read once.
+    Q_INVOKABLE void setDuration(const QUrl &url, double seconds);
 
     // Replaces the queue and makes the first of urls current. With
     // includeFolder, a single local file brings its folder's media files along.
@@ -80,6 +87,7 @@ Q_SIGNALS:
 
 private:
     QList<QUrl> m_urls;
+    QHash<QUrl, double> m_durations;
     int m_current = -1;
     RepeatMode m_repeatMode = RepeatOff;
 };

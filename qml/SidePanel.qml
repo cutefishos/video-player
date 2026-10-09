@@ -128,6 +128,7 @@ Item {
                         required property int index
                         required property string title
                         required property bool current
+                        required property double duration
 
                         width: listView.width
                         height: 36
@@ -174,6 +175,14 @@ Item {
                                 textFormat: Text.PlainText
                                 color: "white"
                                 elide: Text.ElideMiddle
+                            }
+
+                            FishUI.Label {
+                                objectName: "playlistDuration"
+                                visible: row.duration > 0
+                                text: App.formatTime(row.duration, row.duration)
+                                color: Qt.rgba(1, 1, 1, 0.55)
+                                font.features: { "tnum": 1 }
                             }
                         }
 

@@ -20,6 +20,7 @@ pkg_check_modules(Mpv REQUIRED IMPORTED_TARGET mpv>=2.0)
 
 add_library(player-backend STATIC
     src/application.cpp
+    src/durationprobe.cpp
     src/mpvnode.cpp
     src/playersettings.cpp
     src/playlist.cpp

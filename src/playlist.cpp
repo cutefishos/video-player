@@ -52,6 +52,8 @@ QVariant Playlist::data(const QModelIndex &index, int role) const
         return url;
     case CurrentRole:
         return index.row() == m_current;
+    case DurationRole:
+        return m_durations.value(url);
     default:
         return {};
     }
@@ -63,6 +65,7 @@ QHash<int, QByteArray> Playlist::roleNames() const
         {UrlRole, "url"},
         {TitleRole, "title"},
         {CurrentRole, "current"},
+        {DurationRole, "duration"},
     };
 }
 
@@ -83,6 +86,29 @@ void Playlist::setCurrentIndex(int index)
 QUrl Playlist::currentUrl() const
 {
     return m_current >= 0 ? m_urls.at(m_current) : QUrl();
+}
+
+QList<QUrl> Playlist::unprobed() const
+{
+    QList<QUrl> urls;
+    for (const QUrl &url : m_urls) {
+        if (!m_durations.contains(url))
+            urls.append(url);
+    }
+    return urls;
+}
+
+void Playlist::setDuration(const QUrl &url, double seconds)
+{
+    if (!url.isValid() || !(seconds >= 0))
+        return;
+    const auto known = m_durations.constFind(url);
+    if (known != m_durations.constEnd() && qFuzzyCompare(*known + 1, seconds + 1))
+        return;
+    m_durations.insert(url, seconds);
+    const int row = m_urls.indexOf(url);
+    if (row >= 0)
+        Q_EMIT dataChanged(index(row), index(row), {DurationRole});
 }
 
 void Playlist::setRepeatMode(RepeatMode mode)

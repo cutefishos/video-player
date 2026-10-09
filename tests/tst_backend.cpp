@@ -27,6 +27,7 @@ private slots:
     void openSeveralKeepsOrder();
     void navigationAndRepeat();
     void appendRemoveMove();
+    void durationsAreKept();
     void mediaAndSubtitleSuffixes();
 
     void resumeRules_data();
@@ -123,6 +124,32 @@ void BackendTest::openSeveralKeepsOrder()
     QCOMPARE(playlist.urls(), (QList<QUrl>{stream, file}));
     QCOMPARE(playlist.currentIndex(), 0);
     QCOMPARE(Playlist::titleFor(stream), QStringLiteral("live.m3u8"));
+}
+
+void BackendTest::durationsAreKept()
+{
+    const QUrl a = QUrl::fromLocalFile(touch(QStringLiteral("d1.mkv")));
+    const QUrl b = QUrl::fromLocalFile(touch(QStringLiteral("d2.mkv")));
+    Playlist playlist;
+    playlist.open({a, b}, false);
+    QCOMPARE(playlist.unprobed(), (QList<QUrl>{a, b}));
+
+    QSignalSpy changed(&playlist, &QAbstractItemModel::dataChanged);
+    playlist.setDuration(b, 61.5);
+    QCOMPARE(changed.count(), 1);
+    QCOMPARE(changed.first().at(0).toModelIndex().row(), 1);
+    QCOMPARE(playlist.data(playlist.index(1), Playlist::DurationRole).toDouble(), 61.5);
+    QCOMPARE(playlist.data(playlist.index(0), Playlist::DurationRole).toDouble(), 0.0);
+    // A file without a length counts as read.
+    playlist.setDuration(a, 0);
+    QVERIFY(playlist.unprobed().isEmpty());
+    playlist.setDuration(b, 61.5);
+    QCOMPARE(changed.count(), 2);
+
+    // A new queue keeps what was read before.
+    playlist.open({b}, false);
+    QCOMPARE(playlist.data(playlist.index(0), Playlist::DurationRole).toDouble(), 61.5);
+    QVERIFY(playlist.unprobed().isEmpty());
 }
 
 void BackendTest::navigationAndRepeat()

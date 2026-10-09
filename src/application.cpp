@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "application.h"
+#include "durationprobe.h"
 #include "playersettings.h"
 #include "playlist.h"
 #include "resumestore.h"
@@ -29,11 +30,16 @@ Application::Application(const QString &settingsFile, QObject *parent)
     , m_resume(new ResumeStore(settingsFile, this))
     , m_inhibitor(new SleepInhibitor(this))
     , m_thumbnailer(new Thumbnailer(this))
+    , m_durationProbe(new DurationProbe(this))
 {
     m_playlist->setRepeatMode(Playlist::RepeatMode(m_settings->repeatMode()));
     connect(m_playlist, &Playlist::repeatModeChanged, m_settings, [this] {
         m_settings->setRepeatMode(m_playlist->repeatMode());
     });
+    connect(m_playlist, &Playlist::countChanged, m_durationProbe, [this] {
+        m_durationProbe->probe(m_playlist->unprobed());
+    });
+    connect(m_durationProbe, &DurationProbe::found, m_playlist, &Playlist::setDuration);
 }
 
 QString Application::formatTime(double seconds, double reference)

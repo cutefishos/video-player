@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "durationprobe.h"
 #include "playersettings.h"
 #include "playlist.h"
 #include "resumestore.h"
@@ -83,5 +84,6 @@ private:
     ResumeStore *m_resume;
     SleepInhibitor *m_inhibitor;
     Thumbnailer *m_thumbnailer;
+    DurationProbe *m_durationProbe;
     QSize m_launchVideoSize;
 };

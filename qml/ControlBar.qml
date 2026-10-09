@@ -165,7 +165,7 @@ Item {
                 duration: control.player.duration
                 position: control.player.position
                 chapters: control.player.chapters
-                thumbnailer: App.thumbnailer
+                thumbnailer: control.player.hasVideo ? App.thumbnailer : null
                 enabledSeek: control.player.seekable && control.player.duration > 0
                 onSeekRequested: function (seconds, exact) { control.player.seek(seconds, exact) }
             }
