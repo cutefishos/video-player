@@ -25,12 +25,14 @@
 #include <QQuickWindow>
 #include <QTranslator>
 
-int main(int argc, char *argv[])
+int cutefish_application_main(int argc, char *argv[])
 {
-    Cutefish::Application::prepare();
+    Q_UNUSED(argc);
+    Q_UNUSED(argv);
+
     // mpv renders through OpenGL only.
     QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-    QGuiApplication app(argc, argv);
+    QGuiApplication &app = *qGuiApp;
     app.setApplicationName(QStringLiteral("cutefish-video-player"));
     app.setApplicationVersion(QStringLiteral(VIDEO_PLAYER_VERSION));
     app.setDesktopFileName(QStringLiteral("cutefish-video-player"));

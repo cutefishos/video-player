@@ -30,6 +30,8 @@ add_library(player-backend STATIC
     src/tracks.cpp
 )
 target_include_directories(player-backend PUBLIC src)
+# Linked into the application module.
+set_target_properties(player-backend PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(player-backend PUBLIC
     Qt6::Core
     Qt6::Gui
@@ -38,20 +40,19 @@ target_link_libraries(player-backend PUBLIC
     PkgConfig::Mpv
 )
 
-add_executable(${PROJECT_NAME}
+cutefish_add_application(${PROJECT_NAME} SOURCES
     src/main.cpp
     src/mpvitem.cpp
     resources.qrc
 )
-target_compile_definitions(${PROJECT_NAME} PRIVATE VIDEO_PLAYER_VERSION="${PROJECT_VERSION}")
-qt_add_shaders(${PROJECT_NAME} "player_shaders"
+target_compile_definitions(${PROJECT_NAME}-module PRIVATE VIDEO_PLAYER_VERSION="${PROJECT_VERSION}")
+qt_add_shaders(${PROJECT_NAME}-module "player_shaders"
     PREFIX "/"
     FILES
     shaders/glass.frag
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME}-module PRIVATE
     player-backend
-    Cutefish::Application
     Qt6::OpenGL
     Qt6::QuickControls2
 )
@@ -60,7 +61,6 @@ file(GLOB TS_FILES translations/*.ts)
 qt_add_translation(QM_FILES ${TS_FILES})
 add_custom_target(translations ALL DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
 
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES cutefish-video-player.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/cutefish-video-player/translations)
 
