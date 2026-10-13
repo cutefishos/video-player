@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QThread>
+#include <QUuid>
 
 #include <mpv/client.h>
 #include <mpv/render.h>
@@ -151,8 +152,8 @@ void Thumbnailer::addCover(const QImage &image, quint64 generation)
 
     const int side = qMin(image.width(), image.height());
     const QImage square = image.copy((image.width() - side) / 2, (image.height() - side) / 2, side, side);
-    // A new name per file, as media controls cache images by URL.
-    const QString path = folder.filePath(QStringLiteral("%1.png").arg(generation));
+    // A name never used before, also by an earlier player, as media controls cache images by URL.
+    const QString path = folder.filePath(QUuid::createUuid().toString(QUuid::Id128) + QStringLiteral(".png"));
     if (square.save(path))
         setCover(QUrl::fromLocalFile(path));
 }
