@@ -43,7 +43,8 @@ void DurationProbe::probe(const QList<QUrl> &urls)
         m_queue = queue;
         m_wake.wakeAll();
     }
-    if (!m_thread->isRunning() && !queue.isEmpty()) {
+    // A finished thread is spent, mpv having failed: QThread::create runs its function once.
+    if (!m_thread->isRunning() && !m_thread->isFinished() && !queue.isEmpty()) {
         // mpv needs the C locale for numbers, and the queue may come before the player.
         std::setlocale(LC_NUMERIC, "C");
         m_thread->start(QThread::LowPriority);
