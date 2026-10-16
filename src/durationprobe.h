@@ -3,39 +3,50 @@
 
 #pragma once
 
-#include <QList>
-#include <QMutex>
-#include <QObject>
-#include <QUrl>
-#include <QWaitCondition>
+#include "base/event_loop.h"
+#include "base/signal.h"
+#include "base/weak_ptr.h"
 
-class QThread;
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
+
+struct mpv_handle;
 
 // Reads the length of queued local files with a silent mpv on a thread of its
 // own, stopping each file as soon as it has loaded.
-class DurationProbe : public QObject
+class DurationProbe
 {
-    Q_OBJECT
-
 public:
-    explicit DurationProbe(QObject *parent = nullptr);
-    ~DurationProbe() override;
+    DurationProbe();
+    ~DurationProbe();
 
-    // Replaces what is still to be read; streams are left out.
-    void probe(const QList<QUrl> &urls);
+    DurationProbe(const DurationProbe&) = delete;
+    DurationProbe& operator=(const DurationProbe&) = delete;
 
-Q_SIGNALS:
+    // Replaces what is still to be read (URLs); streams are left out.
+    void probe(const std::vector<std::string>& urls);
+
     // seconds is 0 when the file has no length or could not be opened.
-    void found(const QUrl &url, double seconds);
+    cutefish::base::Signal<const std::string&, double> found;
 
 private:
     void run();
 
-    QThread *m_thread = nullptr;
-    QMutex m_mutex;
-    QWaitCondition m_wake;
+    cutefish::base::LoopHandle m_loop;
+    std::thread m_thread;
+    std::mutex m_mutex;
+    std::condition_variable m_wake;
     // Guarded by m_mutex.
     bool m_stopping = false;
-    QList<QUrl> m_queue;
-    struct mpv_handle *m_activeMpv = nullptr;
+    // mpv could not start; the thread is not started again.
+    bool m_failed = false;
+    std::deque<std::string> m_queue;
+    mpv_handle* m_activeMpv = nullptr;
+
+    cutefish::base::WeakPtr<DurationProbe> m_weak;
+    cutefish::base::WeakPtrFactory<DurationProbe> m_weakFactory{this};
 };

@@ -3,60 +3,66 @@
 
 #include "durationprobe.h"
 #include "mpvwait.h"
-
-#include <QElapsedTimer>
-#include <QThread>
+#include "urls.h"
 
 #include <mpv/client.h>
 
+#include <chrono>
 #include <clocale>
 
-DurationProbe::DurationProbe(QObject *parent)
-    : QObject(parent)
+using namespace cutefish;
+
+DurationProbe::DurationProbe()
 {
-    m_thread = QThread::create([this] { run(); });
-    m_thread->setObjectName(QStringLiteral("DurationProbe"));
+    if (base::EventLoop* loop = base::EventLoop::current())
+        m_loop = loop->handle();
+    m_weak = m_weakFactory.getWeakPtr();
 }
 
 DurationProbe::~DurationProbe()
 {
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         m_stopping = true;
         if (m_activeMpv)
             mpv_wakeup(m_activeMpv);
-        m_wake.wakeAll();
     }
-    m_thread->wait();
-    delete m_thread;
+    m_wake.notify_all();
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
-void DurationProbe::probe(const QList<QUrl> &urls)
+void DurationProbe::probe(const std::vector<std::string>& urls)
 {
-    QList<QUrl> queue;
-    for (const QUrl &url : urls) {
-        if (url.isLocalFile())
-            queue.append(url);
+    std::deque<std::string> queue;
+    for (const std::string& url : urls) {
+        if (urls::isLocalFile(url))
+            queue.push_back(url);
     }
+    bool failed = false;
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         m_queue = queue;
-        m_wake.wakeAll();
+        failed = m_failed;
     }
-    // A finished thread is spent, mpv having failed: QThread::create runs its function once.
-    if (!m_thread->isRunning() && !m_thread->isFinished() && !queue.isEmpty()) {
+    m_wake.notify_all();
+    if (!m_thread.joinable() && !failed && !queue.empty()) {
         // mpv needs the C locale for numbers, and the queue may come before the player.
         std::setlocale(LC_NUMERIC, "C");
-        m_thread->start(QThread::LowPriority);
+        m_thread = std::thread([this] { run(); });
     }
 }
 
 void DurationProbe::run()
 {
-    mpv_handle *mpv = mpv_create();
+    mpv_handle* mpv = mpv_create();
+    const auto fail = [this] {
+        std::lock_guard lock(m_mutex);
+        m_failed = true;
+    };
     if (!mpv)
-        return;
-    const auto setOption = [mpv](const char *name, const char *value) {
+        return fail();
+    const auto setOption = [mpv](const char* name, const char* value) {
         mpv_set_option_string(mpv, name, value);
     };
     // With every track off mpv ends the file before it counts as loaded, so
@@ -75,38 +81,39 @@ void DurationProbe::run()
     setOption("ytdl", "no");
     if (mpv_initialize(mpv) < 0) {
         mpv_terminate_destroy(mpv);
-        return;
+        return fail();
     }
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         m_activeMpv = mpv;
     }
 
     const auto stopping = [this] {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         return m_stopping;
     };
 
-    Q_FOREVER {
-        QUrl url;
+    for (;;) {
+        std::string url;
         {
-            QMutexLocker locker(&m_mutex);
-            while (!m_stopping && m_queue.isEmpty())
-                m_wake.wait(&m_mutex);
+            std::unique_lock lock(m_mutex);
+            m_wake.wait(lock, [this] { return m_stopping || !m_queue.empty(); });
             if (m_stopping)
                 break;
-            url = m_queue.takeFirst();
+            url = std::move(m_queue.front());
+            m_queue.pop_front();
         }
 
-        const QByteArray path = url.toLocalFile().toUtf8();
-        const char *load[] = {"loadfile", path.constData(), nullptr};
+        const std::string path = urls::toLocalFile(url);
+        const char* load[] = {"loadfile", path.c_str(), nullptr};
         double seconds = 0;
         if (mpv_command(mpv, load) >= 0) {
             bool ended = false;
-            QElapsedTimer timer;
-            timer.start();
-            while (timer.elapsed() < 5000 && !stopping()) {
-                const mpv_event_id event = mpv_wait_event(mpv, (5000 - timer.elapsed()) / 1000.0)->event_id;
+            using Clock = std::chrono::steady_clock;
+            const Clock::time_point deadline = Clock::now() + std::chrono::seconds(5);
+            while (Clock::now() < deadline && !stopping()) {
+                const double left = std::chrono::duration<double>(deadline - Clock::now()).count();
+                const mpv_event_id event = mpv_wait_event(mpv, left)->event_id;
                 if (event == MPV_EVENT_FILE_LOADED) {
                     mpv_get_property(mpv, "duration", MPV_FORMAT_DOUBLE, &seconds);
                     break;
@@ -117,19 +124,20 @@ void DurationProbe::run()
                 }
             }
             // The next loadfile would otherwise see this file's end first.
-            const char *stop[] = {"stop", nullptr};
+            const char* stop[] = {"stop", nullptr};
             if (!ended && mpv_command(mpv, stop) >= 0)
                 waitForMpvEvent(mpv, MPV_EVENT_END_FILE, 2000, stopping);
         }
         if (stopping())
             break;
-        QMetaObject::invokeMethod(this, [this, url, seconds] {
-            Q_EMIT found(url, seconds);
-        }, Qt::QueuedConnection);
+        m_loop.post([weak = m_weak, url, seconds] {
+            if (weak)
+                weak->found.emit(url, seconds);
+        });
     }
 
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         m_activeMpv = nullptr;
     }
     mpv_terminate_destroy(mpv);

@@ -4,86 +4,82 @@
 #pragma once
 
 #include "durationprobe.h"
+#include "player.h"
 #include "playersettings.h"
 #include "playlist.h"
 #include "resumestore.h"
 #include "sleepinhibitor.h"
 #include "thumbnailer.h"
 
-#include <QObject>
-#include <QSize>
-#include <QUrl>
+#include "base/dbus.h"
+#include "base/signal.h"
 
-class QWindow;
+#include <memory>
+#include <string>
+#include <vector>
 
-// What the window works with, and the D-Bus face of the running player:
-// a second launch hands its files over through open().
-class Application : public QObject
+// What the window works with, and the D-Bus face of the running player
+// (com.cutefish.VideoPlayer at /VideoPlayer): a second launch hands its files
+// over through open().
+class Application
 {
-    Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "com.cutefish.VideoPlayer")
-    Q_PROPERTY(Playlist *playlist READ playlist CONSTANT)
-    Q_PROPERTY(PlayerSettings *settings READ settings CONSTANT)
-    Q_PROPERTY(ResumeStore *resume READ resume CONSTANT)
-    Q_PROPERTY(SleepInhibitor *inhibitor READ inhibitor CONSTANT)
-    Q_PROPERTY(Thumbnailer *thumbnailer READ thumbnailer CONSTANT)
+public:
+    static constexpr const char* kService = "com.cutefish.VideoPlayer";
+    static constexpr const char* kPath = "/VideoPlayer";
+
+    // settingsFile is video-player.conf; covers go in coverFolder (the
+    // cache's by default).
+    explicit Application(const std::string& settingsFile, std::string coverFolder = {});
+
+    Playlist& playlist() { return m_playlist; }
+    PlayerSettings& settings() { return m_settings; }
+    ResumeStore& resume() { return m_resume; }
+    SleepInhibitor& inhibitor() { return *m_inhibitor; }
+    Thumbnailer& thumbnailer() { return m_thumbnailer; }
+
     // The picture size of the file on the command line, known before the
     // window first shows so that it opens already fitted to it.
-    Q_PROPERTY(QSize launchVideoSize READ launchVideoSize CONSTANT)
+    Player::Size launchVideoSize() const { return m_launchVideoSize; }
+    void setLaunchVideoSize(Player::Size size) { m_launchVideoSize = size; }
 
-public:
-    explicit Application(const QString &settingsFile, QObject *parent = nullptr);
-
-    Playlist *playlist() const { return m_playlist; }
-    PlayerSettings *settings() const { return m_settings; }
-    ResumeStore *resume() const { return m_resume; }
-    SleepInhibitor *inhibitor() const { return m_inhibitor; }
-    Thumbnailer *thumbnailer() const { return m_thumbnailer; }
-    QSize launchVideoSize() const { return m_launchVideoSize; }
-    void setLaunchVideoSize(const QSize &size) { m_launchVideoSize = size; }
-    // Reports window's device pixel ratio as soon as it changes: the
-    // fractional scale arrives just ahead of the first frame, and QML hears
-    // of it only after that frame.
-    void watchRatio(QWindow *window);
+    // Publishes the D-Bus object; done before the name is taken, so a second
+    // launch that finds the name always finds someone to hand its files to.
+    bool publish(cutefish::base::dbus::Connection* bus);
 
     // 1:05 or 1:02:05; hours are shown whenever reference reaches an hour,
     // so elapsed and total times keep the same shape.
-    Q_INVOKABLE static QString formatTime(double seconds, double reference = 0);
-    Q_INVOKABLE static QString formatBytes(qint64 bytes);
+    static std::string formatTime(double seconds, double reference = 0);
+    static std::string formatBytes(int64_t bytes);
     // The name to show for a file: its title without the extension.
-    Q_INVOKABLE static QString displayName(const QUrl &url);
-    // A URL typed or pasted by the user, or an empty one if it is not one.
-    Q_INVOKABLE static QUrl urlFromInput(const QString &text);
-    // The clipboard's text when it is a URL to play.
-    Q_INVOKABLE QString clipboardUrl() const;
+    static std::string displayName(const std::string& url);
+    // A URL typed or pasted by the user, or empty if it is not one.
+    static std::string urlFromInput(const std::string& text);
+    // The clipboard's text when it is a URL to play, else empty.
+    static std::string clipboardUrl(const std::string& clipboardText);
     // Where a screenshot of title taken now is saved; the folder is created.
-    Q_INVOKABLE QString screenshotPath(const QString &title) const;
-    Q_INVOKABLE void showInFolder(const QUrl &url) const;
-    Q_INVOKABLE static bool isSubtitle(const QUrl &url);
+    std::string screenshotPath(const std::string& title) const;
+    void showInFolder(const std::string& url) const;
+    static bool isSubtitle(const std::string& url);
 
     // Splits urls into media to play and subtitles to add, and asks the
     // window to open them.
-    Q_INVOKABLE void openUrls(const QList<QUrl> &urls);
-
-public Q_SLOTS:
+    void openUrls(const std::vector<std::string>& urls);
     // D-Bus: files and URLs from another launch, as given on its command line.
-    void open(const QStringList &arguments);
+    void open(const std::vector<std::string>& arguments);
     void activateWindow();
 
-Q_SIGNALS:
-    void openRequested(const QList<QUrl> &media, const QList<QUrl> &subtitles);
-    void activationRequested();
-    void windowRatioChanged(qreal ratio);
-
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
+    cutefish::base::Signal<const std::vector<std::string>&, const std::vector<std::string>&> openRequested;
+    cutefish::base::Signal<> activationRequested;
 
 private:
-    Playlist *m_playlist;
-    PlayerSettings *m_settings;
-    ResumeStore *m_resume;
-    SleepInhibitor *m_inhibitor;
-    Thumbnailer *m_thumbnailer;
-    DurationProbe *m_durationProbe;
-    QSize m_launchVideoSize;
+    Playlist m_playlist;
+    PlayerSettings m_settings;
+    ResumeStore m_resume;
+    std::unique_ptr<SleepInhibitor> m_inhibitor;
+    Thumbnailer m_thumbnailer;
+    DurationProbe m_durationProbe;
+    Player::Size m_launchVideoSize;
+    std::unique_ptr<cutefish::base::dbus::Object> m_object;
+    cutefish::base::dbus::Connection* m_bus = nullptr;
+    std::vector<cutefish::base::Subscription> m_subscriptions;
 };

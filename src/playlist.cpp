@@ -2,113 +2,100 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "playlist.h"
+#include "urls.h"
 
-#include <QCollator>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QSet>
+#include "base/collator.h"
+#include "base/strings.h"
 
 #include <algorithm>
+#include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <memory>
+#include <string_view>
+#include <unistd.h>
+#include <unordered_set>
 
-static const QSet<QString> &mediaSuffixes()
+using namespace cutefish;
+namespace fs = std::filesystem;
+
+static const std::unordered_set<std::string_view>& mediaSuffixes()
 {
-    static const QSet<QString> suffixes = {
+    static const std::unordered_set<std::string_view> suffixes = {
         // Video
-        QStringLiteral("3g2"), QStringLiteral("3gp"), QStringLiteral("asf"), QStringLiteral("avi"),
-        QStringLiteral("divx"), QStringLiteral("f4v"), QStringLiteral("flv"), QStringLiteral("m2ts"),
-        QStringLiteral("m4v"), QStringLiteral("mkv"), QStringLiteral("mov"), QStringLiteral("mp4"),
-        QStringLiteral("mpeg"), QStringLiteral("mpg"), QStringLiteral("mts"), QStringLiteral("ogv"),
-        QStringLiteral("rm"), QStringLiteral("rmvb"), QStringLiteral("ts"), QStringLiteral("vob"),
-        QStringLiteral("webm"), QStringLiteral("wmv"),
+        "3g2", "3gp", "asf", "avi", "divx", "f4v", "flv", "m2ts", "m4v", "mkv", "mov", "mp4",
+        "mpeg", "mpg", "mts", "ogv", "rm", "rmvb", "ts", "vob", "webm", "wmv",
         // Audio
-        QStringLiteral("aac"), QStringLiteral("ape"), QStringLiteral("flac"), QStringLiteral("m4a"),
-        QStringLiteral("mka"), QStringLiteral("mp3"), QStringLiteral("oga"), QStringLiteral("ogg"),
-        QStringLiteral("opus"), QStringLiteral("wav"), QStringLiteral("wma"), QStringLiteral("wv"),
+        "aac", "ape", "flac", "m4a", "mka", "mp3", "oga", "ogg", "opus", "wav", "wma", "wv",
     };
     return suffixes;
 }
 
-Playlist::Playlist(QObject *parent)
-    : QAbstractListModel(parent)
+// After the last dot of the name, lower case.
+static std::string suffixOf(const std::string& fileName)
 {
-}
-
-int Playlist::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_urls.size();
-}
-
-QVariant Playlist::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= m_urls.size())
+    const size_t slash = fileName.rfind('/');
+    const std::string_view name = std::string_view(fileName).substr(slash == std::string::npos ? 0 : slash + 1);
+    const size_t dot = name.rfind('.');
+    if (dot == std::string_view::npos)
         return {};
-    const QUrl &url = m_urls.at(index.row());
-    switch (role) {
-    case Qt::DisplayRole:
-    case TitleRole:
-        return titleFor(url);
-    case UrlRole:
-        return url;
-    case CurrentRole:
-        return index.row() == m_current;
-    case DurationRole:
-        return m_durations.value(url);
-    default:
-        return {};
-    }
+    return base::strings::toAsciiLower(name.substr(dot + 1));
 }
 
-QHash<int, QByteArray> Playlist::roleNames() const
+Playlist::Playlist() = default;
+
+double Playlist::duration(int row) const
 {
-    return {
-        {UrlRole, "url"},
-        {TitleRole, "title"},
-        {CurrentRole, "current"},
-        {DurationRole, "duration"},
-    };
+    const auto known = m_durations.find(url(row));
+    return known == m_durations.end() ? 0 : known->second;
+}
+
+int Playlist::indexOf(const std::string& url) const
+{
+    const auto it = std::find(m_urls.begin(), m_urls.end(), url);
+    return it == m_urls.end() ? -1 : int(it - m_urls.begin());
 }
 
 void Playlist::setCurrentIndex(int index)
 {
-    if (index < -1 || index >= m_urls.size() || index == m_current)
+    if (index < -1 || index >= count() || index == m_current)
         return;
     const int previous = m_current;
     m_current = index;
     if (previous >= 0)
-        Q_EMIT dataChanged(this->index(previous), this->index(previous), {CurrentRole});
+        rowChanged.emit(previous);
     if (index >= 0)
-        Q_EMIT dataChanged(this->index(index), this->index(index), {CurrentRole});
-    Q_EMIT currentIndexChanged();
-    Q_EMIT navigationChanged();
+        rowChanged.emit(index);
+    currentIndexChanged.emit();
+    navigationChanged.emit();
 }
 
-QUrl Playlist::currentUrl() const
+std::string Playlist::currentUrl() const
 {
-    return m_current >= 0 ? m_urls.at(m_current) : QUrl();
+    return m_current >= 0 ? m_urls[size_t(m_current)] : std::string();
 }
 
-QList<QUrl> Playlist::unprobed() const
+std::vector<std::string> Playlist::unprobed() const
 {
-    QList<QUrl> urls;
-    for (const QUrl &url : m_urls) {
+    std::vector<std::string> urls;
+    for (const std::string& url : m_urls) {
         if (!m_durations.contains(url))
-            urls.append(url);
+            urls.push_back(url);
     }
     return urls;
 }
 
-void Playlist::setDuration(const QUrl &url, double seconds)
+void Playlist::setDuration(const std::string& url, double seconds)
 {
-    if (!url.isValid() || !(seconds >= 0))
+    if (url.empty() || !(seconds >= 0))
         return;
-    const auto known = m_durations.constFind(url);
-    if (known != m_durations.constEnd() && qFuzzyCompare(*known + 1, seconds + 1))
+    const auto known = m_durations.find(url);
+    if (known != m_durations.end() && std::abs(known->second - seconds) <= 1e-12 * std::max(1.0, seconds))
         return;
-    m_durations.insert(url, seconds);
-    const int row = m_urls.indexOf(url);
+    m_durations[url] = seconds;
+    const int row = indexOf(url);
     if (row >= 0)
-        Q_EMIT dataChanged(index(row), index(row), {DurationRole});
+        rowChanged.emit(row);
 }
 
 void Playlist::setRepeatMode(RepeatMode mode)
@@ -116,83 +103,81 @@ void Playlist::setRepeatMode(RepeatMode mode)
     if (m_repeatMode == mode)
         return;
     m_repeatMode = mode;
-    Q_EMIT repeatModeChanged();
-    Q_EMIT navigationChanged();
+    repeatModeChanged.emit();
+    navigationChanged.emit();
 }
 
-void Playlist::open(const QList<QUrl> &urls, bool includeFolder)
+void Playlist::open(const std::vector<std::string>& urls, bool includeFolder)
 {
-    QList<QUrl> queue;
-    QUrl first;
-    if (includeFolder && urls.size() == 1 && urls.first().isLocalFile()) {
-        first = QUrl::fromLocalFile(QFileInfo(urls.first().toLocalFile()).absoluteFilePath());
-        queue = folderMedia(first.toLocalFile());
-        if (!queue.contains(first))
+    std::vector<std::string> queue;
+    std::string first;
+    if (includeFolder && urls.size() == 1 && urls::isLocalFile(urls.front())) {
+        std::error_code error;
+        const fs::path file = fs::absolute(urls::toLocalFile(urls.front()), error).lexically_normal();
+        first = urls::fromLocalFile(file.string());
+        queue = folderMedia(file.string());
+        if (std::find(queue.begin(), queue.end(), first) == queue.end())
             queue = {first};
     } else {
-        for (const QUrl &url : urls) {
-            if (url.isValid() && !queue.contains(url))
-                queue.append(url);
+        for (const std::string& url : urls) {
+            if (!url.empty() && std::find(queue.begin(), queue.end(), url) == queue.end())
+                queue.push_back(url);
         }
-        if (!queue.isEmpty())
-            first = queue.first();
+        if (!queue.empty())
+            first = queue.front();
     }
 
-    beginResetModel();
-    m_urls = queue;
-    m_current = first.isEmpty() ? -1 : m_urls.indexOf(first);
-    endResetModel();
-    Q_EMIT countChanged();
-    Q_EMIT currentIndexChanged();
-    Q_EMIT navigationChanged();
+    m_urls = std::move(queue);
+    m_current = first.empty() ? -1 : indexOf(first);
+    rowsChanged.emit();
+    countChanged.emit();
+    currentIndexChanged.emit();
+    navigationChanged.emit();
 }
 
-void Playlist::append(const QList<QUrl> &urls)
+void Playlist::append(const std::vector<std::string>& urls)
 {
-    QList<QUrl> added;
-    for (const QUrl &url : urls) {
-        if (url.isValid() && !m_urls.contains(url) && !added.contains(url))
-            added.append(url);
+    std::vector<std::string> added;
+    for (const std::string& url : urls) {
+        if (!url.empty() && indexOf(url) < 0 && std::find(added.begin(), added.end(), url) == added.end())
+            added.push_back(url);
     }
-    if (added.isEmpty())
+    if (added.empty())
         return;
 
-    beginInsertRows({}, m_urls.size(), m_urls.size() + added.size() - 1);
-    for (const QUrl &url : added) {
-        m_urls.append(url);
-    }
-    endInsertRows();
-    Q_EMIT countChanged();
-    Q_EMIT navigationChanged();
+    m_urls.insert(m_urls.end(), added.begin(), added.end());
+    rowsChanged.emit();
+    countChanged.emit();
+    navigationChanged.emit();
 }
 
 void Playlist::remove(int index)
 {
-    if (index < 0 || index >= m_urls.size())
+    if (index < 0 || index >= count())
         return;
 
-    beginRemoveRows({}, index, index);
-    m_urls.removeAt(index);
+    m_urls.erase(m_urls.begin() + index);
     const bool currentChanged = index <= m_current;
     if (index < m_current)
         --m_current;
     else if (index == m_current)
         m_current = -1;
-    endRemoveRows();
 
-    Q_EMIT countChanged();
+    rowsChanged.emit();
+    countChanged.emit();
     if (currentChanged)
-        Q_EMIT currentIndexChanged();
-    Q_EMIT navigationChanged();
+        currentIndexChanged.emit();
+    navigationChanged.emit();
 }
 
 void Playlist::move(int from, int to)
 {
-    if (from < 0 || from >= m_urls.size() || to < 0 || to >= m_urls.size() || from == to)
+    if (from < 0 || from >= count() || to < 0 || to >= count() || from == to)
         return;
 
-    beginMoveRows({}, from, from, {}, to > from ? to + 1 : to);
-    m_urls.move(from, to);
+    std::string url = std::move(m_urls[size_t(from)]);
+    m_urls.erase(m_urls.begin() + from);
+    m_urls.insert(m_urls.begin() + to, std::move(url));
     int current = m_current;
     if (current == from)
         current = to;
@@ -202,35 +187,34 @@ void Playlist::move(int from, int to)
         ++current;
     const bool currentChanged = current != m_current;
     m_current = current;
-    endMoveRows();
 
+    rowsChanged.emit();
     if (currentChanged)
-        Q_EMIT currentIndexChanged();
-    Q_EMIT navigationChanged();
+        currentIndexChanged.emit();
+    navigationChanged.emit();
 }
 
 void Playlist::clear()
 {
-    if (m_urls.isEmpty())
+    if (m_urls.empty())
         return;
-    beginResetModel();
     m_urls.clear();
     m_current = -1;
-    endResetModel();
-    Q_EMIT countChanged();
-    Q_EMIT currentIndexChanged();
-    Q_EMIT navigationChanged();
+    rowsChanged.emit();
+    countChanged.emit();
+    currentIndexChanged.emit();
+    navigationChanged.emit();
 }
 
 int Playlist::nextIndex(bool automatic) const
 {
-    if (m_urls.isEmpty())
+    if (m_urls.empty())
         return -1;
-    if (automatic && m_repeatMode == RepeatOne && m_current >= 0)
+    if (automatic && m_repeatMode == RepeatMode::One && m_current >= 0)
         return m_current;
-    if (m_current + 1 < m_urls.size())
+    if (m_current + 1 < count())
         return m_current + 1;
-    return m_repeatMode == RepeatAll ? 0 : -1;
+    return m_repeatMode == RepeatMode::All ? 0 : -1;
 }
 
 int Playlist::previousIndex() const
@@ -239,7 +223,7 @@ int Playlist::previousIndex() const
         return -1;
     if (m_current > 0)
         return m_current - 1;
-    return m_repeatMode == RepeatAll && m_urls.size() > 1 ? m_urls.size() - 1 : -1;
+    return m_repeatMode == RepeatMode::All && count() > 1 ? count() - 1 : -1;
 }
 
 bool Playlist::next(bool automatic)
@@ -248,7 +232,7 @@ bool Playlist::next(bool automatic)
     if (index < 0)
         return false;
     if (index == m_current)
-        Q_EMIT currentIndexChanged();
+        currentIndexChanged.emit();
     else
         setCurrentIndex(index);
     return true;
@@ -260,61 +244,74 @@ bool Playlist::previous()
     if (index < 0)
         return false;
     if (index == m_current)
-        Q_EMIT currentIndexChanged();
+        currentIndexChanged.emit();
     else
         setCurrentIndex(index);
     return true;
 }
 
-bool Playlist::isMediaFile(const QString &fileName)
+bool Playlist::isMediaFile(const std::string& fileName)
 {
-    const QString suffix = QFileInfo(fileName).suffix().toLower();
+    const std::string suffix = suffixOf(fileName);
     if (!mediaSuffixes().contains(suffix))
         return false;
-    // .ts is also a Qt translation, which is XML; a transport stream is binary.
-    if (suffix == QLatin1String("ts")) {
-        QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly))
-            return !file.read(64).trimmed().startsWith('<');
+    // .ts is also a translation source, which is XML; a transport stream is binary.
+    if (suffix == "ts") {
+        std::ifstream file(fileName, std::ios::binary);
+        if (file) {
+            char head[64];
+            file.read(head, sizeof(head));
+            const std::string_view start(head, size_t(file.gcount()));
+            return !base::strings::trimmed(start).starts_with('<');
+        }
     }
     return true;
 }
 
-bool Playlist::isSubtitleFile(const QString &fileName)
+bool Playlist::isSubtitleFile(const std::string& fileName)
 {
-    static const QSet<QString> suffixes = {
-        QStringLiteral("ass"), QStringLiteral("idx"), QStringLiteral("smi"), QStringLiteral("srt"),
-        QStringLiteral("ssa"), QStringLiteral("sub"), QStringLiteral("sup"), QStringLiteral("vtt"),
+    static const std::unordered_set<std::string_view> suffixes = {
+        "ass", "idx", "smi", "srt", "ssa", "sub", "sup", "vtt",
     };
-    return suffixes.contains(QFileInfo(fileName).suffix().toLower());
+    return suffixes.contains(suffixOf(fileName));
 }
 
-QList<QUrl> Playlist::folderMedia(const QString &file)
+std::vector<std::string> Playlist::folderMedia(const std::string& file)
 {
-    const QFileInfo info(file);
-    QStringList names;
-    const QDir folder = info.absoluteDir();
-    const QStringList entries = folder.entryList(QDir::Files | QDir::Readable);
-    for (const QString &name : entries) {
-        if (isMediaFile(folder.filePath(name)) || name == info.fileName())
-            names.append(name);
+    std::error_code error;
+    const fs::path path = fs::absolute(file, error).lexically_normal();
+    const fs::path folder = path.parent_path();
+    const std::string ownName = path.filename().string();
+
+    std::vector<std::string> names;
+    for (const fs::directory_entry& entry : fs::directory_iterator(folder, error)) {
+        std::error_code entryError;
+        if (!entry.is_regular_file(entryError))
+            continue;
+        const std::string name = entry.path().filename().string();
+        // Readable files only, and no hidden ones.
+        if (name.starts_with('.') || access(entry.path().c_str(), R_OK) != 0)
+            continue;
+        if (isMediaFile(entry.path().string()) || name == ownName)
+            names.push_back(name);
     }
 
-    QCollator collator;
+    base::Collator collator;
     collator.setNumericMode(true);
-    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    collator.setCaseSensitive(false);
     std::sort(names.begin(), names.end(), collator);
 
-    QList<QUrl> urls;
-    for (const QString &name : std::as_const(names))
-        urls.append(QUrl::fromLocalFile(folder.absoluteFilePath(name)));
+    std::vector<std::string> urls;
+    urls.reserve(names.size());
+    for (const std::string& name : names)
+        urls.push_back(urls::fromLocalFile((folder / name).string()));
     return urls;
 }
 
-QString Playlist::titleFor(const QUrl &url)
+std::string Playlist::titleFor(const std::string& url)
 {
-    if (url.isLocalFile())
-        return QFileInfo(url.toLocalFile()).fileName();
-    const QString name = url.fileName();
-    return name.isEmpty() ? url.toDisplayString() : name;
+    if (urls::isLocalFile(url))
+        return fs::path(urls::toLocalFile(url)).filename().string();
+    const std::string name = urls::fileName(url);
+    return name.empty() ? urls::displayString(url) : name;
 }

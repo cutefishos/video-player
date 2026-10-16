@@ -2,53 +2,59 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "playersettings.h"
+#include "languages.h"
+#include "urls.h"
 
-#include <QDir>
-#include <QFileInfo>
-#include <QLocale>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QVariantMap>
+#include "base/paths.h"
+#include "base/settings.h"
 
-static const QString playerGroup = QStringLiteral("Player");
-static const QString recentKey = QStringLiteral("Recent/Files");
+#include <algorithm>
+#include <filesystem>
 
-PlayerSettings::PlayerSettings(const QString &file, QObject *parent)
-    : QObject(parent)
-    , m_file(file)
+using namespace cutefish;
+namespace fs = std::filesystem;
+
+static const std::string kRecentKey = "Recent/Files";
+
+static std::string playerKey(const char* name)
 {
-    QSettings settings(m_file, QSettings::IniFormat);
-    settings.beginGroup(playerGroup);
-    m_volume = qBound(0, settings.value(QStringLiteral("Volume"), 100).toInt(), 150);
-    m_muted = settings.value(QStringLiteral("Muted"), false).toBool();
-    m_resumePlayback = settings.value(QStringLiteral("ResumePlayback"), true).toBool();
-    m_repeatMode = qBound(0, settings.value(QStringLiteral("RepeatMode"), 0).toInt(), 2);
-    m_subtitleScale = qBound(50, settings.value(QStringLiteral("SubtitleScale"), 100).toInt(), 200);
-    m_folderPlaylist = settings.value(QStringLiteral("FolderPlaylist"), true).toBool();
-    m_audioLanguage = settings.value(QStringLiteral("AudioLanguage")).toString();
-    m_subtitleLanguage = settings.value(QStringLiteral("SubtitleLanguage")).toString();
-    m_screenshotFolder = settings.value(QStringLiteral("ScreenshotFolder"),
-                                        QDir(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation))
-                                                .filePath(QStringLiteral("Screenshots"))).toString();
-    m_lastFolder = settings.value(QStringLiteral("LastFolder")).toUrl();
-    settings.endGroup();
-    m_recent = settings.value(recentKey).toStringList();
+    return std::string("Player/") + name;
 }
 
-void PlayerSettings::write(const QString &key, const QVariant &value)
+PlayerSettings::PlayerSettings(std::string file)
+    : m_file(std::move(file))
 {
-    QSettings settings(m_file, QSettings::IniFormat);
+    const base::Settings settings(m_file);
+    m_volume = int(std::clamp<int64_t>(settings.intValue(playerKey("Volume"), 100), 0, 150));
+    m_muted = settings.boolValue(playerKey("Muted"), false);
+    m_resumePlayback = settings.boolValue(playerKey("ResumePlayback"), true);
+    m_repeatMode = int(std::clamp<int64_t>(settings.intValue(playerKey("RepeatMode"), 0), 0, 2));
+    m_subtitleScale = int(std::clamp<int64_t>(settings.intValue(playerKey("SubtitleScale"), 100), 50, 200));
+    m_folderPlaylist = settings.boolValue(playerKey("FolderPlaylist"), true);
+    m_audioLanguage = settings.stringValue(playerKey("AudioLanguage"));
+    m_subtitleLanguage = settings.stringValue(playerKey("SubtitleLanguage"));
+    m_screenshotFolder = settings.stringValue(
+            playerKey("ScreenshotFolder"),
+            (fs::path(base::paths::userDirectory(base::paths::UserDirectory::Pictures)) / "Screenshots").string());
+    m_lastFolder = settings.stringValue(playerKey("LastFolder"));
+    m_recent = settings.stringListValue(kRecentKey);
+}
+
+template<typename T>
+void PlayerSettings::write(const std::string& key, const T& value)
+{
+    base::Settings settings(m_file);
     settings.setValue(key, value);
 }
 
 void PlayerSettings::setVolume(int volume)
 {
-    volume = qBound(0, volume, 150);
+    volume = std::clamp(volume, 0, 150);
     if (m_volume == volume)
         return;
     m_volume = volume;
-    write(playerGroup + QStringLiteral("/Volume"), volume);
-    Q_EMIT volumeChanged();
+    write(playerKey("Volume"), volume);
+    volumeChanged.emit();
 }
 
 void PlayerSettings::setMuted(bool muted)
@@ -56,8 +62,8 @@ void PlayerSettings::setMuted(bool muted)
     if (m_muted == muted)
         return;
     m_muted = muted;
-    write(playerGroup + QStringLiteral("/Muted"), muted);
-    Q_EMIT mutedChanged();
+    write(playerKey("Muted"), muted);
+    mutedChanged.emit();
 }
 
 void PlayerSettings::setResumePlayback(bool resume)
@@ -65,28 +71,28 @@ void PlayerSettings::setResumePlayback(bool resume)
     if (m_resumePlayback == resume)
         return;
     m_resumePlayback = resume;
-    write(playerGroup + QStringLiteral("/ResumePlayback"), resume);
-    Q_EMIT resumePlaybackChanged();
+    write(playerKey("ResumePlayback"), resume);
+    resumePlaybackChanged.emit();
 }
 
 void PlayerSettings::setRepeatMode(int mode)
 {
-    mode = qBound(0, mode, 2);
+    mode = std::clamp(mode, 0, 2);
     if (m_repeatMode == mode)
         return;
     m_repeatMode = mode;
-    write(playerGroup + QStringLiteral("/RepeatMode"), mode);
-    Q_EMIT repeatModeChanged();
+    write(playerKey("RepeatMode"), mode);
+    repeatModeChanged.emit();
 }
 
 void PlayerSettings::setSubtitleScale(int scale)
 {
-    scale = qBound(50, scale, 200);
+    scale = std::clamp(scale, 50, 200);
     if (m_subtitleScale == scale)
         return;
     m_subtitleScale = scale;
-    write(playerGroup + QStringLiteral("/SubtitleScale"), scale);
-    Q_EMIT subtitleScaleChanged();
+    write(playerKey("SubtitleScale"), scale);
+    subtitleScaleChanged.emit();
 }
 
 void PlayerSettings::setFolderPlaylist(bool enabled)
@@ -94,113 +100,112 @@ void PlayerSettings::setFolderPlaylist(bool enabled)
     if (m_folderPlaylist == enabled)
         return;
     m_folderPlaylist = enabled;
-    write(playerGroup + QStringLiteral("/FolderPlaylist"), enabled);
-    Q_EMIT folderPlaylistChanged();
+    write(playerKey("FolderPlaylist"), enabled);
+    folderPlaylistChanged.emit();
 }
 
-void PlayerSettings::setAudioLanguage(const QString &language)
+void PlayerSettings::setAudioLanguage(const std::string& language)
 {
     if (m_audioLanguage == language)
         return;
     m_audioLanguage = language;
-    write(playerGroup + QStringLiteral("/AudioLanguage"), language);
-    Q_EMIT audioLanguageChanged();
+    write(playerKey("AudioLanguage"), std::string_view(language));
+    audioLanguageChanged.emit();
 }
 
-void PlayerSettings::setSubtitleLanguage(const QString &language)
+void PlayerSettings::setSubtitleLanguage(const std::string& language)
 {
     if (m_subtitleLanguage == language)
         return;
     m_subtitleLanguage = language;
-    write(playerGroup + QStringLiteral("/SubtitleLanguage"), language);
-    Q_EMIT subtitleLanguageChanged();
+    write(playerKey("SubtitleLanguage"), std::string_view(language));
+    subtitleLanguageChanged.emit();
 }
 
-QStringList PlayerSettings::languagePreference(const QString &language) const
+std::vector<std::string> PlayerSettings::languagePreference(const std::string& language) const
 {
-    QStringList codes;
-    auto add = [&codes](const QLocale::Language value) {
-        if (value == QLocale::AnyLanguage || value == QLocale::C)
-            return;
+    std::vector<std::string> codes;
+    auto add = [&codes](const std::string& code) {
         // mpv matches both the two- and three-letter forms a file may carry.
-        for (const QString &code : {QLocale::languageToCode(value, QLocale::ISO639Part1),
-                                    QLocale::languageToCode(value, QLocale::ISO639Part2B),
-                                    QLocale::languageToCode(value, QLocale::ISO639Part2T)}) {
-            if (!code.isEmpty() && !codes.contains(code))
-                codes.append(code);
+        for (std::string& form : languages::codes(code)) {
+            if (std::find(codes.begin(), codes.end(), form) == codes.end())
+                codes.push_back(std::move(form));
         }
     };
-    if (!language.isEmpty())
-        add(QLocale::codeToLanguage(language, QLocale::AnyLanguageCode));
-    add(QLocale().language());
-    add(QLocale::English);
+    if (!language.empty())
+        add(language);
+    add(languages::systemLanguage());
+    add("en");
     return codes;
 }
 
-void PlayerSettings::setScreenshotFolder(const QString &folder)
+void PlayerSettings::setScreenshotFolder(const std::string& folder)
 {
-    if (m_screenshotFolder == folder || folder.isEmpty())
+    if (m_screenshotFolder == folder || folder.empty())
         return;
     m_screenshotFolder = folder;
-    write(playerGroup + QStringLiteral("/ScreenshotFolder"), folder);
-    Q_EMIT screenshotFolderChanged();
+    write(playerKey("ScreenshotFolder"), std::string_view(folder));
+    screenshotFolderChanged.emit();
 }
 
-void PlayerSettings::setLastFolder(const QUrl &folder)
+void PlayerSettings::setLastFolder(const std::string& folder)
 {
     if (m_lastFolder == folder)
         return;
     m_lastFolder = folder;
-    write(playerGroup + QStringLiteral("/LastFolder"), folder);
-    Q_EMIT lastFolderChanged();
+    write(playerKey("LastFolder"), std::string_view(folder));
+    lastFolderChanged.emit();
 }
 
-QVariantList PlayerSettings::recentFiles() const
+std::vector<PlayerSettings::RecentFile> PlayerSettings::recentFiles() const
 {
-    QVariantList files;
-    for (const QString &entry : m_recent) {
-        const QUrl url(entry);
-        if (url.isLocalFile() && !QFileInfo::exists(url.toLocalFile()))
-            continue;
-        QVariantMap file;
-        file.insert(QStringLiteral("url"), url);
-        file.insert(QStringLiteral("name"), url.isLocalFile() ? QFileInfo(url.toLocalFile()).fileName()
-                                                              : url.toDisplayString());
-        file.insert(QStringLiteral("folder"), url.isLocalFile() ? QFileInfo(url.toLocalFile()).absolutePath()
-                                                                : url.host());
-        files.append(file);
+    std::vector<RecentFile> files;
+    for (const std::string& url : m_recent) {
+        RecentFile file;
+        file.url = url;
+        if (urls::isLocalFile(url)) {
+            const fs::path path(urls::toLocalFile(url));
+            std::error_code error;
+            if (!fs::exists(path, error))
+                continue;
+            file.name = path.filename().string();
+            file.folder = path.parent_path().string();
+        } else {
+            file.name = urls::displayString(url);
+            file.folder = urls::host(url);
+        }
+        files.push_back(std::move(file));
     }
     return files;
 }
 
-void PlayerSettings::addRecentFile(const QUrl &url)
+void PlayerSettings::addRecentFile(const std::string& url)
 {
-    if (!url.isValid() || url.isEmpty())
+    if (url.empty())
         return;
-    const QString entry = url.toString(QUrl::FullyEncoded);
-    if (!m_recent.isEmpty() && m_recent.first() == entry)
+    if (!m_recent.empty() && m_recent.front() == url)
         return;
-    m_recent.removeAll(entry);
-    m_recent.prepend(entry);
-    while (m_recent.size() > RecentCapacity)
-        m_recent.removeLast();
-    write(recentKey, m_recent);
-    Q_EMIT recentFilesChanged();
+    std::erase(m_recent, url);
+    m_recent.insert(m_recent.begin(), url);
+    if (m_recent.size() > size_t(RecentCapacity))
+        m_recent.resize(size_t(RecentCapacity));
+    write(kRecentKey, m_recent);
+    recentFilesChanged.emit();
 }
 
-void PlayerSettings::removeRecentFile(const QUrl &url)
+void PlayerSettings::removeRecentFile(const std::string& url)
 {
-    if (m_recent.removeAll(url.toString(QUrl::FullyEncoded)) == 0)
+    if (std::erase(m_recent, url) == 0)
         return;
-    write(recentKey, m_recent);
-    Q_EMIT recentFilesChanged();
+    write(kRecentKey, m_recent);
+    recentFilesChanged.emit();
 }
 
 void PlayerSettings::clearRecentFiles()
 {
-    if (m_recent.isEmpty())
+    if (m_recent.empty())
         return;
     m_recent.clear();
-    write(recentKey, m_recent);
-    Q_EMIT recentFilesChanged();
+    write(kRecentKey, m_recent);
+    recentFilesChanged.emit();
 }

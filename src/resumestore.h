@@ -3,36 +3,42 @@
 
 #pragma once
 
-#include <QObject>
-#include <QUrl>
-#include <QVariantMap>
+#include <optional>
+#include <string>
 
 // Where each recently watched file was left, with its audio and subtitle
 // choices, so it reopens there. Only the most recent entries are kept.
-class ResumeStore : public QObject
+class ResumeStore
 {
-    Q_OBJECT
-
 public:
     static constexpr int Capacity = 200;
 
-    explicit ResumeStore(const QString &file, QObject *parent = nullptr);
+    struct Entry
+    {
+        // Seconds.
+        double position = 0;
+        // mpv track ids: 0 is off, -1 the file's default.
+        int audioTrack = -1;
+        int subtitleTrack = -1;
+        double subtitleDelay = 0;
+    };
 
-    // position (seconds), audioTrack, subtitleTrack (mpv ids, 0 = off,
-    // -1 = the file's default) and subtitleDelay; empty when there is none.
-    Q_INVOKABLE QVariantMap entry(const QUrl &url) const;
-    Q_INVOKABLE double position(const QUrl &url) const;
+    explicit ResumeStore(std::string file);
+
+    std::optional<Entry> entry(const std::string& url) const;
+    double position(const std::string& url) const;
     // Remembers where url was left, or forgets it when that is not worth
-    // returning to: a short file, the first minute, or the end.
-    Q_INVOKABLE void save(const QUrl &url, double position, double duration,
-                          const QVariantMap &choices = {});
-    Q_INVOKABLE void forget(const QUrl &url);
-    Q_INVOKABLE void clear();
+    // returning to: a short file, the first minute, or the end. The entry's
+    // own position is ignored; without one, tracks are the file's defaults.
+    void save(const std::string& url, double position, double duration, const Entry& choices);
+    void save(const std::string& url, double position, double duration);
+    void forget(const std::string& url);
+    void clear();
 
     static bool worthKeeping(double position, double duration);
 
 private:
-    static QString keyFor(const QUrl &url);
+    static std::string keyFor(const std::string& url);
 
-    QString m_file;
+    std::string m_file;
 };

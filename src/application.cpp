@@ -2,175 +2,197 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "application.h"
-#include "durationprobe.h"
-#include "playersettings.h"
-#include "playlist.h"
-#include "resumestore.h"
-#include "sleepinhibitor.h"
-#include "thumbnailer.h"
+#include "urls.h"
 
-#include <QClipboard>
-#include <QDateTime>
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QDBusPendingCall>
-#include <QDir>
-#include <QEvent>
-#include <QFileInfo>
-#include <QGuiApplication>
-#include <QLocale>
-#include <QWindow>
+#include "base/locale.h"
+#include "base/strings.h"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <ctime>
+#include <filesystem>
+#include <format>
+#include <unistd.h>
 
-Application::Application(const QString &settingsFile, QObject *parent)
-    : QObject(parent)
-    , m_playlist(new Playlist(this))
-    , m_settings(new PlayerSettings(settingsFile, this))
-    , m_resume(new ResumeStore(settingsFile, this))
-    , m_inhibitor(new SleepInhibitor(this))
-    , m_thumbnailer(new Thumbnailer(this))
-    , m_durationProbe(new DurationProbe(this))
+using namespace cutefish;
+namespace fs = std::filesystem;
+
+static std::string currentDirectory()
 {
-    m_playlist->setRepeatMode(Playlist::RepeatMode(m_settings->repeatMode()));
-    connect(m_playlist, &Playlist::repeatModeChanged, m_settings, [this] {
-        m_settings->setRepeatMode(m_playlist->repeatMode());
-    });
-    connect(m_playlist, &Playlist::countChanged, m_durationProbe, [this] {
-        m_durationProbe->probe(m_playlist->unprobed());
-    });
-    connect(m_durationProbe, &DurationProbe::found, m_playlist, &Playlist::setDuration);
+    std::error_code error;
+    const fs::path path = fs::current_path(error);
+    return error ? std::string() : path.string();
 }
 
-QString Application::formatTime(double seconds, double reference)
+Application::Application(const std::string& settingsFile, std::string coverFolder)
+    : m_settings(settingsFile)
+    , m_resume(settingsFile)
+    , m_inhibitor(std::make_unique<SleepInhibitor>())
+    , m_thumbnailer(std::move(coverFolder))
+{
+    m_playlist.setRepeatMode(Playlist::RepeatMode(m_settings.repeatMode()));
+    m_subscriptions.push_back(m_playlist.repeatModeChanged.connect([this] {
+        m_settings.setRepeatMode(int(m_playlist.repeatMode()));
+    }));
+    m_subscriptions.push_back(m_playlist.countChanged.connect([this] {
+        m_durationProbe.probe(m_playlist.unprobed());
+    }));
+    m_subscriptions.push_back(m_durationProbe.found.connect([this](const std::string& url, double seconds) {
+        m_playlist.setDuration(url, seconds);
+    }));
+}
+
+bool Application::publish(base::dbus::Connection* bus)
+{
+    if (!bus)
+        return false;
+    m_bus = bus;
+    m_object = std::make_unique<base::dbus::Object>(bus, kPath, kService);
+    m_object->addMethod("open", [this](const std::vector<std::string>& arguments) { open(arguments); },
+                        base::dbus::ArgumentNames{{"arguments"}, {}});
+    m_object->addMethod("activateWindow", [this] { activateWindow(); });
+    return m_object->publish();
+}
+
+std::string Application::formatTime(double seconds, double reference)
 {
     if (!std::isfinite(seconds) || seconds < 0)
         seconds = 0;
-    const qint64 total = qint64(std::floor(seconds));
-    const qint64 hours = total / 3600;
-    const qint64 minutes = total / 60 % 60;
-    const qint64 rest = total % 60;
+    const auto total = int64_t(std::floor(seconds));
+    const int64_t hours = total / 3600;
+    const int64_t minutes = total / 60 % 60;
+    const int64_t rest = total % 60;
     if (hours > 0 || reference >= 3600)
-        return QStringLiteral("%1:%2:%3").arg(hours).arg(minutes, 2, 10, QLatin1Char('0')).arg(rest, 2, 10, QLatin1Char('0'));
-    return QStringLiteral("%1:%2").arg(minutes).arg(rest, 2, 10, QLatin1Char('0'));
+        return std::format("{}:{:02}:{:02}", hours, minutes, rest);
+    return std::format("{}:{:02}", minutes, rest);
 }
 
-QString Application::formatBytes(qint64 bytes)
+std::string Application::formatBytes(int64_t bytes)
 {
-    return QLocale().formattedDataSize(bytes, 1, QLocale::DataSizeTraditionalFormat);
+    return base::Locale::system().formattedDataSize(bytes, 1, base::Locale::DataSizeFormat::Traditional);
 }
 
-QString Application::displayName(const QUrl &url)
+std::string Application::displayName(const std::string& url)
 {
-    if (url.isLocalFile())
-        return QFileInfo(url.toLocalFile()).completeBaseName();
-    const QString name = QFileInfo(url.path()).completeBaseName();
-    return name.isEmpty() ? url.toDisplayString() : name;
-}
-
-QUrl Application::urlFromInput(const QString &text)
-{
-    const QString trimmed = text.trimmed();
-    if (trimmed.isEmpty() || trimmed.contains(QLatin1Char('\n')))
-        return {};
-    const QUrl url = QUrl::fromUserInput(trimmed, QDir::currentPath());
-    if (!url.isValid())
-        return {};
-    if (url.isLocalFile())
-        return QFileInfo::exists(url.toLocalFile()) ? url : QUrl();
-    // Schemes mpv streams from; a bare word would otherwise become http://word.
-    static const QStringList schemes = {
-        QStringLiteral("http"), QStringLiteral("https"), QStringLiteral("rtsp"), QStringLiteral("rtmp"),
-        QStringLiteral("mms"), QStringLiteral("ftp"), QStringLiteral("smb"), QStringLiteral("sftp"),
+    // The name up to its last dot.
+    const auto completeBaseName = [](const std::string& path) {
+        const std::string name = fs::path(path).filename().string();
+        const size_t dot = name.rfind('.');
+        return dot == std::string::npos ? name : name.substr(0, dot);
     };
-    if (!schemes.contains(url.scheme()) || url.host().isEmpty())
+    if (urls::isLocalFile(url))
+        return completeBaseName(urls::toLocalFile(url));
+    const std::string name = completeBaseName(urls::path(url));
+    return name.empty() ? urls::displayString(url) : name;
+}
+
+std::string Application::urlFromInput(const std::string& text)
+{
+    const std::string_view trimmed = base::strings::trimmed(text);
+    if (trimmed.empty() || trimmed.find('\n') != std::string_view::npos)
         return {};
-    if (!trimmed.contains(QLatin1String("://")) && !url.host().contains(QLatin1Char('.')))
+    const std::string url = urls::fromUserInput(trimmed, currentDirectory());
+    if (url.empty())
+        return {};
+    if (urls::isLocalFile(url)) {
+        std::error_code error;
+        return fs::exists(urls::toLocalFile(url), error) ? url : std::string();
+    }
+    // Schemes mpv streams from; a bare word would otherwise become http://word.
+    static constexpr std::array<std::string_view, 8> kSchemes = {
+        "http", "https", "rtsp", "rtmp", "mms", "ftp", "smb", "sftp",
+    };
+    const auto parts = urls::parse(url);
+    if (!parts || std::find(kSchemes.begin(), kSchemes.end(), parts->scheme) == kSchemes.end() || parts->host.empty())
+        return {};
+    if (trimmed.find("://") == std::string_view::npos && parts->host.find('.') == std::string::npos)
         return {};
     return url;
 }
 
-QString Application::clipboardUrl() const
+std::string Application::clipboardUrl(const std::string& clipboardText)
 {
-    const QString text = QGuiApplication::clipboard()->text().trimmed();
-    const QUrl url = urlFromInput(text);
-    return url.isValid() && !url.isLocalFile() && text.contains(QLatin1String("://")) ? text : QString();
+    const std::string text(base::strings::trimmed(clipboardText));
+    const std::string url = urlFromInput(text);
+    return !url.empty() && !urls::isLocalFile(url) && text.find("://") != std::string::npos ? text : std::string();
 }
 
-QString Application::screenshotPath(const QString &title) const
+std::string Application::screenshotPath(const std::string& title) const
 {
-    QDir folder(m_settings->screenshotFolder());
-    folder.mkpath(QStringLiteral("."));
-    QString name = title;
-    name.replace(QLatin1Char('/'), QLatin1Char('-'));
-    const QString stamp = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd hh.mm.ss"));
-    QString path = folder.filePath(QStringLiteral("%1 %2.png").arg(name, stamp));
-    for (int i = 2; QFileInfo::exists(path); ++i)
-        path = folder.filePath(QStringLiteral("%1 %2 (%3).png").arg(name, stamp).arg(i));
-    return path;
+    const fs::path folder(m_settings.screenshotFolder());
+    std::error_code error;
+    fs::create_directories(folder, error);
+    const std::string name = base::strings::replaceAll(title, "/", "-");
+    const std::time_t now = std::time(nullptr);
+    std::tm local {};
+    localtime_r(&now, &local);
+    char stamp[32];
+    std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H.%M.%S", &local);
+    fs::path path = folder / std::format("{} {}.png", name, stamp);
+    for (int i = 2; fs::exists(path, error); ++i)
+        path = folder / std::format("{} {} ({}).png", name, stamp, i);
+    return path.string();
 }
 
-void Application::showInFolder(const QUrl &url) const
+void Application::showInFolder(const std::string& url) const
 {
-    QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.freedesktop.FileManager1"),
-                                                       QStringLiteral("/org/freedesktop/FileManager1"),
-                                                       QStringLiteral("org.freedesktop.FileManager1"),
-                                                       QStringLiteral("ShowItems"));
-    call << QStringList{url.toString()} << QString();
-    QDBusConnection::sessionBus().asyncCall(call);
+    base::dbus::Connection* bus = m_bus ? m_bus : base::dbus::Connection::session();
+    base::dbus::Proxy fileManager(bus, "org.freedesktop.FileManager1", "/org/freedesktop/FileManager1",
+                                  "org.freedesktop.FileManager1");
+    fileManager.send("ShowItems", std::vector<std::string>{url}, std::string());
 }
 
-bool Application::isSubtitle(const QUrl &url)
+bool Application::isSubtitle(const std::string& url)
 {
-    return Playlist::isSubtitleFile(url.path());
+    return Playlist::isSubtitleFile(urls::path(url));
 }
 
-void Application::openUrls(const QList<QUrl> &urls)
+void Application::openUrls(const std::vector<std::string>& urlList)
 {
-    QList<QUrl> media;
-    QList<QUrl> subtitles;
-    for (const QUrl &url : urls) {
-        if (!url.isValid())
+    std::vector<std::string> media;
+    std::vector<std::string> subtitles;
+    for (const std::string& url : urlList) {
+        if (url.empty())
             continue;
-        if (url.isLocalFile() && QFileInfo(url.toLocalFile()).isDir()) {
-            const QFileInfoList entries = QDir(url.toLocalFile()).entryInfoList(QDir::Files, QDir::Name);
-            QList<QUrl> files;
-            for (const QFileInfo &entry : entries) {
-                if (Playlist::isMediaFile(entry.absoluteFilePath()))
-                    files.append(QUrl::fromLocalFile(entry.absoluteFilePath()));
+        if (urls::isLocalFile(url)) {
+            std::error_code error;
+            const fs::path folder(urls::toLocalFile(url));
+            if (fs::is_directory(folder, error)) {
+                std::vector<std::string> names;
+                for (const fs::directory_entry& entry : fs::directory_iterator(folder, error)) {
+                    std::error_code entryError;
+                    const std::string name = entry.path().filename().string();
+                    if (entry.is_regular_file(entryError) && !name.starts_with('.')
+                            && Playlist::isMediaFile(entry.path().string()))
+                        names.push_back(name);
+                }
+                if (!names.empty()) {
+                    // Any file of the folder brings all of its media along.
+                    const std::vector<std::string> files =
+                            Playlist::folderMedia((folder / *std::min_element(names.begin(), names.end())).string());
+                    media.insert(media.end(), files.begin(), files.end());
+                }
+                continue;
             }
-            if (!files.isEmpty())
-                media += Playlist::folderMedia(files.first().toLocalFile());
-            continue;
         }
-        (isSubtitle(url) ? subtitles : media).append(url);
+        (isSubtitle(url) ? subtitles : media).push_back(url);
     }
-    if (!media.isEmpty() || !subtitles.isEmpty())
-        Q_EMIT openRequested(media, subtitles);
+    if (!media.empty() || !subtitles.empty())
+        openRequested.emit(media, subtitles);
 }
 
-void Application::open(const QStringList &arguments)
+void Application::open(const std::vector<std::string>& arguments)
 {
-    QList<QUrl> urls;
-    for (const QString &argument : arguments)
-        urls.append(QUrl::fromUserInput(argument, QDir::currentPath(), QUrl::AssumeLocalFile));
-    openUrls(urls);
-    Q_EMIT activationRequested();
+    std::vector<std::string> urlList;
+    const std::string directory = currentDirectory();
+    for (const std::string& argument : arguments)
+        urlList.push_back(urls::fromUserInput(argument, directory, true));
+    openUrls(urlList);
+    activationRequested.emit();
 }
 
 void Application::activateWindow()
 {
-    Q_EMIT activationRequested();
-}
-
-void Application::watchRatio(QWindow *window)
-{
-    window->installEventFilter(this);
-}
-
-bool Application::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::DevicePixelRatioChange)
-        Q_EMIT windowRatioChanged(static_cast<QWindow *>(watched)->devicePixelRatio());
-    return QObject::eventFilter(watched, event);
+    activationRequested.emit();
 }

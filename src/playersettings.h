@@ -3,30 +3,26 @@
 
 #pragma once
 
-#include <QObject>
-#include <QStringList>
-#include <QUrl>
+#include "base/signal.h"
+
+#include <string>
+#include <vector>
 
 // The player's preferences and recent files in video-player.conf.
-class PlayerSettings : public QObject
+class PlayerSettings
 {
-    Q_OBJECT
-    Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
-    Q_PROPERTY(bool muted READ muted WRITE setMuted NOTIFY mutedChanged)
-    Q_PROPERTY(bool resumePlayback READ resumePlayback WRITE setResumePlayback NOTIFY resumePlaybackChanged)
-    Q_PROPERTY(int repeatMode READ repeatMode WRITE setRepeatMode NOTIFY repeatModeChanged)
-    Q_PROPERTY(int subtitleScale READ subtitleScale WRITE setSubtitleScale NOTIFY subtitleScaleChanged)
-    Q_PROPERTY(bool folderPlaylist READ folderPlaylist WRITE setFolderPlaylist NOTIFY folderPlaylistChanged)
-    Q_PROPERTY(QString audioLanguage READ audioLanguage WRITE setAudioLanguage NOTIFY audioLanguageChanged)
-    Q_PROPERTY(QString subtitleLanguage READ subtitleLanguage WRITE setSubtitleLanguage NOTIFY subtitleLanguageChanged)
-    Q_PROPERTY(QString screenshotFolder READ screenshotFolder WRITE setScreenshotFolder NOTIFY screenshotFolderChanged)
-    Q_PROPERTY(QUrl lastFolder READ lastFolder WRITE setLastFolder NOTIFY lastFolderChanged)
-    Q_PROPERTY(QVariantList recentFiles READ recentFiles NOTIFY recentFilesChanged)
-
 public:
     static constexpr int RecentCapacity = 10;
 
-    explicit PlayerSettings(const QString &file, QObject *parent = nullptr);
+    struct RecentFile
+    {
+        std::string url;
+        std::string name;
+        // The folder of a local file, the host of a stream.
+        std::string folder;
+    };
+
+    explicit PlayerSettings(std::string file);
 
     int volume() const { return m_volume; }
     void setVolume(int volume);
@@ -44,49 +40,51 @@ public:
     bool folderPlaylist() const { return m_folderPlaylist; }
     void setFolderPlaylist(bool enabled);
     // ISO 639 codes, or empty for the display language.
-    QString audioLanguage() const { return m_audioLanguage; }
-    void setAudioLanguage(const QString &language);
-    QString subtitleLanguage() const { return m_subtitleLanguage; }
-    void setSubtitleLanguage(const QString &language);
-    // The track languages to ask mpv for, the chosen one first, then the display language and English.
-    Q_INVOKABLE QStringList languagePreference(const QString &language) const;
-    QString screenshotFolder() const { return m_screenshotFolder; }
-    void setScreenshotFolder(const QString &folder);
-    QUrl lastFolder() const { return m_lastFolder; }
-    void setLastFolder(const QUrl &folder);
+    const std::string& audioLanguage() const { return m_audioLanguage; }
+    void setAudioLanguage(const std::string& language);
+    const std::string& subtitleLanguage() const { return m_subtitleLanguage; }
+    void setSubtitleLanguage(const std::string& language);
+    // The track languages to ask mpv for, the chosen one first, then the
+    // display language and English.
+    std::vector<std::string> languagePreference(const std::string& language) const;
+    const std::string& screenshotFolder() const { return m_screenshotFolder; }
+    void setScreenshotFolder(const std::string& folder);
+    // A URL.
+    const std::string& lastFolder() const { return m_lastFolder; }
+    void setLastFolder(const std::string& folder);
     // Most recent first; entries that no longer exist on disk are left out.
-    QVariantList recentFiles() const;
+    std::vector<RecentFile> recentFiles() const;
 
-    Q_INVOKABLE void addRecentFile(const QUrl &url);
-    Q_INVOKABLE void removeRecentFile(const QUrl &url);
-    Q_INVOKABLE void clearRecentFiles();
+    void addRecentFile(const std::string& url);
+    void removeRecentFile(const std::string& url);
+    void clearRecentFiles();
 
-Q_SIGNALS:
-    void volumeChanged();
-    void mutedChanged();
-    void resumePlaybackChanged();
-    void repeatModeChanged();
-    void subtitleScaleChanged();
-    void folderPlaylistChanged();
-    void audioLanguageChanged();
-    void subtitleLanguageChanged();
-    void screenshotFolderChanged();
-    void lastFolderChanged();
-    void recentFilesChanged();
+    cutefish::base::Signal<> volumeChanged;
+    cutefish::base::Signal<> mutedChanged;
+    cutefish::base::Signal<> resumePlaybackChanged;
+    cutefish::base::Signal<> repeatModeChanged;
+    cutefish::base::Signal<> subtitleScaleChanged;
+    cutefish::base::Signal<> folderPlaylistChanged;
+    cutefish::base::Signal<> audioLanguageChanged;
+    cutefish::base::Signal<> subtitleLanguageChanged;
+    cutefish::base::Signal<> screenshotFolderChanged;
+    cutefish::base::Signal<> lastFolderChanged;
+    cutefish::base::Signal<> recentFilesChanged;
 
 private:
-    void write(const QString &key, const QVariant &value);
+    template<typename T>
+    void write(const std::string& key, const T& value);
 
-    QString m_file;
+    std::string m_file;
     int m_volume = 100;
     bool m_muted = false;
     bool m_resumePlayback = true;
     int m_repeatMode = 0;
     int m_subtitleScale = 100;
     bool m_folderPlaylist = true;
-    QString m_audioLanguage;
-    QString m_subtitleLanguage;
-    QString m_screenshotFolder;
-    QUrl m_lastFolder;
-    QStringList m_recent;
+    std::string m_audioLanguage;
+    std::string m_subtitleLanguage;
+    std::string m_screenshotFolder;
+    std::string m_lastFolder;
+    std::vector<std::string> m_recent;
 };

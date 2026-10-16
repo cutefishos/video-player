@@ -3,112 +3,126 @@
 
 #include "thumbnailer.h"
 #include "mpvwait.h"
+#include "urls.h"
 
-#include <QDir>
-#include <QElapsedTimer>
-#include <QFile>
-#include <QStandardPaths>
-#include <QThread>
-#include <QUuid>
+#include "base/elapsed_timer.h"
+#include "base/paths.h"
+#include "base/strings.h"
+#include "base/uuid.h"
 
 #include <mpv/client.h>
 #include <mpv/render.h>
 
+#include <algorithm>
 #include <clocale>
 #include <cmath>
+#include <filesystem>
 
-static constexpr int frameWidth = 240;
-static constexpr int bucketCount = 150;
+using namespace cutefish;
+namespace fs = std::filesystem;
 
-static void setOption(mpv_handle *mpv, const char *name, const char *value)
+static constexpr int kFrameWidth = 240;
+static constexpr int kBucketCount = 150;
+
+static void setOption(mpv_handle* mpv, const char* name, const char* value)
 {
     mpv_set_option_string(mpv, name, value);
 }
 
-Thumbnailer::Thumbnailer(QObject *parent)
-    : QObject(parent)
+Thumbnailer::Thumbnailer(std::string coverFolder)
+    : m_coverFolder(coverFolder.empty() ? defaultCoverFolder() : std::move(coverFolder))
 {
-    m_thread = QThread::create([this] { run(); });
-    m_thread->setObjectName(QStringLiteral("Thumbnailer"));
+    if (base::EventLoop* loop = base::EventLoop::current())
+        m_loop = loop->handle();
+    m_weak = m_weakFactory.getWeakPtr();
 }
 
 Thumbnailer::~Thumbnailer()
 {
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         m_stopping = true;
         if (m_activeMpv)
             mpv_wakeup(m_activeMpv);
-        m_wake.wakeAll();
     }
-    m_thread->wait();
-    delete m_thread;
+    m_wake.notify_all();
+    if (m_thread.joinable())
+        m_thread.join();
     setCover({});
 }
 
-void Thumbnailer::setSource(const QUrl &source)
+std::string Thumbnailer::defaultCoverFolder()
+{
+    return base::paths::cacheHome() + "/cutefish/cutefish-video-player/covers";
+}
+
+void Thumbnailer::setSource(const std::string& source)
 {
     if (m_source == source)
         return;
     m_source = source;
+    const bool local = urls::isLocalFile(source);
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         // Streams would download a second copy; only local files get frames.
-        m_file = source.isLocalFile() ? source.toLocalFile() : QString();
+        m_file = local ? urls::toLocalFile(source) : std::string();
         ++m_generation;
         m_pending = -1;
         m_coverWanted = false;
         m_frames.clear();
         if (m_activeMpv)
             mpv_wakeup(m_activeMpv);
-        m_wake.wakeAll();
     }
+    m_wake.notify_all();
     // The thread starts with the first file that can have frames.
-    if (!m_thread->isRunning() && source.isLocalFile()) {
+    if (!m_thread.joinable() && local) {
         // mpv needs the C locale for numbers.
         std::setlocale(LC_NUMERIC, "C");
-        m_thread->start(QThread::LowPriority);
+        m_thread = std::thread([this] { run(); });
     }
     m_coverAsked = false;
     setCover({});
     askCover();
-    Q_EMIT sourceChanged();
+    sourceChanged.emit();
     ++m_revision;
-    Q_EMIT revisionChanged();
+    revisionChanged.emit();
 }
 
 void Thumbnailer::setDuration(double duration)
 {
-    if (qFuzzyCompare(m_duration, duration))
+    if (std::abs(m_duration - duration) <= 1e-12 * std::max(1.0, std::abs(duration)))
         return;
+    m_duration = duration;
     {
-        QMutexLocker locker(&m_mutex);
-        m_duration = duration;
+        std::lock_guard lock(m_mutex);
+        m_sharedDuration = duration;
         m_step = step();
         m_frames.clear();
     }
     askCover();
-    Q_EMIT durationChanged();
+    durationChanged.emit();
 }
 
 void Thumbnailer::askCover()
 {
-    QMutexLocker locker(&m_mutex);
-    if (m_coverAsked || m_duration <= 0 || m_file.isEmpty())
-        return;
-    m_coverAsked = true;
-    m_coverWanted = true;
-    m_wake.wakeAll();
+    {
+        std::lock_guard lock(m_mutex);
+        if (m_coverAsked || m_duration <= 0 || m_file.empty())
+            return;
+        m_coverAsked = true;
+        m_coverWanted = true;
+    }
+    m_wake.notify_all();
 }
 
 double Thumbnailer::step() const
 {
-    return std::max(1.0, m_duration / bucketCount);
+    return std::max(1.0, m_duration / kBucketCount);
 }
 
 int Thumbnailer::bucket(double seconds) const
 {
-    return qBound(0, int(std::floor(seconds / step())), int(m_duration / step()));
+    return std::clamp(int(std::floor(seconds / step())), 0, int(m_duration / step()));
 }
 
 double Thumbnailer::bucketTime(int bucket) const
@@ -118,7 +132,7 @@ double Thumbnailer::bucketTime(int bucket) const
 
 bool Thumbnailer::has(int bucket) const
 {
-    QMutexLocker locker(&m_mutex);
+    std::lock_guard lock(m_mutex);
     return m_frames.contains(bucket);
 }
 
@@ -126,86 +140,100 @@ void Thumbnailer::request(int bucket)
 {
     if (m_duration <= 0 || bucket < 0)
         return;
-    QMutexLocker locker(&m_mutex);
-    if (m_file.isEmpty() || m_frames.contains(bucket) || m_pending == bucket)
-        return;
-    m_pending = bucket;
-    m_wake.wakeAll();
+    {
+        std::lock_guard lock(m_mutex);
+        if (m_file.empty() || m_frames.contains(bucket) || m_pending == bucket)
+            return;
+        m_pending = bucket;
+    }
+    m_wake.notify_all();
 }
 
-void Thumbnailer::addCover(const QImage &image, quint64 generation)
+ui::Image Thumbnailer::image(int bucket) const
+{
+    std::lock_guard lock(m_mutex);
+    const auto found = m_frames.find(bucket);
+    return found == m_frames.end() ? ui::Image() : found->second;
+}
+
+void Thumbnailer::addCover(const ui::Image& image, uint64_t generation)
 {
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         if (generation != m_generation)
             return;
     }
 
-    QDir folder(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/covers"));
+    const fs::path folder(m_coverFolder);
+    std::error_code error;
     // Covers left behind by a player that did not quit cleanly.
     if (!m_staleCoversRemoved) {
         m_staleCoversRemoved = true;
-        folder.removeRecursively();
+        fs::remove_all(folder, error);
     }
-    if (!folder.mkpath(QStringLiteral(".")))
+    fs::create_directories(folder, error);
+    if (!fs::is_directory(folder, error))
         return;
 
-    const int side = qMin(image.width(), image.height());
-    const QImage square = image.copy((image.width() - side) / 2, (image.height() - side) / 2, side, side);
+    const int side = std::min(image.width(), image.height());
+    const int left = (image.width() - side) / 2;
+    const int top = (image.height() - side) / 2;
+    ui::Image square(side, side);
+    for (int y = 0; y < side; ++y) {
+        const uint32_t* from = image.bits() + size_t(top + y) * size_t(image.width()) + size_t(left);
+        std::copy(from, from + side, square.bits() + size_t(y) * size_t(side));
+    }
     // A name never used before, also by an earlier player, as media controls cache images by URL.
-    const QString path = folder.filePath(QUuid::createUuid().toString(QUuid::Id128) + QStringLiteral(".png"));
-    if (square.save(path))
-        setCover(QUrl::fromLocalFile(path));
+    const std::string id = base::strings::replaceAll(base::Uuid::generate().toString(), "-", "");
+    const fs::path path = folder / (id + ".png");
+    if (square.savePng(path.string()))
+        setCover(urls::fromLocalFile(path.string()));
 }
 
-void Thumbnailer::setCover(const QUrl &cover)
+void Thumbnailer::setCover(const std::string& cover)
 {
     if (m_cover == cover)
         return;
-    if (m_cover.isLocalFile())
-        QFile::remove(m_cover.toLocalFile());
+    if (urls::isLocalFile(m_cover)) {
+        std::error_code error;
+        fs::remove(urls::toLocalFile(m_cover), error);
+    }
     m_cover = cover;
-    Q_EMIT coverChanged();
+    coverChanged.emit();
 }
 
-QImage Thumbnailer::image(int bucket) const
+bool Thumbnailer::cancelled(uint64_t generation) const
 {
-    QMutexLocker locker(&m_mutex);
-    return m_frames.value(bucket);
-}
-
-bool Thumbnailer::cancelled(quint64 generation) const
-{
-    QMutexLocker locker(&m_mutex);
+    std::lock_guard lock(m_mutex);
     return m_stopping || generation != m_generation;
 }
 
-void Thumbnailer::addFrame(int bucket, const QImage &image, quint64 generation, double step)
+void Thumbnailer::addFrame(int bucket, ui::Image image, uint64_t generation, double step)
 {
     {
-        QMutexLocker locker(&m_mutex);
+        std::lock_guard lock(m_mutex);
         // A frame taken for another file or another length is not this bucket's.
         if (generation != m_generation || step != m_step)
             return;
-        m_frames.insert(bucket, image);
+        m_frames[bucket] = std::move(image);
     }
     ++m_revision;
-    Q_EMIT revisionChanged();
+    revisionChanged.emit();
 }
 
 void Thumbnailer::run()
 {
-    mpv_handle *mpv = nullptr;
-    mpv_render_context *context = nullptr;
-    quint64 loadedGeneration = 0;
-    QSize frameSize;
+    mpv_handle* mpv = nullptr;
+    mpv_render_context* context = nullptr;
+    uint64_t loadedGeneration = 0;
+    int frameHeight = 0;
 
-    quint64 generation = 0;
+    uint64_t generation = 0;
     auto isCancelled = [&] { return cancelled(generation); };
 
     auto close = [&] {
         {
-            QMutexLocker locker(&m_mutex);
+            std::lock_guard lock(m_mutex);
             m_activeMpv = nullptr;
         }
         if (context)
@@ -214,28 +242,28 @@ void Thumbnailer::run()
         if (mpv)
             mpv_terminate_destroy(mpv);
         mpv = nullptr;
-        frameSize = QSize();
+        frameHeight = 0;
     };
 
-    auto render = [&](QImage *image) {
-        int size[2] = {frameSize.width(), frameSize.height()};
-        size_t stride = image->bytesPerLine();
+    auto render = [&](ui::Image& image) {
+        int size[2] = {image.width(), image.height()};
+        size_t stride = size_t(image.width()) * 4;
         mpv_render_param params[] = {
             {MPV_RENDER_PARAM_SW_SIZE, size},
-            {MPV_RENDER_PARAM_SW_FORMAT, const_cast<char *>("rgb0")},
+            {MPV_RENDER_PARAM_SW_FORMAT, const_cast<char*>("bgr0")},
             {MPV_RENDER_PARAM_SW_STRIDE, &stride},
-            {MPV_RENDER_PARAM_SW_POINTER, image->bits()},
+            {MPV_RENDER_PARAM_SW_POINTER, image.bits()},
             {MPV_RENDER_PARAM_INVALID, nullptr},
         };
         return mpv_render_context_render(context, params) >= 0;
     };
 
-    auto open = [&](const QString &file) {
+    auto open = [&](const std::string& file) {
         mpv = mpv_create();
         if (!mpv)
             return;
         {
-            QMutexLocker locker(&m_mutex);
+            std::lock_guard lock(m_mutex);
             m_activeMpv = mpv;
         }
         setOption(mpv, "vo", "libmpv");
@@ -256,7 +284,7 @@ void Thumbnailer::run()
             return close();
 
         mpv_render_param params[] = {
-            {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_SW)},
+            {MPV_RENDER_PARAM_API_TYPE, const_cast<char*>(MPV_RENDER_API_TYPE_SW)},
             {MPV_RENDER_PARAM_INVALID, nullptr},
         };
         if (mpv_render_context_create(&context, mpv, params) < 0) {
@@ -264,8 +292,7 @@ void Thumbnailer::run()
             return close();
         }
 
-        const QByteArray path = file.toUtf8();
-        const char *command[] = {"loadfile", path.constData(), nullptr};
+        const char* command[] = {"loadfile", file.c_str(), nullptr};
         // The size is known once the first frame has configured the output. The
         // load's own restart follows; left queued, it would end the first seek.
         if (mpv_command(mpv, command) < 0 || !waitForMpvEvent(mpv, MPV_EVENT_FILE_LOADED, 5000, isCancelled)
@@ -278,46 +305,51 @@ void Thumbnailer::run()
         mpv_get_property(mpv, "dheight", MPV_FORMAT_INT64, &height);
         if (width <= 0 || height <= 0)
             return close();
-        frameSize = QSize(frameWidth, qMax<int>(1, qRound(double(frameWidth) * height / width)));
-
+        frameHeight = std::max(1, int(std::lround(double(kFrameWidth) * double(height) / double(width))));
     };
 
-    // The keyframe at or before seconds, at frameSize; null on failure.
-    auto grab = [&](double seconds) -> QImage {
-        const QByteArray target = QByteArray::number(seconds, 'f', 3);
-        const char *seek[] = {"seek", target.constData(), "absolute+keyframes", nullptr};
+    // The keyframe at or before seconds; null on failure.
+    auto grab = [&](double seconds) -> ui::Image {
+        const std::string target = base::strings::number(seconds, 'f', 3);
+        const char* seek[] = {"seek", target.c_str(), "absolute+keyframes", nullptr};
         if (mpv_command(mpv, seek) < 0)
             return {};
 
         // mpv redraws the old frame while it seeks and hands over the new one
         // just before the restart, so the last frame drawn by then is the one.
-        QImage image(frameSize, QImage::Format_RGBX8888);
+        ui::Image image(kFrameWidth, frameHeight);
         bool drawn = false;
         bool restarted = false;
-        QElapsedTimer timer;
+        base::ElapsedTimer timer;
         timer.start();
         while (!restarted) {
-            if (timer.elapsed() > 3000 || isCancelled())
+            if (timer.elapsedMs() > 3000 || isCancelled())
                 return {};
             const mpv_event_id event = mpv_wait_event(mpv, 0.004)->event_id;
             if (event == MPV_EVENT_END_FILE || event == MPV_EVENT_SHUTDOWN)
                 return {};
             restarted = event == MPV_EVENT_PLAYBACK_RESTART;
             if (mpv_render_context_update(context) & MPV_RENDER_UPDATE_FRAME)
-                drawn = render(&image);
+                drawn = render(image);
         }
-        return drawn ? image : QImage();
+        if (!drawn)
+            return {};
+        uint32_t* pixels = image.bits();
+        for (size_t i = 0, count = size_t(image.width()) * size_t(image.height()); i < count; ++i)
+            pixels[i] |= 0xff000000u;
+        return image;
     };
 
-    Q_FOREVER {
-        QString file;
+    for (;;) {
+        std::string file;
         int bucket = -1;
         double step = 1;
         bool cover = false;
         {
-            QMutexLocker locker(&m_mutex);
-            while (!m_stopping && m_pending < 0 && !m_coverWanted && loadedGeneration == m_generation)
-                m_wake.wait(&m_mutex);
+            std::unique_lock lock(m_mutex);
+            m_wake.wait(lock, [&] {
+                return m_stopping || m_pending >= 0 || m_coverWanted || loadedGeneration != m_generation;
+            });
             if (m_stopping)
                 break;
             file = m_file;
@@ -332,48 +364,36 @@ void Thumbnailer::run()
         if (generation != loadedGeneration) {
             close();
             loadedGeneration = generation;
-            if (!file.isEmpty())
+            if (!file.empty())
                 open(file);
         }
-        if (!context || frameSize.isEmpty())
+        if (!context || frameHeight <= 0)
             continue;
 
         if (cover) {
             double duration = 0;
             {
                 // The length may have arrived after the file did.
-                QMutexLocker locker(&m_mutex);
-                duration = m_duration;
+                std::lock_guard lock(m_mutex);
+                duration = m_sharedDuration;
             }
-            const QImage image = grab(duration / 10);
+            ui::Image image = grab(duration / 10);
             if (!image.isNull()) {
-                QMetaObject::invokeMethod(this, [this, image, generation] {
-                    addCover(image, generation);
-                }, Qt::QueuedConnection);
+                m_loop.post([weak = m_weak, image = std::move(image), generation] {
+                    if (weak)
+                        weak->addCover(image, generation);
+                });
             }
         }
         if (bucket >= 0) {
-            const QImage image = grab(bucket * step);
+            ui::Image image = grab(bucket * step);
             if (!image.isNull()) {
-                QMetaObject::invokeMethod(this, [this, bucket, image, generation, step] {
-                    addFrame(bucket, image, generation, step);
-                }, Qt::QueuedConnection);
+                m_loop.post([weak = m_weak, bucket, image = std::move(image), generation, step]() mutable {
+                    if (weak)
+                        weak->addFrame(bucket, std::move(image), generation, step);
+                });
             }
         }
     }
     close();
-}
-
-ThumbnailProvider::ThumbnailProvider(Thumbnailer *thumbnailer)
-    : QQuickImageProvider(QQuickImageProvider::Image)
-    , m_thumbnailer(thumbnailer)
-{
-}
-
-QImage ThumbnailProvider::requestImage(const QString &id, QSize *size, const QSize &)
-{
-    const QImage image = m_thumbnailer->image(id.section(QLatin1Char('/'), 0, 0).toInt());
-    if (size)
-        *size = image.size();
-    return image;
 }

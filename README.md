@@ -6,11 +6,10 @@ previews, behind overlay controls that hide while the video plays.
 
 ## Dependencies
 
-Video Player uses Qt 6, libmpv, FishUI and the Cutefish framework
-(`cutefish-framework`).
+Video Player uses cutefish-toolkit, libmpv and ICU.
 
 ```sh
-sudo apt install cmake pkg-config qt6-base-dev qt6-declarative-dev qt6-tools-dev qt6-tools-dev-tools qt6-shadertools-dev libmpv-dev
+sudo apt install cmake pkg-config libmpv-dev libicu-dev libgtest-dev
 ```
 
 The tests make their sample clips with `ffmpeg`.

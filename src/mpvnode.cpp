@@ -3,85 +3,116 @@
 
 #include "mpvnode.h"
 
-#include <QUrl>
-#include <QVariantList>
-#include <QVariantMap>
-
 #include <cstring>
 
-static char *copyString(const QString &text)
+static char* copyString(const std::string& text)
 {
-    const QByteArray utf8 = text.toUtf8();
-    char *copy = new char[utf8.size() + 1];
-    std::memcpy(copy, utf8.constData(), utf8.size() + 1);
+    char* copy = new char[text.size() + 1];
+    std::memcpy(copy, text.c_str(), text.size() + 1);
     return copy;
 }
 
-static mpv_node_list *createList(mpv_node *node, bool map, int count)
+static mpv_node_list* createList(mpv_node* node, bool map, size_t count)
 {
     node->format = map ? MPV_FORMAT_NODE_MAP : MPV_FORMAT_NODE_ARRAY;
-    auto *list = new mpv_node_list;
-    list->num = count;
+    auto* list = new mpv_node_list;
+    list->num = int(count);
     list->values = new mpv_node[count]();
-    list->keys = map ? new char *[count]() : nullptr;
+    list->keys = map ? new char*[count]() : nullptr;
     node->u.list = list;
     return list;
 }
 
-namespace MpvNode
+bool MpvNode::toBool(bool fallback) const
 {
+    if (const bool* flag = std::get_if<bool>(&m_value))
+        return *flag;
+    if (const int64_t* number = std::get_if<int64_t>(&m_value))
+        return *number != 0;
+    return fallback;
+}
 
-void fromVariant(mpv_node *node, const QVariant &value)
+int64_t MpvNode::toInt(int64_t fallback) const
 {
-    switch (value.typeId()) {
-    case QMetaType::Bool:
+    if (const int64_t* number = std::get_if<int64_t>(&m_value))
+        return *number;
+    if (const double* number = std::get_if<double>(&m_value))
+        return int64_t(*number);
+    if (const bool* flag = std::get_if<bool>(&m_value))
+        return *flag ? 1 : 0;
+    return fallback;
+}
+
+double MpvNode::toDouble(double fallback) const
+{
+    if (const double* number = std::get_if<double>(&m_value))
+        return *number;
+    if (const int64_t* number = std::get_if<int64_t>(&m_value))
+        return double(*number);
+    return fallback;
+}
+
+std::string MpvNode::toString() const
+{
+    if (const std::string* text = std::get_if<std::string>(&m_value))
+        return *text;
+    return {};
+}
+
+const MpvNode::List& MpvNode::list() const
+{
+    static const List empty;
+    const List* list = std::get_if<List>(&m_value);
+    return list ? *list : empty;
+}
+
+const MpvNode::Map& MpvNode::map() const
+{
+    static const Map empty;
+    const Map* map = std::get_if<Map>(&m_value);
+    return map ? *map : empty;
+}
+
+const MpvNode& MpvNode::operator[](std::string_view key) const
+{
+    static const MpvNode none;
+    for (const auto& [name, value] : map()) {
+        if (name == key)
+            return value;
+    }
+    return none;
+}
+
+void MpvNode::fill(mpv_node* node) const
+{
+    if (const bool* flag = std::get_if<bool>(&m_value)) {
         node->format = MPV_FORMAT_FLAG;
-        node->u.flag = value.toBool() ? 1 : 0;
-        return;
-    case QMetaType::Int:
-    case QMetaType::UInt:
-    case QMetaType::Long:
-    case QMetaType::LongLong:
-    case QMetaType::ULongLong:
+        node->u.flag = *flag ? 1 : 0;
+    } else if (const int64_t* number = std::get_if<int64_t>(&m_value)) {
         node->format = MPV_FORMAT_INT64;
-        node->u.int64 = value.toLongLong();
-        return;
-    case QMetaType::Double:
-    case QMetaType::Float:
+        node->u.int64 = *number;
+    } else if (const double* number = std::get_if<double>(&m_value)) {
         node->format = MPV_FORMAT_DOUBLE;
-        node->u.double_ = value.toDouble();
-        return;
-    case QMetaType::QString:
-    case QMetaType::QByteArray:
-    case QMetaType::QUrl:
+        node->u.double_ = *number;
+    } else if (const std::string* text = std::get_if<std::string>(&m_value)) {
         node->format = MPV_FORMAT_STRING;
-        node->u.string = copyString(value.typeId() == QMetaType::QUrl ? value.toUrl().toString(QUrl::FullyEncoded) : value.toString());
-        return;
-    case QMetaType::QStringList:
-    case QMetaType::QVariantList: {
-        const QVariantList items = value.toList();
-        mpv_node_list *list = createList(node, false, items.size());
-        for (int i = 0; i < items.size(); ++i)
-            fromVariant(&list->values[i], items.at(i));
-        return;
-    }
-    case QMetaType::QVariantMap: {
-        const QVariantMap items = value.toMap();
-        mpv_node_list *list = createList(node, true, items.size());
-        int i = 0;
-        for (auto it = items.cbegin(); it != items.cend(); ++it, ++i) {
-            list->keys[i] = copyString(it.key());
-            fromVariant(&list->values[i], it.value());
+        node->u.string = copyString(*text);
+    } else if (const List* items = std::get_if<List>(&m_value)) {
+        mpv_node_list* list = createList(node, false, items->size());
+        for (size_t i = 0; i < items->size(); ++i)
+            (*items)[i].fill(&list->values[i]);
+    } else if (const Map* items = std::get_if<Map>(&m_value)) {
+        mpv_node_list* list = createList(node, true, items->size());
+        for (size_t i = 0; i < items->size(); ++i) {
+            list->keys[i] = copyString((*items)[i].first);
+            (*items)[i].second.fill(&list->values[i]);
         }
-        return;
-    }
-    default:
+    } else {
         node->format = MPV_FORMAT_NONE;
-        return;
     }
 }
 
-void release(mpv_node *node)
+void MpvNode::release(mpv_node* node)
 {
     switch (node->format) {
     case MPV_FORMAT_STRING:
@@ -89,7 +120,7 @@ void release(mpv_node *node)
         break;
     case MPV_FORMAT_NODE_ARRAY:
     case MPV_FORMAT_NODE_MAP: {
-        mpv_node_list *list = node->u.list;
+        mpv_node_list* list = node->u.list;
         for (int i = 0; i < list->num; ++i) {
             if (list->keys)
                 delete[] list->keys[i];
@@ -106,33 +137,33 @@ void release(mpv_node *node)
     node->format = MPV_FORMAT_NONE;
 }
 
-QVariant toVariant(const mpv_node *node)
+MpvNode MpvNode::from(const mpv_node* node)
 {
     switch (node->format) {
     case MPV_FORMAT_STRING:
     case MPV_FORMAT_OSD_STRING:
-        return QString::fromUtf8(node->u.string);
+        return std::string(node->u.string);
     case MPV_FORMAT_FLAG:
         return bool(node->u.flag);
     case MPV_FORMAT_INT64:
-        return qlonglong(node->u.int64);
+        return node->u.int64;
     case MPV_FORMAT_DOUBLE:
         return node->u.double_;
     case MPV_FORMAT_NODE_ARRAY: {
-        QVariantList items;
+        List items;
+        items.reserve(node->u.list->num);
         for (int i = 0; i < node->u.list->num; ++i)
-            items.append(toVariant(&node->u.list->values[i]));
+            items.push_back(from(&node->u.list->values[i]));
         return items;
     }
     case MPV_FORMAT_NODE_MAP: {
-        QVariantMap items;
+        Map items;
+        items.reserve(node->u.list->num);
         for (int i = 0; i < node->u.list->num; ++i)
-            items.insert(QString::fromUtf8(node->u.list->keys[i]), toVariant(&node->u.list->values[i]));
+            items.emplace_back(node->u.list->keys[i], from(&node->u.list->values[i]));
         return items;
     }
     default:
         return {};
     }
-}
-
 }

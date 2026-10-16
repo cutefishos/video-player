@@ -2,63 +2,53 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "tracks.h"
+#include "languages.h"
 
-#include <QCoreApplication>
-#include <QLocale>
+#include "base/strings.h"
 
-static QString languageName(const QString &code)
-{
-    if (code.isEmpty())
-        return {};
-    const QLocale::Language language = QLocale::codeToLanguage(code, QLocale::AnyLanguageCode);
-    if (language == QLocale::AnyLanguage)
-        return code;
-    // English's native name is "American English"; the language alone is meant.
-    if (language == QLocale::English)
-        return QLocale::languageToString(language);
-    const QString name = QLocale(language).nativeLanguageName();
-    return name.isEmpty() ? QLocale::languageToString(language) : name;
-}
+#include <format>
 
-namespace Tracks
+using namespace cutefish;
+
+namespace tracks
 {
 
-QString label(const QVariantMap &track)
+std::string label(const MpvNode& track)
 {
-    const QString title = track.value(QStringLiteral("title")).toString().trimmed();
-    const QString language = languageName(track.value(QStringLiteral("lang")).toString());
-    if (!title.isEmpty() && !language.isEmpty() && title.compare(language, Qt::CaseInsensitive) != 0)
-        return QStringLiteral("%1 (%2)").arg(title, language);
-    if (!title.isEmpty())
+    const std::string title(base::strings::trimmed(track["title"].toString()));
+    const std::string language = languages::displayName(track["lang"].toString());
+    if (!title.empty() && !language.empty()
+            && base::strings::compare(title, language, base::strings::CaseSensitivity::Insensitive) != 0)
+        return std::format("{} ({})", title, language);
+    if (!title.empty())
         return title;
-    if (!language.isEmpty())
+    if (!language.empty())
         return language;
-    return QCoreApplication::translate("Tracks", "Track %1").arg(track.value(QStringLiteral("id")).toInt());
+    return std::format("Track {}", track["id"].toInt());
 }
 
-Split split(const QVariantList &trackList)
+Split split(const MpvNode& trackList)
 {
     Split result;
-    for (const QVariant &entry : trackList) {
-        const QVariantMap track = entry.toMap();
-        const QString type = track.value(QStringLiteral("type")).toString();
-        if (type == QLatin1String("video")) {
-            if (!track.value(QStringLiteral("albumart")).toBool())
+    for (const MpvNode& track : trackList.list()) {
+        const std::string type = track["type"].toString();
+        if (type == "video") {
+            if (!track["albumart"].toBool())
                 result.hasVideo = true;
             continue;
         }
 
-        QVariantMap choice;
-        choice.insert(QStringLiteral("id"), track.value(QStringLiteral("id")).toInt());
-        choice.insert(QStringLiteral("label"), label(track));
-        choice.insert(QStringLiteral("selected"), track.value(QStringLiteral("selected")).toBool());
-        choice.insert(QStringLiteral("external"), track.value(QStringLiteral("external")).toBool());
-        if (type == QLatin1String("audio"))
-            result.audio.append(choice);
-        else if (type == QLatin1String("sub"))
-            result.subtitle.append(choice);
+        Track choice;
+        choice.id = int(track["id"].toInt());
+        choice.label = label(track);
+        choice.selected = track["selected"].toBool();
+        choice.external = track["external"].toBool();
+        if (type == "audio")
+            result.audio.push_back(std::move(choice));
+        else if (type == "sub")
+            result.subtitle.push_back(std::move(choice));
     }
     return result;
 }
 
-}
+} // namespace tracks

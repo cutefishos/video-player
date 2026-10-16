@@ -3,97 +3,110 @@
 
 #include "resumestore.h"
 
-#include <QCryptographicHash>
-#include <QDateTime>
-#include <QSettings>
+#include "base/hash.h"
+#include "base/settings.h"
+#include "base/strings.h"
 
 #include <algorithm>
+#include <chrono>
 
-static const QString resumeGroup = QStringLiteral("Resume");
-static constexpr double minimumPosition = 60;
-static constexpr double minimumDuration = 180;
+using namespace cutefish;
+namespace strings = base::strings;
 
-ResumeStore::ResumeStore(const QString &file, QObject *parent)
-    : QObject(parent)
-    , m_file(file)
+static constexpr const char* kGroup = "Resume";
+static constexpr double kMinimumPosition = 60;
+static constexpr double kMinimumDuration = 180;
+
+ResumeStore::ResumeStore(std::string file)
+    : m_file(std::move(file))
 {
 }
 
-QString ResumeStore::keyFor(const QUrl &url)
+std::string ResumeStore::keyFor(const std::string& url)
 {
-    // Paths hold characters QSettings keys cannot.
-    return QString::fromLatin1(QCryptographicHash::hash(url.toString(QUrl::FullyEncoded).toUtf8(),
-                                                        QCryptographicHash::Sha256).toHex());
+    // Paths hold characters settings keys cannot.
+    return base::CryptographicHash::hashHex(url, base::CryptographicHash::Algorithm::Sha256);
 }
 
 bool ResumeStore::worthKeeping(double position, double duration)
 {
-    return duration >= minimumDuration && position >= minimumPosition && position < duration * 0.95;
+    return duration >= kMinimumDuration && position >= kMinimumPosition && position < duration * 0.95;
 }
 
 // Stored as: position, time saved, audio track, subtitle track, subtitle delay.
-QVariantMap ResumeStore::entry(const QUrl &url) const
+std::optional<ResumeStore::Entry> ResumeStore::entry(const std::string& url) const
 {
-    QSettings settings(m_file, QSettings::IniFormat);
-    settings.beginGroup(resumeGroup);
-    const QStringList fields = settings.value(keyFor(url)).toStringList();
+    const base::Settings settings(m_file);
+    const std::vector<std::string> fields = settings.stringListValue(std::string(kGroup) + '/' + keyFor(url));
     if (fields.size() < 5)
-        return {};
-    return {
-        {QStringLiteral("position"), qMax(0.0, fields.at(0).toDouble())},
-        {QStringLiteral("audioTrack"), fields.at(2).toInt()},
-        {QStringLiteral("subtitleTrack"), fields.at(3).toInt()},
-        {QStringLiteral("subtitleDelay"), fields.at(4).toDouble()},
-    };
+        return std::nullopt;
+    Entry entry;
+    entry.position = std::max(0.0, strings::toDouble(fields[0]).value_or(0));
+    entry.audioTrack = strings::toNumber<int>(fields[2]).value_or(0);
+    entry.subtitleTrack = strings::toNumber<int>(fields[3]).value_or(0);
+    entry.subtitleDelay = strings::toDouble(fields[4]).value_or(0);
+    return entry;
 }
 
-double ResumeStore::position(const QUrl &url) const
+double ResumeStore::position(const std::string& url) const
 {
-    return entry(url).value(QStringLiteral("position"), 0.0).toDouble();
+    const auto found = entry(url);
+    return found ? found->position : 0;
 }
 
-void ResumeStore::save(const QUrl &url, double position, double duration, const QVariantMap &choices)
+void ResumeStore::save(const std::string& url, double position, double duration, const Entry& choices)
 {
-    if (url.isEmpty())
+    if (url.empty())
         return;
     if (!worthKeeping(position, duration)) {
         forget(url);
         return;
     }
 
-    QSettings settings(m_file, QSettings::IniFormat);
-    settings.beginGroup(resumeGroup);
-    const qint64 now = QDateTime::currentMSecsSinceEpoch();
-    settings.setValue(keyFor(url), QStringList{
-        QString::number(position, 'f', 3),
-        QString::number(now),
-        QString::number(choices.value(QStringLiteral("audioTrack"), -1).toInt()),
-        QString::number(choices.value(QStringLiteral("subtitleTrack"), -1).toInt()),
-        QString::number(choices.value(QStringLiteral("subtitleDelay"), 0.0).toDouble(), 'f', 3),
+    base::Settings settings(m_file);
+    const std::string key = keyFor(url);
+    const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+    settings.setValue(std::string(kGroup) + '/' + key, std::vector<std::string>{
+        strings::number(position, 'f', 3),
+        strings::number((long long)now),
+        strings::number(choices.audioTrack),
+        strings::number(choices.subtitleTrack),
+        strings::number(choices.subtitleDelay, 'f', 3),
     });
 
-    QStringList keys = settings.childKeys();
-    if (keys.size() <= Capacity)
+    std::vector<std::string> keys = settings.childKeys(kGroup);
+    if (keys.size() <= size_t(Capacity))
         return;
-    auto stamp = [&settings](const QString &key) {
-        return settings.value(key).toStringList().value(1).toLongLong();
+    auto stamp = [&settings](const std::string& name) {
+        const std::vector<std::string> fields = settings.stringListValue(std::string(kGroup) + '/' + name);
+        return fields.size() > 1 ? strings::toNumber<long long>(fields[1]).value_or(0) : 0;
     };
-    std::sort(keys.begin(), keys.end(), [&](const QString &a, const QString &b) {
-        return stamp(a) < stamp(b);
-    });
-    for (int i = 0; i < keys.size() - Capacity; ++i)
-        settings.remove(keys.at(i));
+    std::vector<std::pair<long long, std::string>> stamped;
+    stamped.reserve(keys.size());
+    for (std::string& other : keys) {
+        // Saved within the same millisecond as others, the newest still stays.
+        if (other != key)
+            stamped.emplace_back(stamp(other), std::move(other));
+    }
+    std::stable_sort(stamped.begin(), stamped.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+    for (size_t i = 0; i + size_t(Capacity) < keys.size(); ++i)
+        settings.remove(std::string(kGroup) + '/' + stamped[i].second);
 }
 
-void ResumeStore::forget(const QUrl &url)
+void ResumeStore::save(const std::string& url, double position, double duration)
 {
-    QSettings settings(m_file, QSettings::IniFormat);
-    settings.beginGroup(resumeGroup);
-    settings.remove(keyFor(url));
+    save(url, position, duration, Entry());
+}
+
+void ResumeStore::forget(const std::string& url)
+{
+    base::Settings settings(m_file);
+    settings.remove(std::string(kGroup) + '/' + keyFor(url));
 }
 
 void ResumeStore::clear()
 {
-    QSettings settings(m_file, QSettings::IniFormat);
-    settings.remove(resumeGroup);
+    base::Settings settings(m_file);
+    settings.remove(kGroup);
 }

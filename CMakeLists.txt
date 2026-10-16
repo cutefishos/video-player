@@ -5,66 +5,67 @@ cmake_minimum_required(VERSION 3.16)
 
 project(cutefish-video-player VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(GNUInstallDirs)
 include(CTest)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2 OpenGL DBus LinguistTools ShaderTools)
-find_package(CutefishFramework REQUIRED COMPONENTS Application)
+find_package(CutefishToolkit REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Mpv REQUIRED IMPORTED_TARGET mpv>=2.0)
+pkg_check_modules(ICU REQUIRED IMPORTED_TARGET icu-uc icu-i18n)
 
 add_library(player-backend STATIC
     src/application.cpp
     src/durationprobe.cpp
+    src/languages.cpp
+    src/mprisserver.cpp
     src/mpvnode.cpp
+    src/player.cpp
     src/playersettings.cpp
     src/playlist.cpp
     src/resumestore.cpp
     src/sleepinhibitor.cpp
+    src/softwarevideo.cpp
     src/thumbnailer.cpp
     src/tracks.cpp
+    src/urls.cpp
 )
 target_include_directories(player-backend PUBLIC src)
-# Linked into the application module.
-set_target_properties(player-backend PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(player-backend PUBLIC
-    Qt6::Core
-    Qt6::Gui
-    Qt6::Quick
-    Qt6::DBus
-    PkgConfig::Mpv
-)
+target_link_libraries(player-backend PUBLIC Cutefish::Toolkit PkgConfig::Mpv PRIVATE PkgConfig::ICU)
 
-cutefish_add_application(${PROJECT_NAME} SOURCES
-    src/main.cpp
-    src/mpvitem.cpp
-    resources.qrc
-)
-target_compile_definitions(${PROJECT_NAME}-module PRIVATE VIDEO_PLAYER_VERSION="${PROJECT_VERSION}")
-qt_add_shaders(${PROJECT_NAME}-module "player_shaders"
-    PREFIX "/"
-    FILES
-    shaders/glass.frag
-)
-target_link_libraries(${PROJECT_NAME}-module PRIVATE
-    player-backend
-    Qt6::OpenGL
-    Qt6::QuickControls2
-)
+# The glyphs, built in.
+file(GLOB VIDEO_PLAYER_ICONS CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/icons/*.svg)
+set(VIDEO_PLAYER_EMBEDDED ${CMAKE_CURRENT_BINARY_DIR}/icons.cpp)
+# A list would be split into separate arguments on the way to the script.
+string(REPLACE ";" "|" VIDEO_PLAYER_ICON_LIST "${VIDEO_PLAYER_ICONS}")
+add_custom_command(OUTPUT ${VIDEO_PLAYER_EMBEDDED}
+    COMMAND ${CMAKE_COMMAND} -DOUTPUT=${VIDEO_PLAYER_EMBEDDED}
+            -DFILES=${VIDEO_PLAYER_ICON_LIST} -P ${PROJECT_SOURCE_DIR}/cmake/EmbedIcons.cmake
+    DEPENDS ${VIDEO_PLAYER_ICONS} ${PROJECT_SOURCE_DIR}/cmake/EmbedIcons.cmake
+    VERBATIM)
 
-file(GLOB TS_FILES translations/*.ts)
-qt_add_translation(QM_FILES ${TS_FILES})
-add_custom_target(translations ALL DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
+add_library(player-ui STATIC
+    src/views/controlbar.cpp
+    src/views/dialogs.cpp
+    src/views/mainwindow.cpp
+    src/views/pages.cpp
+    src/views/sidepanel.cpp
+    src/views/videoview.cpp
+    src/views/widgets.cpp
+    ${VIDEO_PLAYER_EMBEDDED}
+)
+target_include_directories(player-ui PUBLIC src src/views)
+target_link_libraries(player-ui PUBLIC player-backend Cutefish::Toolkit)
 
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_compile_definitions(${PROJECT_NAME} PRIVATE VIDEO_PLAYER_VERSION="${PROJECT_VERSION}")
+target_link_libraries(${PROJECT_NAME} PRIVATE player-ui)
+
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES cutefish-video-player.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/cutefish-video-player/translations)
 
 if(BUILD_TESTING)
-    find_package(Qt6 REQUIRED COMPONENTS Test)
     add_subdirectory(tests)
 endif()
