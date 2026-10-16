@@ -21,6 +21,7 @@ add_library(player-backend STATIC
     src/durationprobe.cpp
     src/languages.cpp
     src/mprisserver.cpp
+    src/mpvlibrary.cpp
     src/mpvnode.cpp
     src/player.cpp
     src/playersettings.cpp
@@ -33,7 +34,9 @@ add_library(player-backend STATIC
     src/urls.cpp
 )
 target_include_directories(player-backend PUBLIC src)
-target_link_libraries(player-backend PUBLIC Cutefish::Toolkit PkgConfig::Mpv PRIVATE PkgConfig::ICU)
+# libmpv is opened on first use (src/mpvlibrary.cpp); only its headers are needed here.
+target_include_directories(player-backend PUBLIC ${Mpv_INCLUDE_DIRS})
+target_link_libraries(player-backend PUBLIC Cutefish::Toolkit ${CMAKE_DL_LIBS} PRIVATE PkgConfig::ICU)
 
 # The glyphs, built in.
 file(GLOB VIDEO_PLAYER_ICONS CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/icons/*.svg)
