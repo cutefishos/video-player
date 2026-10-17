@@ -150,9 +150,11 @@ void VideoSurface::run()
         if (size.width() > 0 && size.height() > 0) {
             mpv_opengl_fbo fbo{0, size.width(), size.height(), 0};
             int flipY = 1;
+            int block = 0;
             mpv_render_param render[] = {
                 {MPV_RENDER_PARAM_OPENGL_FBO, &fbo},
                 {MPV_RENDER_PARAM_FLIP_Y, &flipY},
+                {MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME, &block},
                 {MPV_RENDER_PARAM_INVALID, nullptr},
             };
             mpv_render_context_render(context, render);

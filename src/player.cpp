@@ -83,6 +83,10 @@ bool Player::ensurePlayer()
     setOption("cscale", "bilinear");
     // Playback stops on the last frame; the playlist decides what comes next.
     setOption("keep-open", "yes");
+    // Frames reach the video output at their display time instead of 50 ms
+    // early, so drawing one never waits for that time and a window resize
+    // gets its picture at once.
+    setOption("video-timing-offset", 0);
     setOption("idle", "yes");
     setOption("input-default-bindings", false);
     setOption("input-vo-keyboard", false);
