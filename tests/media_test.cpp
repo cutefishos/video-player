@@ -107,6 +107,7 @@ protected:
         // Found next to the video by its name.
         std::error_code error;
         fs::copy_file(subtitle, path("clip.zh.srt"), error);
+        fs::copy_file(path("clip.mkv"), path("other.mkv"), error);
     }
 
     static void TearDownTestSuite()
@@ -282,6 +283,36 @@ TEST_F(MediaTest, RecoversLostRenderContext)
     EXPECT_EQ(failed, 0);
     EXPECT_EQ(reloaded, 0);
     EXPECT_GT(player.subtitleTrack(), 0);
+}
+
+// Recovery from the lost output is over once another file is opened.
+TEST_F(MediaTest, LoadsAnotherFileAfterTheRenderContextCameBack)
+{
+    TestPlayer test;
+    Player& player = test.player;
+    player.load(clip(), {}, false);
+    ASSERT_TRUE(waitForLoad(player));
+    ASSERT_TRUE(waitFor([&] { return player.videoActive(); }));
+
+    test.detach();
+    ASSERT_TRUE(waitFor([&] { return !player.videoActive(); }));
+    test.attach();
+    int failed = 0;
+    auto failures = player.playbackFailed.connect([&](const std::string&) { ++failed; });
+    const std::string other = urls::fromLocalFile(path("other.mkv"));
+    player.load(other, {}, false);
+    ASSERT_TRUE(waitForLoad(player));
+    EXPECT_EQ(player.source(), other);
+    EXPECT_TRUE(waitFor([&] { return player.videoActive(); }));
+    EXPECT_EQ(failed, 0);
+
+    // Lost again with the new file open: the new file is what comes back.
+    test.detach();
+    ASSERT_TRUE(waitFor([&] { return !player.videoActive(); }));
+    test.attach();
+    EXPECT_TRUE(waitFor([&] { return player.videoActive(); }));
+    EXPECT_EQ(player.source(), other);
+    EXPECT_EQ(failed, 0);
 }
 
 // Destroying the player while mpv still has events and frames to deliver.

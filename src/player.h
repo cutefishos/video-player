@@ -165,6 +165,10 @@ private:
     };
 
     bool ensurePlayer();
+    void open(const std::string& url, const FileOptions& options, bool paused);
+    // Opens the current file again after the lost output, quietly.
+    void reopen(const FileOptions& options);
+    void forgetLostFile();
     void startLoad();
     void processEvents();
     void handlePropertyChange(const struct mpv_event_property* property);
@@ -189,6 +193,9 @@ private:
     // The picture came back for a file still open; its end may yet arrive.
     bool m_recovering = false;
     bool m_playerFailed = false;
+    // mpv's playlist entry started last, and the one the last load replaced.
+    int64_t m_entry = 0;
+    int64_t m_replacedEntry = 0;
     std::vector<std::pair<std::string, MpvNode>> m_pendingProperties;
     MpvNode::List m_pendingLoad;
 

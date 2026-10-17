@@ -224,8 +224,7 @@ void Player::setRenderReady()
         } else if (!m_source.empty() && m_pendingLoad.empty() && !m_lostState.empty()) {
             const FileOptions options = std::move(m_lostState);
             m_lostState.clear();
-            m_reopening = true;
-            load(m_source, options, m_lostPaused);
+            reopen(options);
             return;
         }
     }
@@ -265,6 +264,9 @@ void Player::processEvents()
         case MPV_EVENT_PROPERTY_CHANGE:
             handlePropertyChange(static_cast<mpv_event_property*>(event->data));
             break;
+        case MPV_EVENT_START_FILE:
+            m_entry = static_cast<mpv_event_start_file*>(event->data)->playlist_entry_id;
+            break;
         case MPV_EVENT_FILE_LOADED:
             m_loaded = true;
             changed.emit(Property::Loaded);
@@ -279,12 +281,13 @@ void Player::processEvents()
             const auto* end = static_cast<mpv_event_end_file*>(event->data);
             const bool failed = end->reason == MPV_END_FILE_REASON_ERROR;
             const std::string message = failed ? mpv_error_string(end->error) : std::string();
-            if (failed && m_recovering && !m_lostState.empty() && m_renderReady) {
+            // The file a load replaced may still end the way the lost output left it.
+            const bool replaced = end->playlist_entry_id == m_replacedEntry;
+            if (failed && !replaced && m_recovering && !m_lostState.empty() && m_renderReady) {
                 // The end the lost output caused arrived after the new one came.
                 m_recovering = false;
-                m_reopening = true;
                 const FileOptions options = m_lostState;
-                load(m_source, options, m_lostPaused);
+                reopen(options);
                 break;
             }
             if (m_loaded) {
@@ -292,7 +295,7 @@ void Player::processEvents()
                 changed.emit(Property::Loaded);
             }
             // Ending because the picture went away is recovered from, not reported.
-            if (weak && failed && !m_videoLost)
+            if (weak && failed && !m_videoLost && !replaced)
                 playbackFailed.emit(message);
             break;
         }
@@ -497,6 +500,25 @@ void Player::setLoopFile(bool loop)
 
 void Player::load(const std::string& url, const FileOptions& options, bool paused)
 {
+    forgetLostFile();
+    open(url, options, paused);
+}
+
+void Player::forgetLostFile()
+{
+    m_recovering = false;
+    m_reopening = false;
+    m_lostState.clear();
+}
+
+void Player::reopen(const FileOptions& options)
+{
+    m_reopening = true;
+    open(m_source, options, m_lostPaused);
+}
+
+void Player::open(const std::string& url, const FileOptions& options, bool paused)
+{
     if (!ensurePlayer()) {
         playbackFailed.emit("mpv could not be started");
         return;
@@ -505,6 +527,7 @@ void Player::load(const std::string& url, const FileOptions& options, bool pause
         m_source = url;
         changed.emit(Property::Source);
     }
+    m_replacedEntry = m_entry;
     resetMedia();
     setMpvProperty("pause", paused);
     std::vector<std::string> fileOptions;
@@ -525,6 +548,8 @@ void Player::startLoad()
 
 void Player::stop()
 {
+    forgetLostFile();
+    m_replacedEntry = m_entry;
     m_pendingLoad.clear();
     command({"stop"});
     if (!m_source.empty()) {
