@@ -196,7 +196,7 @@ MprisServer::MprisServer(base::dbus::Connection* bus, const std::string& service
             return call.reply();
         if (track.path != m_metadata.trackId)
             return call.replyError(kInvalidArgs, "Wanted to move to position but the TrackId is not the current one.");
-        if (position > m_metadata.length)
+        if (position < 0 || position > m_metadata.length)
             return call.replyError(kInvalidArgs, "Wanted to move to position but the position is off range.");
         call.reply();
         setPositionRequested.emit(track.path, position);

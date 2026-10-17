@@ -124,6 +124,8 @@ TEST_F(MprisTest, PropertiesAndRequests)
     EXPECT_TRUE(wrongTrack.isError());
     EXPECT_FALSE(call(player, "SetPosition", dbus::ObjectPath{"/com/cutefish/VideoPlayer/Track/0"}, int64_t(1)).isError());
     EXPECT_EQ(positions.size(), 1u);
+    EXPECT_TRUE(call(player, "SetPosition", dbus::ObjectPath{"/com/cutefish/VideoPlayer/Track/0"}, int64_t(-1)).isError());
+    EXPECT_EQ(positions.size(), 1u);
 
     EXPECT_FALSE(call("org.freedesktop.DBus.Properties", "Set", std::string(player), std::string("Volume"),
                       dbus::Variant(0.5)).isError());

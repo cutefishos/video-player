@@ -1036,7 +1036,7 @@ void MainWindow::bindMpris()
     m_subscriptions.push_back(m_mpris->previousRequested.connect([this] { playPrevious(); }));
     m_subscriptions.push_back(m_mpris->seekRequested.connect([this](int64_t offset) {
         m_player.seekRelative(double(offset) / 1e6);
-        m_mpris->seeked(int64_t(std::lround((m_player.position() + double(offset) / 1e6) * 1e6)));
+        m_mpris->seeked(int64_t(std::lround(std::max(0.0, m_player.position() + double(offset) / 1e6) * 1e6)));
     }));
     m_subscriptions.push_back(m_mpris->setPositionRequested.connect([this](const std::string&, int64_t position) {
         m_player.seek(double(position) / 1e6, true);
