@@ -11,6 +11,7 @@
 #include "ui/application.h"
 #include "ui/button.h"
 #include "ui/clipboard.h"
+#include "ui/color_provider.h"
 #include "ui/combo_box.h"
 #include "ui/dialog_window.h"
 #include "ui/file_chooser.h"
@@ -38,8 +39,7 @@ namespace
 // The separator under every visible row of a card but its last.
 Color separatorColor()
 {
-    const Theme& theme = Theme::current();
-    return theme.disabledText.withAlpha(theme.darkMode ? 0.3 : 0.1);
+    return color(ColorId::Separator);
 }
 
 // A rounded card with rows of a fixed height (44 for information, 48 for preferences).
