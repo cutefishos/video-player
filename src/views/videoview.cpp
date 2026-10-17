@@ -244,6 +244,13 @@ void VideoView::attachSoftware()
     requestPaint();
 }
 
+std::unique_ptr<VideoSurface> VideoView::takeSurface()
+{
+    if (m_surface)
+        m_surface->onFailed = nullptr;
+    return std::move(m_surface);
+}
+
 RectF VideoView::windowRect() const
 {
     const PointF origin = mapToWindow({0, 0});

@@ -20,6 +20,7 @@
 class ControlBar;
 class SidePanel;
 class VideoView;
+class VideoSurface;
 class Dialogs;
 namespace views {
 class Tween;
@@ -122,6 +123,8 @@ private:
 
     Application& m_app;
     Player m_player;
+    // Goes after the window, which then closes with the picture still in it.
+    std::unique_ptr<VideoSurface> m_closingVideo;
     cutefish::ui::Window m_window;
     Root* m_root = nullptr;
     VideoView* m_video = nullptr;

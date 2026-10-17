@@ -564,6 +564,7 @@ MainWindow::~MainWindow()
 {
     m_chrome->onUpdate = nullptr;
     m_chrome.reset();
+    m_closingVideo = m_video->takeSurface();
 }
 
 void MainWindow::show()

@@ -78,6 +78,8 @@ public:
     // The window's size is changing.
     void windowResizing();
     bool usesSurface() const { return m_surface != nullptr; }
+    // The output, to outlive the window it shows in.
+    std::unique_ptr<VideoSurface> takeSurface();
 
 protected:
     void layout() override;
