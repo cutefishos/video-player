@@ -425,7 +425,13 @@ void Player::setOption(const char* name, const MpvNode& value)
 void Player::setMpvProperty(const char* name, const MpvNode& value)
 {
     if (!m_handle->mpv) {
-        m_pendingProperties.emplace_back(name, value);
+        // Only the last value counts: an empty window sets the subtitle margin on every resize.
+        const auto pending = std::find_if(m_pendingProperties.begin(), m_pendingProperties.end(),
+                                          [name](const auto& property) { return property.first == name; });
+        if (pending != m_pendingProperties.end())
+            pending->second = value;
+        else
+            m_pendingProperties.emplace_back(name, value);
         return;
     }
     mpv_node node;
