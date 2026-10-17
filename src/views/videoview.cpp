@@ -46,8 +46,6 @@ VideoSurface::VideoSurface(Player& player, Window* window)
         m_wake.notify_all();
         m_surface->wakeUp();
     };
-    m_desynchronize.setSingleShot(true);
-    m_desynchronize.onTimeout = [this] { m_surface->setSynchronized(false); };
     m_selfWeak = m_weakFactory.getWeakPtr();
     m_thread = std::thread([this] { run(); });
 }
@@ -82,14 +80,6 @@ void VideoSurface::setGeometry(const RectF& rect)
 {
     if (m_surface)
         m_surface->setGeometry(rect);
-}
-
-void VideoSurface::beginResize()
-{
-    if (!isValid())
-        return;
-    m_surface->setSynchronized(true);
-    m_desynchronize.start(300ms);
 }
 
 // From the thread; the surface may be gone by the time the loop runs it.
@@ -255,12 +245,6 @@ RectF VideoView::windowRect() const
 {
     const PointF origin = mapToWindow({0, 0});
     return {origin.x, origin.y, geometry().width, geometry().height};
-}
-
-void VideoView::windowResizing()
-{
-    if (m_surface)
-        m_surface->beginResize();
 }
 
 void VideoView::layout()

@@ -460,7 +460,6 @@ MainWindow::MainWindow(::Application& application)
         m_root->header->setCloseVisible(!fullScreen);
         m_root->content->menu->setVisible(!fullScreen);
         m_root->content->requestLayout();
-        m_video->windowResizing();
         stateChanged.emit();
     };
     m_window.onActiveChanged = [this] {
@@ -1422,7 +1421,6 @@ void MainWindow::takeScreenshot()
 
 void MainWindow::toggleFullScreen()
 {
-    m_video->windowResizing();
     if (isFullScreen()) {
         m_window.setFullScreen(false);
         if (m_wasMaximized)
@@ -1461,10 +1459,8 @@ void MainWindow::fitToVideo()
     if (isFullScreen() || m_window.states().maximized || !m_player.hasVideo())
         return;
     const SizeF size = fittedSize(video);
-    if (size.width != m_window.size().width || size.height != m_window.size().height) {
-        m_video->windowResizing();
+    if (size.width != m_window.size().width || size.height != m_window.size().height)
         m_window.resize(size);
-    }
 }
 
 // The window size for a picture: device pixels one to one, within three

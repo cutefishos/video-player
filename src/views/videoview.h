@@ -4,7 +4,6 @@
 #pragma once
 
 #include "base/signal.h"
-#include "base/timer.h"
 #include "base/weak_ptr.h"
 #include "ui/view.h"
 
@@ -37,8 +36,6 @@ public:
 
     bool isValid() const;
     void setGeometry(const cutefish::ui::RectF& rect);
-    // The window is about to change size: hold the picture to its commits a while.
-    void beginResize();
 
     // On the window's loop: the thread could not set up mpv's OpenGL output.
     std::function<void()> onFailed;
@@ -59,7 +56,6 @@ private:
     bool m_stopping = false;
     bool m_dirty = true;
     std::atomic<bool> m_contextReady = false;
-    cutefish::base::Timer m_desynchronize;
     // Taken on the window's loop for the thread to hand back.
     cutefish::base::WeakPtr<VideoSurface> m_selfWeak;
     cutefish::base::WeakPtrFactory<VideoSurface> m_weakFactory{this};
@@ -75,8 +71,6 @@ public:
 
     // mpv started: make the output.
     void attach();
-    // The window's size is changing.
-    void windowResizing();
     bool usesSurface() const { return m_surface != nullptr; }
     // The output, to outlive the window it shows in.
     std::unique_ptr<VideoSurface> takeSurface();
