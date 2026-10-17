@@ -27,6 +27,20 @@ static int trackId(const MpvNode& value)
     return value.isInt() ? int(value.toInt()) : 0;
 }
 
+// The scaling of mpv's "fast" profile: drawing at a new size makes no
+// intermediate textures of that size and weighs no filter kernels for it.
+static const std::vector<std::pair<const char*, MpvNode>>& resizeScaling()
+{
+    static const std::vector<std::pair<const char*, MpvNode>> options = {
+        {"scale", "bilinear"},
+        {"dscale", "bilinear"},
+        {"correct-downscaling", false},
+        {"linear-downscaling", false},
+        {"sigmoid-upscaling", false},
+    };
+    return options;
+}
+
 static std::string optionText(const MpvNode& value)
 {
     if (value.isDouble())
@@ -140,6 +154,13 @@ bool Player::ensurePlayer()
     };
     for (const auto& property : observed)
         mpv_observe_property(mpv, 0, property.name, property.format);
+    for (const auto& [name, value] : resizeScaling()) {
+        mpv_node node;
+        if (mpv_get_property(mpv, name, MPV_FORMAT_NODE, &node) < 0)
+            continue;
+        m_scaling.emplace_back(name, MpvNode::from(&node));
+        mpv_free_node_contents(&node);
+    }
 
     mpv_request_log_messages(mpv, "error");
     base::EventLoop* loop = base::EventLoop::current();
@@ -642,6 +663,22 @@ void Player::setViewHeight(double height)
     // The margin is relative to the height, so a resize moves it.
     m_viewHeight = height;
     applySubtitleMargin();
+}
+
+void Player::setResizing(bool resizing)
+{
+    if (m_resizing == resizing)
+        return;
+    m_resizing = resizing;
+    if (!m_handle->mpv)
+        return;
+    if (resizing) {
+        for (const auto& [name, value] : resizeScaling())
+            setMpvProperty(name, value);
+    } else {
+        for (const auto& [name, value] : m_scaling)
+            setMpvProperty(name.c_str(), value);
+    }
 }
 
 void Player::applySubtitleMargin()

@@ -147,6 +147,9 @@ public:
     // viewHeight tall, such as controls drawn over the video.
     void setSubtitleBottomInset(double inset);
     void setViewHeight(double height);
+    // While the user drags the window's edge: scaling that is cheap to draw
+    // at a new size every frame, mpv's own afterwards.
+    void setResizing(bool resizing);
 
     cutefish::base::Signal<Property> changed;
     cutefish::base::Signal<> fileLoaded;
@@ -221,6 +224,9 @@ private:
     double m_subtitleDelay = 0;
     double m_subtitleInset = 0;
     double m_viewHeight = 0;
+    bool m_resizing = false;
+    // mpv's scaling options as it started, for after a resize.
+    std::vector<std::pair<std::string, MpvNode>> m_scaling;
     std::vector<Chapter> m_chapters;
     int m_chapter = -1;
     int m_rotation = 0;

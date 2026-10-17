@@ -462,6 +462,7 @@ MainWindow::MainWindow(::Application& application)
         m_root->content->requestLayout();
         stateChanged.emit();
     };
+    m_window.onInteractiveResizeChanged = [this] { m_player.setResizing(m_window.isInteractivelyResized()); };
     m_window.onActiveChanged = [this] {
         if (!m_window.isActive())
             m_pointerActive = false;
