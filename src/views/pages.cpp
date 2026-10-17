@@ -281,8 +281,8 @@ EmptyPage::EmptyPage(MainWindow& owner)
     m_openUrl->onClicked = [this] { m_owner.openUrlDialog(); };
     m_clear->onClicked = [this] { m_owner.app().settings().clearRecentFiles(); };
     m_clear->onHoverChanged = [this] {
-        const Color highlight = Theme::current().highlight;
-        m_clearLabel->setColor(m_clear->isHoveredNow() ? highlight.lighter(1.2) : highlight);
+        m_clearLabel->setColor(m_clear->isHoveredNow() ? lighter(ColorId::Highlight, 1.2)
+                                                       : ColorRecipe(ColorId::Highlight));
     };
     reload();
 }
@@ -305,7 +305,7 @@ void EmptyPage::reload()
     m_recentLabel->setVisible(hasRecent);
     m_clear->setVisible(hasRecent);
     m_card->setVisible(hasRecent);
-    m_clearLabel->setColor(Theme::current().highlight);
+    m_clearLabel->setColor(ColorId::Highlight);
     m_column->requestLayout();
 }
 

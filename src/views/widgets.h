@@ -57,7 +57,7 @@ std::string glyph(const std::string& name);
 
 // A label: size in points (0 for the theme's), weight 0 for normal.
 cutefish::ui::Label* addLabel(cutefish::ui::View* parent, std::string text, double pointSize = 0,
-                              std::optional<Color> color = std::nullopt, int weight = 0);
+                              std::optional<cutefish::ui::ColorRecipe> color = std::nullopt, int weight = 0);
 // Tabular figures: the OpenType "tnum" feature.
 void setTabular(cutefish::ui::Label* label);
 

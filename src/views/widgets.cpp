@@ -35,7 +35,7 @@ std::string glyph(const std::string& name)
     return "vp-" + name;
 }
 
-Label* addLabel(View* parent, std::string text, double pointSize, std::optional<Color> color, int weight)
+Label* addLabel(View* parent, std::string text, double pointSize, std::optional<ColorRecipe> color, int weight)
 {
     auto* label = parent->addChild<Label>(std::move(text));
     if (pointSize > 0)

@@ -103,7 +103,7 @@ class Row : public View
 public:
     Row(std::string text, std::string value = {})
         : m_label(views::addLabel(this, std::move(text)))
-        , m_value(views::addLabel(this, std::move(value), 0, Theme::current().disabledText))
+        , m_value(views::addLabel(this, std::move(value), 0, ColorId::DisabledText))
     {
         m_label->setElide(Label::Elide::Right);
         m_value->setElide(Label::Elide::Right);
@@ -175,7 +175,7 @@ public:
 
     Label* addSectionLabel(const std::string& text)
     {
-        Label* label = views::addLabel(this, text, 0, Theme::current().disabledText);
+        Label* label = views::addLabel(this, text, 0, ColorId::DisabledText);
         label->setElide(Label::Elide::Right);
         label->setName("sectionLabel");
         return label;
@@ -264,7 +264,7 @@ public:
         m_window = std::make_unique<Window>();
         m_window->setTitle("Open URL");
         m_window->setTransientParent(&m_owner.window(), true);
-        m_window->setBackgroundColor(Theme::current().secondBackground);
+        m_window->setBackgroundColor(ColorId::SecondBackground);
         auto root = std::make_unique<Root>(*this);
         m_root = root.get();
         m_window->setContentView(std::move(root));
@@ -395,7 +395,7 @@ public:
         m_window->setTitle("cutefish-video-player");
         m_window->setTransientParent(&m_owner.window(), true);
         // A translucent, blurred background.
-        m_window->setBackgroundColor(Theme::current().background.withAlpha(0.8));
+        m_window->setBackgroundColor(withAlpha(ColorId::Background, 0.8));
         auto root = std::make_unique<Root>();
         Root* rootView = root.get();
         m_window->setContentView(std::move(root));
@@ -436,7 +436,7 @@ private:
         {
             m_header->setMinimizeVisible(false);
             m_header->setMaximizeVisible(false);
-            m_linkLabel->setSpans({{kLink, 0, Theme::current().highlight, false, true, kLink}});
+            m_linkLabel->setSpans({{kLink, 0, ColorId::Highlight, false, true, kLink}});
             m_link->setCursorShape(CursorShape::Pointer);
             m_link->onClicked = [] { base::Process::startDetached("xdg-open", {kLink}, {}); };
         }
@@ -510,7 +510,7 @@ void Dialogs::mediaInfo(const MpvNode::Map& details, const std::string& name)
 {
     const MpvNode info(details);
     m_mediaInfo = std::make_unique<DialogWindow>(&m_owner.window(), "Media Info", 440);
-    m_mediaInfo->window()->setBackgroundColor(Theme::current().background);
+    m_mediaInfo->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_mediaInfo.get());
     auto* column = m_mediaInfo->setContent<Column>();
 
@@ -578,7 +578,7 @@ void Dialogs::preferences()
 {
     PlayerSettings& settings = m_owner.app().settings();
     m_preferences = std::make_unique<DialogWindow>(&m_owner.window(), "Settings", 460);
-    m_preferences->window()->setBackgroundColor(Theme::current().background);
+    m_preferences->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_preferences.get());
     auto* column = m_preferences->setContent<Column>();
 
@@ -664,7 +664,7 @@ void Dialogs::preferences()
 void Dialogs::shortcuts()
 {
     m_shortcuts = std::make_unique<DialogWindow>(&m_owner.window(), "Keyboard Shortcuts", 480);
-    m_shortcuts->window()->setBackgroundColor(Theme::current().background);
+    m_shortcuts->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_shortcuts.get());
 
     struct Section
