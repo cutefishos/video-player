@@ -15,6 +15,7 @@
 
 #include <mpv/render_gl.h>
 
+#include <chrono>
 #include <cmath>
 
 using namespace cutefish;
@@ -171,8 +172,40 @@ void VideoSurface::run()
             m_surface->waitForFrame(100);
         }
     }
+    releaseOutput(context);
     mpv_render_context_free(context);
     m_surface->doneCurrent();
+}
+
+// Freeing the context takes mpv's video output down, but an output in the
+// middle of a file waits up to 200 ms for the frame it handed over last. An
+// unloaded file takes it down while this thread still takes its frames.
+void VideoSurface::releaseOutput(mpv_render_context* context)
+{
+    const char* stop[] = {"stop", nullptr};
+    if (mpv_command(m_handle->mpv, stop) < 0)
+        return;
+    const auto deadline = std::chrono::steady_clock::now() + 1s;
+    while (std::chrono::steady_clock::now() < deadline) {
+        int configured = 0;
+        if (mpv_get_property(m_handle->mpv, "vo-configured", MPV_FORMAT_FLAG, &configured) < 0 || !configured)
+            return;
+        {
+            std::unique_lock lock(m_mutex);
+            if (!m_wake.wait_for(lock, 5ms, [this] { return m_dirty; }))
+                continue;
+            m_dirty = false;
+        }
+        if (mpv_render_context_update(context) & MPV_RENDER_UPDATE_FRAME) {
+            int skip = 1;
+            mpv_render_param render[] = {
+                {MPV_RENDER_PARAM_SKIP_RENDERING, &skip},
+                {MPV_RENDER_PARAM_INVALID, nullptr},
+            };
+            mpv_render_context_render(context, render);
+            mpv_render_context_report_swap(context);
+        }
+    }
 }
 
 VideoView::VideoView(MainWindow& owner)

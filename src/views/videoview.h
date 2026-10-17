@@ -45,6 +45,7 @@ public:
 
 private:
     void run();
+    void releaseOutput(mpv_render_context* context);
     void stopThread();
     void fail();
 
