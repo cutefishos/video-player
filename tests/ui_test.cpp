@@ -14,6 +14,7 @@
 #include "ui/application.h"
 #include "ui/icon.h"
 #include "ui/label.h"
+#include "ui/scroll_view.h"
 #include "ui/test_input.h"
 #include "ui/theme.h"
 
@@ -141,6 +142,40 @@ TEST_F(UiTest, EmptyWindow)
         EXPECT_GE(button.y, 44);
         EXPECT_LE(button.y + button.height, size.height);
     }
+}
+
+TEST_F(UiTest, EmptyWindowScrollsRecentFiles)
+{
+    // Out of the clip's folder, which the later tests open as a playlist.
+    const fs::path folder = fs::path(s_dir->path()) / "recent";
+    fs::create_directories(folder);
+    for (int i = 0; i < 5; ++i) {
+        const fs::path file = folder / ("recent" + std::to_string(i) + ".mkv");
+        base::file::writeAtomically(file.string(), "");
+        m_app->settings().addRecentFile(urls::fromLocalFile(file.string()));
+    }
+    auto* page = dynamic_cast<ui::ScrollView*>(view("emptyPage"));
+    ASSERT_TRUE(page);
+    ui::View* list = view("recentList");
+    ASSERT_TRUE(list);
+
+    // Room for all of it: centred, nothing to scroll.
+    m_window->window().grab();
+    EXPECT_EQ(page->contentSize().height, page->geometry().height);
+
+    // Too short: 24 clear above the icon at the top and below the list at
+    // the bottom.
+    m_window->window().resize({480, 320});
+    wait(30ms);
+    m_window->window().grab();
+    EXPECT_GT(page->contentSize().height, page->geometry().height);
+    const ui::View* icon = page->contentView()->children().front().get();
+    EXPECT_EQ(windowRect(icon).y, 44 + 24);
+    page->setScrollPosition({0, page->contentSize().height});
+    wait(30ms);
+    m_window->window().grab();
+    const ui::RectF card = windowRect(list);
+    EXPECT_EQ(card.y + card.height, 320 - 24);
 }
 
 TEST_F(UiTest, PlaybackLayout)

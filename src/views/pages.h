@@ -7,6 +7,8 @@
 
 #include "playersettings.h"
 
+#include "ui/scroll_view.h"
+
 #include <functional>
 #include <vector>
 
@@ -80,8 +82,9 @@ private:
     bool m_last;
 };
 
-// How to open a video, and the recently watched ones.
-class EmptyPage : public cutefish::ui::View
+// How to open a video, and the recently watched ones; scrolls when the
+// window is too short for them.
+class EmptyPage : public cutefish::ui::ScrollView
 {
 public:
     explicit EmptyPage(MainWindow& owner);
@@ -89,12 +92,14 @@ public:
     // Re-read on each showing, which leaves out files deleted since.
     void reload();
 
-protected:
-    void layout() override;
-    void paint(cutefish::ui::Painter& painter) override;
-
 private:
+    class Column;
+
+    double columnHeight() const;
+    void layoutColumn(double pageWidth, double pageHeight);
+
     MainWindow& m_owner;
+    Column* m_column;
     cutefish::ui::ThemeIcon* m_icon;
     cutefish::ui::Label* m_title;
     cutefish::ui::Label* m_subtitle;

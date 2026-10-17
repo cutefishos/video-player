@@ -7,6 +7,8 @@
 #include "ui/application.h"
 #include "ui/icon.h"
 #include "ui/cell_layout.h"
+#include "ui/scroll_bar.h"
+#include "ui/scroll_view.h"
 #include "ui/theme.h"
 #include "ui/window.h"
 
@@ -72,6 +74,14 @@ void paintPlate(Painter& painter, const RectF& rect, double radius)
 void paintSeparator(Painter& painter, double x, double y, double width, Color color)
 {
     painter.drawRoundedRect({x, y, width, 1 / painter.scale()}, {0, 0, Corners::Circular}, color);
+}
+
+void darkenBars(ScrollView* view)
+{
+    for (const auto& child : view->children()) {
+        if (auto* bar = dynamic_cast<ScrollBar*>(child.get()))
+            bar->setDarkMode(true);
+    }
 }
 
 void Clickable::pointerEnter()

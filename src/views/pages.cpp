@@ -234,19 +234,45 @@ protected:
     }
 };
 
+// The column under the viewport: as tall as the viewport while it fits,
+// centred in it.
+class EmptyPage::Column : public View
+{
+public:
+    explicit Column(EmptyPage& page)
+        : m_page(page)
+    {
+        LayoutHints hints;
+        hints.fillHeight = true;
+        setLayoutHints(hints);
+    }
+
+    double heightForWidth(double) const override { return m_page.columnHeight(); }
+
+protected:
+    void layout() override { m_page.layoutColumn(geometry().width, geometry().height); }
+
+private:
+    EmptyPage& m_page;
+};
+
 EmptyPage::EmptyPage(MainWindow& owner)
     : m_owner(owner)
-    , m_icon(addChild<ThemeIcon>("multimedia-video-player", 72))
-    , m_title(views::addLabel(this, "Drop a Video Here", 15, white(), 500))
-    , m_subtitle(views::addLabel(this, "Or open a file or a web address to start watching.", 0, white(0.65)))
-    , m_openFile(addChild<views::PillButton>("Open File…", true))
-    , m_openUrl(addChild<views::PillButton>("Open URL…"))
-    , m_recentLabel(views::addLabel(this, "Recent", 0, white(0.5)))
-    , m_clear(addChild<views::Clickable>())
+    , m_column(setContent<Column>(*this))
+    , m_icon(m_column->addChild<ThemeIcon>("multimedia-video-player", 72))
+    , m_title(views::addLabel(m_column, "Drop a Video Here", 15, white(), 500))
+    , m_subtitle(views::addLabel(m_column, "Or open a file or a web address to start watching.", 0, white(0.65)))
+    , m_openFile(m_column->addChild<views::PillButton>("Open File…", true))
+    , m_openUrl(m_column->addChild<views::PillButton>("Open URL…"))
+    , m_recentLabel(views::addLabel(m_column, "Recent", 0, white(0.5)))
+    , m_clear(m_column->addChild<views::Clickable>())
     , m_clearLabel(views::addLabel(m_clear, "Clear"))
-    , m_card(addChild<RecentCard>())
+    , m_card(m_column->addChild<RecentCard>())
 {
     setName("emptyPage");
+    setScrollDirections(false, true);
+    setClipsChildren(true);
+    views::darkenBars(this);
     m_openFile->setName("openFileButton");
     m_openUrl->setName("openUrlButton");
     m_card->setName("recentList");
@@ -280,21 +306,36 @@ void EmptyPage::reload()
     m_clear->setVisible(hasRecent);
     m_card->setVisible(hasRecent);
     m_clearLabel->setColor(Theme::current().highlight);
-    requestLayout();
+    m_column->requestLayout();
 }
 
-void EmptyPage::layout()
+// The column's own height, without the margin kept above and below it once
+// it scrolls.
+static double stackHeight(double titleHeight, double subtitleHeight, double recentRow, size_t rows)
 {
-    const double width = std::min(geometry().width - 48, 440.0);
+    double total = 72 + 16 + titleHeight + 6 + subtitleHeight + 20 + 28;
+    if (rows > 0)
+        total += 32 + recentRow + 6 + 52.0 * double(rows);
+    return total;
+}
+
+double EmptyPage::columnHeight() const
+{
+    const auto height = [](Label* label) { return std::ceil(label->sizeHint().height); };
+    const double recentRow = m_rows.empty() ? 0 : std::max(height(m_recentLabel), height(m_clearLabel));
+    return stackHeight(height(m_title), height(m_subtitle), recentRow, m_rows.size()) + 24 * 2;
+}
+
+void EmptyPage::layoutColumn(double pageWidth, double pageHeight)
+{
+    const double width = std::min(pageWidth - 48, 440.0);
     const auto height = [](Label* label) { return std::ceil(label->sizeHint().height); };
     const bool hasRecent = !m_rows.empty();
     const double recentRow = hasRecent ? std::max(height(m_recentLabel), height(m_clearLabel)) : 0;
     const double cardHeight = 52.0 * double(m_rows.size());
-    double total = 72 + 16 + height(m_title) + 6 + height(m_subtitle) + 20 + 28;
-    if (hasRecent)
-        total += 32 + recentRow + 6 + cardHeight;
-    const double left = rounding::centeredStart(geometry().width, width);
-    double y = rounding::centeredStart(geometry().height, total);
+    const double total = stackHeight(height(m_title), height(m_subtitle), recentRow, m_rows.size());
+    const double left = rounding::centeredStart(pageWidth, width);
+    double y = rounding::centeredStart(pageHeight, total);
 
     m_icon->setGeometry({left + rounding::centeredStart(width, 72), y, 72, 72});
     y += 72 + 16;
@@ -326,10 +367,6 @@ void EmptyPage::layout()
     m_clearLabel->setGeometry({0, 0, clearWidth, m_clearLabel->sizeHint().height});
     y += recentRow + 6;
     m_card->setGeometry({left, y, width, cardHeight});
-}
-
-void EmptyPage::paint(Painter&)
-{
 }
 
 ErrorPage::ErrorPage(MainWindow& owner)

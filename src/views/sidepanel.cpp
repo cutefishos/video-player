@@ -9,7 +9,6 @@
 #include "ui/keys.h"
 #include "ui/list_view.h"
 #include "ui/cell_layout.h"
-#include "ui/scroll_bar.h"
 #include "ui/scroll_view.h"
 #include "ui/theme.h"
 
@@ -19,14 +18,6 @@
 
 using namespace cutefish::ui;
 using views::white;
-
-static void darkenBars(ScrollView* view)
-{
-    for (const auto& child : view->children()) {
-        if (auto* bar = dynamic_cast<ScrollBar*>(child.get()))
-            bar->setDarkMode(true);
-    }
-}
 
 PanelRow::PanelRow(std::string text, bool checkable, std::string detail)
     : m_check(addChild<Icon>(views::glyph("check"), 16))
@@ -420,7 +411,7 @@ SidePanel::SidePanel(MainWindow& owner)
     m_playbackView->setScrollDirections(false, true);
     m_list->setScrollDirections(false, true);
     for (ScrollView* view : {static_cast<ScrollView*>(m_list), m_tracksView, m_playbackView})
-        darkenBars(view);
+        views::darkenBars(view);
     m_list->createItem = [this] { return std::make_unique<PlaylistRow>(*this); };
     m_list->bindItem = [](View* item, size_t row) { static_cast<PlaylistRow*>(item)->bind(int(row)); };
     m_emptyLabel->setWrap(true);

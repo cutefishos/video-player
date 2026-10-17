@@ -17,6 +17,10 @@
 #include <memory>
 #include <string>
 
+namespace cutefish::ui {
+class ScrollView;
+}
+
 namespace views
 {
 
@@ -170,5 +174,8 @@ private:
 
 // A separator line one device pixel thick.
 void paintSeparator(cutefish::ui::Painter& painter, double x, double y, double width, Color color);
+
+// The view's scroll bars drawn for the dark surfaces under them.
+void darkenBars(cutefish::ui::ScrollView* view);
 
 } // namespace views
