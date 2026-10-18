@@ -534,7 +534,8 @@ MainWindow::MainWindow(::Application& application)
                         m_player.addSubtitle(subtitle);
                 }
             }));
-    m_subscriptions.push_back(m_app.activationRequested.connect([this] { m_window.activate(); }));
+    m_subscriptions.push_back(
+            m_app.activationRequested.connect([this](const std::string& token) { m_window.activate(token); }));
     PlayerSettings& settings = m_app.settings();
     m_subscriptions.push_back(settings.subtitleScaleChanged.connect(
             [this] { m_player.setSubtitleScale(m_app.settings().subtitleScale() / 100.0); }));

@@ -64,12 +64,15 @@ public:
     // Splits urls into media to play and subtitles to add, and asks the
     // window to open them.
     void openUrls(const std::vector<std::string>& urls);
-    // D-Bus: files and URLs from another launch, as given on its command line.
-    void open(const std::vector<std::string>& arguments);
+    // D-Bus: files and URLs from another launch, as given on its command
+    // line, with the activation token that launch was started with.
+    void open(const std::vector<std::string>& arguments, const std::string& activationToken = {});
     void activateWindow();
 
     cutefish::base::Signal<const std::vector<std::string>&, const std::vector<std::string>&> openRequested;
-    cutefish::base::Signal<> activationRequested;
+    // The window comes forward, with an activation token from another
+    // launch or an empty one.
+    cutefish::base::Signal<const std::string&> activationRequested;
 
 private:
     Playlist m_playlist;

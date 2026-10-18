@@ -49,8 +49,12 @@ bool Application::publish(base::dbus::Connection* bus)
         return false;
     m_bus = bus;
     m_object = std::make_unique<base::dbus::Object>(bus, kPath, kService);
-    m_object->addMethod("open", [this](const std::vector<std::string>& arguments) { open(arguments); },
-                        base::dbus::ArgumentNames{{"arguments"}, {}});
+    m_object->addMethod(
+            "open",
+            [this](const std::vector<std::string>& arguments, const std::string& activationToken) {
+                open(arguments, activationToken);
+            },
+            base::dbus::ArgumentNames{{"arguments", "activationToken"}, {}});
     m_object->addMethod("activateWindow", [this] { activateWindow(); });
     return m_object->publish();
 }
@@ -182,17 +186,17 @@ void Application::openUrls(const std::vector<std::string>& urlList)
         openRequested.emit(media, subtitles);
 }
 
-void Application::open(const std::vector<std::string>& arguments)
+void Application::open(const std::vector<std::string>& arguments, const std::string& activationToken)
 {
     std::vector<std::string> urlList;
     const std::string directory = currentDirectory();
     for (const std::string& argument : arguments)
         urlList.push_back(urls::fromUserInput(argument, directory, true));
     openUrls(urlList);
-    activationRequested.emit();
+    activationRequested.emit(activationToken);
 }
 
 void Application::activateWindow()
 {
-    activationRequested.emit();
+    activationRequested.emit(std::string());
 }

@@ -47,7 +47,7 @@ int main(int argc, char** argv)
             base::dbus::Proxy running(bus, Application::kService, Application::kPath, Application::kService);
             running.setTimeout(3s);
             // A player that does not answer gets a window of our own instead.
-            if (!running.call("open", arguments).isError())
+            if (!running.call("open", arguments, app.takeActivationToken()).isError())
                 return 0;
         }
     }

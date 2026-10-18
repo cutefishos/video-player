@@ -170,20 +170,21 @@ TEST_F(MprisTest, ApplicationTakesFilesOverDBus)
     // The service name is the session's; the object is enough for a call.
     ASSERT_TRUE(application.publish(m_bus));
     std::vector<std::string> media;
-    int activations = 0;
+    std::vector<std::string> activations;
     auto opened = application.openRequested.connect(
             [&](const std::vector<std::string>& files, const std::vector<std::string>&) { media = files; });
-    auto activated = application.activationRequested.connect([&] { ++activations; });
+    auto activated =
+            application.activationRequested.connect([&](const std::string& token) { activations.push_back(token); });
 
     dbus::Proxy proxy(m_client.get(), m_bus->uniqueName(), Application::kPath, Application::kService);
     std::optional<dbus::Reply> reply;
     dbus::PendingCall pending = proxy.callAsync(
             "open", [&](const dbus::Reply& answer) { reply = answer; },
-            std::vector<std::string>{"https://example.com/a.mp4"});
+            std::vector<std::string>{"https://example.com/a.mp4"}, std::string("token"));
     ASSERT_TRUE(waitFor(m_loop, [&] { return reply.has_value(); }));
     EXPECT_FALSE(reply->isError());
     EXPECT_EQ(media, std::vector<std::string>{"https://example.com/a.mp4"});
-    EXPECT_EQ(activations, 1);
+    EXPECT_EQ(activations, std::vector<std::string>{"token"});
 }
 
 // A ScreenSaver on the test bus that hands out cookies and records the ones returned.
