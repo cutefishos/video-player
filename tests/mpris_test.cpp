@@ -140,6 +140,7 @@ TEST_F(MprisTest, ChangesAreAnnounced)
     ASSERT_TRUE(server.isRegistered());
     std::vector<std::string> changed;
     dbus::MatchRule rule;
+    rule.sender = "org.mpris.MediaPlayer2." + m_name;
     rule.path = "/org/mpris/MediaPlayer2";
     rule.interface = "org.freedesktop.DBus.Properties";
     rule.member = "PropertiesChanged";
