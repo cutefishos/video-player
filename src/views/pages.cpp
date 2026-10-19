@@ -4,6 +4,7 @@
 #include "pages.h"
 #include "mainwindow.h"
 
+#include "base/i18n.h"
 #include "ui/cell_layout.h"
 #include "ui/theme.h"
 #include "ui/window.h"
@@ -14,6 +15,7 @@
 using namespace cutefish::ui;
 using views::white;
 using namespace std::chrono_literals;
+using cutefish::i18n::tr;
 
 Osd::Osd()
     : m_label(views::addLabel(this, {}, 0, white()))
@@ -260,13 +262,13 @@ EmptyPage::EmptyPage(MainWindow& owner)
     : m_owner(owner)
     , m_column(setContent<Column>(*this))
     , m_icon(m_column->addChild<ThemeIcon>("multimedia-video-player", 72))
-    , m_title(views::addLabel(m_column, "Drop a Video Here", 15, white(), 500))
-    , m_subtitle(views::addLabel(m_column, "Or open a file or a web address to start watching.", 0, white(0.65)))
-    , m_openFile(m_column->addChild<views::PillButton>("Open File…", true))
-    , m_openUrl(m_column->addChild<views::PillButton>("Open URL…"))
-    , m_recentLabel(views::addLabel(m_column, "Recent", 0, white(0.5)))
+    , m_title(views::addLabel(m_column, tr("Drop a Video Here"), 15, white(), 500))
+    , m_subtitle(views::addLabel(m_column, tr("Or open a file or a web address to start watching."), 0, white(0.65)))
+    , m_openFile(m_column->addChild<views::PillButton>(tr("Open File…"), true))
+    , m_openUrl(m_column->addChild<views::PillButton>(tr("Open URL…")))
+    , m_recentLabel(views::addLabel(m_column, tr("Recent"), 0, white(0.5)))
     , m_clear(m_column->addChild<views::Clickable>())
-    , m_clearLabel(views::addLabel(m_clear, "Clear"))
+    , m_clearLabel(views::addLabel(m_clear, tr("Clear")))
     , m_card(m_column->addChild<RecentCard>())
 {
     setName("emptyPage");
@@ -370,10 +372,10 @@ void EmptyPage::layoutColumn(double pageWidth, double pageHeight)
 }
 
 ErrorPage::ErrorPage(MainWindow& owner)
-    : m_title(views::addLabel(this, "Unable to Play This File", 15, white(), 500))
+    : m_title(views::addLabel(this, tr("Unable to Play This File"), 15, white(), 500))
     , m_detail(views::addLabel(this, {}, 0, white(0.65)))
-    , m_another(addChild<views::PillButton>("Open Another File…"))
-    , m_next(addChild<views::PillButton>("Next File", true))
+    , m_another(addChild<views::PillButton>(tr("Open Another File…")))
+    , m_next(addChild<views::PillButton>(tr("Next File"), true))
 {
     setName("errorPage");
     m_title->setTextAlignment(Label::TextAlignment::Center);

@@ -10,6 +10,7 @@
 #include "videoview.h"
 #include "widgets.h"
 
+#include "base/i18n.h"
 #include "base/locale.h"
 #include "base/paths.h"
 #include "ui/progress_bar.h"
@@ -32,6 +33,8 @@ using namespace cutefish;
 using namespace cutefish::ui;
 using namespace std::chrono_literals;
 using views::white;
+using cutefish::i18n::format;
+using cutefish::i18n::tr;
 
 static constexpr auto kDoubleClickInterval = 400ms;
 static constexpr double kStartDragDistance = 10;
@@ -96,7 +99,7 @@ class HeaderContent : public View
 {
 public:
     explicit HeaderContent(MainWindow& owner)
-        : title(views::addLabel(this, "Video Player", 0, white()))
+        : title(views::addLabel(this, tr("Video Player"), 0, white()))
         , menu(addChild<HeaderButton>("menu", 32))
     {
         title->setName("windowTitle");
@@ -140,7 +143,7 @@ class DropOverlay : public View
 {
 public:
     DropOverlay()
-        : m_label(views::addLabel(this, "Drop to Play", 14, white(), 500))
+        : m_label(views::addLabel(this, tr("Drop to Play"), 14, white(), 500))
     {
         setVisible(false);
     }
@@ -409,7 +412,7 @@ MainWindow::MainWindow(::Application& application)
     , m_dialogs(nullptr)
     , m_chrome(std::make_unique<views::Tween>(1, 200ms))
 {
-    m_window.setTitle("Video Player");
+    m_window.setTitle(tr("Video Player"));
     m_window.resize({960, 600});
     m_window.setMinimumSize({480, 320});
     // A video given at launch still fits the window to itself over this.
@@ -503,13 +506,13 @@ MainWindow::MainWindow(::Application& application)
     }));
     m_subscriptions.push_back(m_player.screenshotSaved.connect([this](const std::string& path, bool success) {
         if (success)
-            showOsd("Screenshot saved", 4000, "Show", [this, path] { m_app.showInFolder(urls::fromLocalFile(path)); });
+            showOsd(tr("Screenshot saved"), 4000, tr("Show"), [this, path] { m_app.showInFolder(urls::fromLocalFile(path)); });
         else
-            showOsd("Could not save the screenshot");
+            showOsd(tr("Could not save the screenshot"));
     }));
     m_subscriptions.push_back(m_player.subtitleAdded.connect([this](bool success) {
         if (!success)
-            showOsd("Could not open the subtitle file");
+            showOsd(tr("Could not open the subtitle file"));
     }));
     m_sidePanel->onBusyChanged = [this] { updateChrome(); };
 
@@ -519,7 +522,9 @@ MainWindow::MainWindow(::Application& application)
         m_subscriptions.push_back(signal->connect([this] {
             m_sidePanel->refreshPlaylist();
             updateMpris();
-            m_root->error->update(mediaName() + " — " + m_errorMessage, m_app.playlist().hasNext());
+            // TRANSLATORS: a file's name, then why it could not be played.
+            m_root->error->update(format(tr("{name} — {error}"), {{"name", mediaName()}, {"error", m_errorMessage}}),
+                                  m_app.playlist().hasNext());
         }));
     }
     m_subscriptions.push_back(playlist.rowChanged.connect([this](int) { m_sidePanel->refreshPlaylist(); }));
@@ -619,7 +624,8 @@ void MainWindow::updateChrome()
     m_root->empty->setVisible(!media);
     m_root->error->setVisible(media && !m_errorMessage.empty());
     if (media && !m_errorMessage.empty())
-        m_root->error->update(::Application::displayName(m_player.source()) + " — " + m_errorMessage,
+        m_root->error->update(format(tr("{name} — {error}"), {{"name", ::Application::displayName(m_player.source())},
+                                                              {"error", m_errorMessage}}),
                               m_app.playlist().hasNext());
     m_root->video->setVisible(media && m_errorMessage.empty());
     m_sidePanel->setVisible(m_panelOpen && media);
@@ -734,11 +740,12 @@ void MainWindow::openFiles(bool append)
 {
     m_fileChooser = std::make_unique<FileChooser>(&m_window);
     m_fileChooser->setMode(FileChooser::Mode::OpenFiles);
-    m_fileChooser->setTitle(append ? "Add to Playlist" : "Open Video");
+    m_fileChooser->setTitle(append ? tr("Add to Playlist") : tr("Open Video"));
     const std::string last = urls::toLocalFile(m_app.settings().lastFolder());
     m_fileChooser->setCurrentFolder(!last.empty() ? last : base::paths::userDirectory(base::paths::UserDirectory::Videos));
-    m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter(std::format("Videos and audio ({})", kMediaPatterns)),
-                               FileChooser::Filter::fromNameFilter("All files (*)")});
+    m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter(format(tr("Videos and audio ({patterns})"),
+                                                                          {{"patterns", kMediaPatterns}})),
+                               FileChooser::Filter::fromNameFilter(tr("All files (*)"))});
     m_fileChooser->onAccepted = [this, append](const std::vector<std::string>& paths, const std::string&) {
         if (paths.empty())
             return;
@@ -758,11 +765,11 @@ void MainWindow::openSubtitleFile()
 {
     m_fileChooser = std::make_unique<FileChooser>(&m_window);
     m_fileChooser->setMode(FileChooser::Mode::OpenFile);
-    m_fileChooser->setTitle("Add Subtitle File");
+    m_fileChooser->setTitle(tr("Add Subtitle File"));
     if (urls::isLocalFile(m_player.source()))
         m_fileChooser->setCurrentFolder(std::filesystem::path(urls::toLocalFile(m_player.source())).parent_path().string());
-    m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter("Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"),
-                               FileChooser::Filter::fromNameFilter("All files (*)")});
+    m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter(tr("Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)")),
+                               FileChooser::Filter::fromNameFilter(tr("All files (*)"))});
     m_fileChooser->onAccepted = [this](const std::vector<std::string>& paths, const std::string&) {
         if (!paths.empty())
             m_player.addSubtitle(urls::fromLocalFile(paths.front()));
@@ -800,28 +807,28 @@ void MainWindow::buildMenus()
 {
     m_mainMenu.onAboutToShow = [this] {
         m_mainMenu.clear();
-        m_mainMenu.addItem("Open File…", [this] { openFiles(false); }, "Ctrl+O");
-        m_mainMenu.addItem("Open URL…", [this] { openUrlDialog(); }, "Ctrl+L");
+        m_mainMenu.addItem(tr("Open File…"), [this] { openFiles(false); }, "Ctrl+O");
+        m_mainMenu.addItem(tr("Open URL…"), [this] { openUrlDialog(); }, "Ctrl+L");
         const std::vector<PlayerSettings::RecentFile> recent = m_app.settings().recentFiles();
-        Menu* recentMenu = m_mainMenu.addSubmenu("Recent");
+        Menu* recentMenu = m_mainMenu.addSubmenu(tr("Recent"));
         for (const auto& file : recent) {
             const std::string url = file.url;
             recentMenu->addItem(file.name, [this, url] { m_app.openUrls({url}); });
         }
         recentMenu->addSeparator();
-        recentMenu->addItem("Clear Recent", [this] { m_app.settings().clearRecentFiles(); });
+        recentMenu->addItem(tr("Clear Recent"), [this] { m_app.settings().clearRecentFiles(); });
         m_mainMenu.setItemEnabled(2, !recent.empty());
         m_mainMenu.addSeparator();
-        const size_t show = m_mainMenu.addItem("Show in Files", [this] { m_app.showInFolder(m_player.source()); });
+        const size_t show = m_mainMenu.addItem(tr("Show in Files"), [this] { m_app.showInFolder(m_player.source()); });
         m_mainMenu.setItemEnabled(show, hasMedia() && urls::isLocalFile(m_player.source()));
-        const size_t screenshot = m_mainMenu.addItem("Take Screenshot", [this] { takeScreenshot(); }, "Ctrl+Alt+S");
+        const size_t screenshot = m_mainMenu.addItem(tr("Take Screenshot"), [this] { takeScreenshot(); }, "Ctrl+Alt+S");
         m_mainMenu.setItemEnabled(screenshot, m_player.loaded() && m_player.hasVideo());
-        const size_t info = m_mainMenu.addItem("Media Info", [this] { showMediaInfo(); }, "Ctrl+I");
+        const size_t info = m_mainMenu.addItem(tr("Media Info"), [this] { showMediaInfo(); }, "Ctrl+I");
         m_mainMenu.setItemEnabled(info, m_player.loaded());
         m_mainMenu.addSeparator();
-        m_mainMenu.addItem("Settings", [this] { openPreferences(); }, "Ctrl+,");
-        m_mainMenu.addItem("Keyboard Shortcuts", [this] { openShortcuts(); }, "Ctrl+?");
-        m_mainMenu.addItem("About Video Player", [this] { openAbout(); });
+        m_mainMenu.addItem(tr("Settings"), [this] { openPreferences(); }, "Ctrl+,");
+        m_mainMenu.addItem(tr("Keyboard Shortcuts"), [this] { openShortcuts(); }, "Ctrl+?");
+        m_mainMenu.addItem(tr("About Video Player"), [this] { openAbout(); });
         m_root->content->menu->setChecked(true);
         updateChrome();
     };
@@ -833,19 +840,20 @@ void MainWindow::buildMenus()
     m_contextMenu.onAboutToShow = [this] {
         Menu& menu = m_contextMenu;
         menu.clear();
-        menu.addItem(m_player.paused() || m_player.endReached() ? "Play" : "Pause", [this] { togglePause(false); },
+        menu.addItem(m_player.paused() || m_player.endReached() ? tr("Play") : tr("Pause"), [this] { togglePause(false); },
                      "Space");
         const bool playlist = m_app.playlist().count() > 1;
-        const size_t previous = menu.addItem("Previous", [this] { playPrevious(); }, "B");
+        const size_t previous = menu.addItem(tr("Previous"), [this] { playPrevious(); }, "B");
         menu.setItemVisible(previous, playlist);
         menu.setItemEnabled(previous, m_app.playlist().hasPrevious() || m_player.position() > 5);
-        const size_t next = menu.addItem("Next", [this] { playNext(false); }, "N");
+        const size_t next = menu.addItem(tr("Next"), [this] { playNext(false); }, "N");
         menu.setItemVisible(next, playlist);
         menu.setItemEnabled(next, m_app.playlist().hasNext());
         menu.addSeparator();
 
-        Menu* subtitles = menu.addSubmenu("Subtitles");
-        const size_t off = subtitles->addItem("Off", [this] { selectSubtitle(0); });
+        Menu* subtitles = menu.addSubmenu(tr("Subtitles"));
+        // TRANSLATORS: no subtitles shown.
+        const size_t off = subtitles->addItem(tr("Off"), [this] { selectSubtitle(0); });
         subtitles->setItemChecked(off, m_player.subtitleTrack() == 0);
         for (const auto& track : m_player.subtitleTracks()) {
             const int id = track.id;
@@ -853,19 +861,19 @@ void MainWindow::buildMenus()
             subtitles->setItemChecked(item, m_player.subtitleTrack() == id);
         }
         subtitles->addSeparator();
-        subtitles->addItem("Add Subtitle File…", [this] { openSubtitleFile(); });
-        Menu* timing = subtitles->addSubmenu("Subtitle Timing");
-        timing->addItem("Show Earlier", [this] { shiftSubtitles(-0.1); }, "Z");
-        timing->addItem("Show Later", [this] { shiftSubtitles(0.1); }, "Shift+Z");
-        const size_t reset = timing->addItem(std::format("Reset ({})", delayText(m_player.subtitleDelay())),
+        subtitles->addItem(tr("Add Subtitle File…"), [this] { openSubtitleFile(); });
+        Menu* timing = subtitles->addSubmenu(tr("Subtitle Timing"));
+        timing->addItem(tr("Show Earlier"), [this] { shiftSubtitles(-0.1); }, "Z");
+        timing->addItem(tr("Show Later"), [this] { shiftSubtitles(0.1); }, "Shift+Z");
+        const size_t reset = timing->addItem(format(tr("Reset ({delay})"), {{"delay", delayText(m_player.subtitleDelay())}}),
                                              [this] { shiftSubtitles(-m_player.subtitleDelay()); });
         timing->setItemEnabled(reset, m_player.subtitleDelay() != 0);
         // Off, the tracks, the separator, Add Subtitle File, then the timing.
         subtitles->setItemEnabled(m_player.subtitleTracks().size() + 3, m_player.subtitleTrack() > 0);
 
-        Menu* audio = menu.addSubmenu("Audio");
+        Menu* audio = menu.addSubmenu(tr("Audio"));
         if (m_player.audioTracks().empty()) {
-            const size_t none = audio->addItem("No Audio Tracks", nullptr);
+            const size_t none = audio->addItem(tr("No Audio Tracks"), nullptr);
             audio->setItemEnabled(none, false);
         }
         for (const auto& track : m_player.audioTracks()) {
@@ -874,35 +882,38 @@ void MainWindow::buildMenus()
             audio->setItemChecked(item, m_player.audioTrack() == id);
         }
 
-        Menu* speed = menu.addSubmenu("Speed");
+        Menu* speed = menu.addSubmenu(tr("Speed"));
         for (const double value : kSpeeds) {
-            const size_t item = speed->addItem(value == 1 ? "Normal" : speedText(value), [this, value] { setSpeed(value); });
+            // TRANSLATORS: the normal playback speed.
+            const size_t item = speed->addItem(value == 1 ? tr("Normal") : speedText(value), [this, value] { setSpeed(value); });
             speed->setItemChecked(item, std::abs(m_player.speed() - value) < 0.001);
         }
 
         if (!m_player.chapters().empty()) {
-            Menu* chapters = menu.addSubmenu("Chapters");
+            Menu* chapters = menu.addSubmenu(tr("Chapters"));
             int index = 0;
             for (const auto& chapter : m_player.chapters()) {
-                const std::string title = chapter.title.empty() ? std::format("Chapter {}", index + 1) : chapter.title;
+                const std::string title = chapter.title.empty()
+                        ? format(tr("Chapter {number}"), {{"number", std::to_string(index + 1)}})
+                        : chapter.title;
                 const size_t item = chapters->addItem(title + "    " + ::Application::formatTime(chapter.time, m_player.duration()),
                                                       [this, index] { m_player.setChapter(index); });
                 chapters->setItemChecked(item, m_player.chapter() == index);
                 ++index;
             }
         }
-        const size_t repeat = menu.addItem("Repeat", [this] { m_player.setLoopFile(!m_player.loopFile()); });
+        const size_t repeat = menu.addItem(tr("Repeat"), [this] { m_player.setLoopFile(!m_player.loopFile()); });
         menu.setItemChecked(repeat, m_player.loopFile());
         menu.addSeparator();
-        menu.addItem(isFullScreen() ? "Exit Full Screen" : "Full Screen", [this] { toggleFullScreen(); }, "F");
-        const size_t playlistItem = menu.addItem("Playlist", [this] { togglePanel(0, false); }, "P");
+        menu.addItem(isFullScreen() ? tr("Exit Full Screen") : tr("Full Screen"), [this] { toggleFullScreen(); }, "F");
+        const size_t playlistItem = menu.addItem(tr("Playlist"), [this] { togglePanel(0, false); }, "P");
         menu.setItemChecked(playlistItem, m_panelOpen && m_panelTab == 0);
         menu.addSeparator();
-        const size_t screenshot = menu.addItem("Take Screenshot", [this] { takeScreenshot(); }, "Ctrl+Alt+S");
+        const size_t screenshot = menu.addItem(tr("Take Screenshot"), [this] { takeScreenshot(); }, "Ctrl+Alt+S");
         menu.setItemEnabled(screenshot, m_player.loaded() && m_player.hasVideo());
-        const size_t info = menu.addItem("Media Info", [this] { showMediaInfo(); }, "Ctrl+I");
+        const size_t info = menu.addItem(tr("Media Info"), [this] { showMediaInfo(); }, "Ctrl+I");
         menu.setItemEnabled(info, m_player.loaded());
-        const size_t show = menu.addItem("Show in Files", [this] { m_app.showInFolder(m_player.source()); });
+        const size_t show = menu.addItem(tr("Show in Files"), [this] { m_app.showInFolder(m_player.source()); });
         menu.setItemEnabled(show, urls::isLocalFile(m_player.source()));
         updateChrome();
     };
@@ -910,13 +921,13 @@ void MainWindow::buildMenus()
 
     m_playlistMenu.onAboutToShow = [this] {
         m_playlistMenu.clear();
-        m_playlistMenu.addItem("Play", [this] { playIndex(m_playlistMenuIndex); });
-        m_playlistMenu.addItem("Show in Files", [this] {
+        m_playlistMenu.addItem(tr("Play"), [this] { playIndex(m_playlistMenuIndex); });
+        m_playlistMenu.addItem(tr("Show in Files"), [this] {
             if (m_playlistMenuIndex >= 0 && m_playlistMenuIndex < m_app.playlist().count())
                 m_app.showInFolder(m_app.playlist().url(m_playlistMenuIndex));
         });
         m_playlistMenu.addSeparator();
-        m_playlistMenu.addItem("Remove from Playlist", [this] { m_app.playlist().remove(m_playlistMenuIndex); });
+        m_playlistMenu.addItem(tr("Remove from Playlist"), [this] { m_app.playlist().remove(m_playlistMenuIndex); });
         updateChrome();
     };
     m_playlistMenu.onClosed = [this] { updateChrome(); };
@@ -1018,7 +1029,7 @@ void MainWindow::bindShortcuts()
 void MainWindow::bindMpris()
 {
     MprisServer::Description description;
-    description.identity = "Video Player";
+    description.identity = tr("Video Player");
     description.desktopEntry = "cutefish-video-player";
     description.supportedUriSchemes = {"file", "http", "https"};
     description.canQuit = true;
@@ -1096,7 +1107,7 @@ void MainWindow::updateInhibitor()
 
 void MainWindow::updateTitle()
 {
-    const std::string title = hasMedia() ? mediaName() : "Video Player";
+    const std::string title = hasMedia() ? mediaName() : tr("Video Player");
     m_window.setTitle(title);
     if (m_root->content->title->text() != title) {
         m_root->content->title->setText(title);
@@ -1193,7 +1204,7 @@ void MainWindow::loadCurrent()
     m_player.load(url, options, false);
     m_recentPending = true;
     if (resumed > 0)
-        showOsd(std::format("Resumed from {}", ::Application::formatTime(resumed)), 5000);
+        showOsd(format(tr("Resumed from {time}"), {{"time", ::Application::formatTime(resumed)}}), 5000);
     poke();
 }
 
@@ -1243,7 +1254,7 @@ void MainWindow::playIndex(int index)
 void MainWindow::playNext(bool automatic)
 {
     if (!m_app.playlist().next(automatic))
-        showOsd("End of playlist");
+        showOsd(tr("End of playlist"));
 }
 
 void MainWindow::playPrevious()
@@ -1284,8 +1295,10 @@ void MainWindow::seekBy(double seconds)
         return;
     const double target = std::clamp(m_player.position() + seconds, 0.0, m_player.duration());
     m_player.seekRelative(seconds);
-    showOsd(std::format("{}{} s   {}", seconds > 0 ? "+" : "−", std::abs(seconds),
-                        ::Application::formatTime(target, m_player.duration())));
+    // TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+    showOsd(format(tr("{sign}{seconds} s   {time}"), {{"sign", seconds > 0 ? "+" : "−"},
+                                                      {"seconds", std::format("{}", std::abs(seconds))},
+                                                      {"time", ::Application::formatTime(target, m_player.duration())}}));
 }
 
 void MainWindow::setVolume(int value)
@@ -1295,7 +1308,7 @@ void MainWindow::setVolume(int value)
     m_app.settings().setVolume(value);
     if (m_player.muted() && value > 0)
         toggleMute();
-    showOsd(std::format("Volume {}%", value));
+    showOsd(format(tr("Volume {percent}%"), {{"percent", std::to_string(value)}}));
 }
 
 void MainWindow::toggleMute()
@@ -1304,7 +1317,8 @@ void MainWindow::toggleMute()
     const bool muted = !m_player.muted();
     m_player.setMuted(muted);
     m_app.settings().setMuted(muted);
-    showOsd(muted ? std::string("Muted") : std::format("Volume {}%", m_player.volume()));
+    showOsd(muted ? std::string(tr("Muted"))
+                  : format(tr("Volume {percent}%"), {{"percent", std::to_string(m_player.volume())}}));
 }
 
 std::string MainWindow::speedText(double speed)
@@ -1316,7 +1330,7 @@ std::string MainWindow::speedText(double speed)
 void MainWindow::setSpeed(double speed)
 {
     m_player.setSpeed(speed);
-    showOsd("Speed " + speedText(speed));
+    showOsd(format(tr("Speed {speed}"), {{"speed", speedText(speed)}}));
 }
 
 void MainWindow::stepSpeed(int direction)
@@ -1349,10 +1363,10 @@ void MainWindow::stepChapter(int direction)
 void MainWindow::selectSubtitle(int id)
 {
     m_player.setSubtitleTrack(id);
-    std::string label = "Subtitles off";
+    std::string label = tr("Subtitles off");
     for (const auto& track : m_player.subtitleTracks()) {
         if (track.id == id)
-            label = "Subtitles: " + track.label;
+            label = format(tr("Subtitles: {track}"), {{"track", track.label}});
     }
     showOsd(label);
 }
@@ -1362,7 +1376,7 @@ void MainWindow::selectAudio(int id)
     m_player.setAudioTrack(id);
     for (const auto& track : m_player.audioTracks()) {
         if (track.id == id)
-            showOsd("Audio: " + track.label);
+            showOsd(format(tr("Audio: {track}"), {{"track", track.label}}));
     }
 }
 
@@ -1404,14 +1418,16 @@ void MainWindow::cycleAudio()
 std::string MainWindow::delayText(double seconds)
 {
     const long ms = std::lround(seconds * 1000);
-    return std::format("{}{} ms", ms > 0 ? "+" : ms < 0 ? "−" : "", std::abs(ms));
+    // TRANSLATORS: a subtitle delay such as "+100 ms".
+    return format(tr("{sign}{milliseconds} ms"), {{"sign", ms > 0 ? "+" : ms < 0 ? "−" : ""},
+                                                  {"milliseconds", std::to_string(std::abs(ms))}});
 }
 
 void MainWindow::shiftSubtitles(double seconds)
 {
     const double delay = std::round((m_player.subtitleDelay() + seconds) * 10) / 10;
     m_player.setSubtitleDelay(delay);
-    showOsd("Subtitle delay " + delayText(delay));
+    showOsd(format(tr("Subtitle delay {delay}"), {{"delay", delayText(delay)}}));
 }
 
 void MainWindow::takeScreenshot()

@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include "urls.h"
 
+#include "base/i18n.h"
 #include "ui/drag.h"
 #include "ui/keys.h"
 #include "ui/list_view.h"
@@ -14,10 +15,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <format>
 
 using namespace cutefish::ui;
 using views::white;
+using cutefish::i18n::format;
+using cutefish::i18n::tr;
+using cutefish::i18n::trNoop;
 
 PanelRow::PanelRow(std::string text, bool checkable, std::string detail)
     : m_check(addChild<Icon>(views::glyph("check"), 16))
@@ -166,14 +169,14 @@ class TimingRow : public View
 {
 public:
     explicit TimingRow(MainWindow& owner)
-        : m_label(views::addLabel(this, "Timing", 0, white()))
+        : m_label(views::addLabel(this, tr("Timing"), 0, white()))
         , m_delay(views::addLabel(this, {}, 0, white(0.55)))
         , m_earlier(addChild<views::ControlButton>("minus", 30, 16))
         , m_later(addChild<views::ControlButton>("add", 30, 16))
     {
         views::setTabular(m_delay);
-        m_earlier->setToolTipText("Show Earlier");
-        m_later->setToolTipText("Show Later");
+        m_earlier->setToolTipText(tr("Show Earlier"));
+        m_later->setToolTipText(tr("Show Later"));
         m_earlier->onClicked = [&owner] { owner.shiftSubtitles(-0.1); };
         m_later->onClicked = [&owner] { owner.shiftSubtitles(0.1); };
     }
@@ -220,14 +223,14 @@ public:
     explicit Tabs(MainWindow& owner)
         : m_owner(owner)
     {
-        for (const char* name : {"Playlist", "Tracks", "Playback"}) {
+        for (const char* name : {trNoop("Playlist"), trNoop("Tracks"), trNoop("Playback")}) {
             auto* tab = addChild<views::Clickable>();
             const int index = int(m_tabs.size());
             tab->setName("panelTab" + std::to_string(index));
             tab->onClicked = [this, index] { m_owner.setPanelTab(index); };
             tab->onHoverChanged = [this] { requestPaint(); };
             m_tabs.push_back(tab);
-            m_labels.push_back(views::addLabel(tab, name, 0, white()));
+            m_labels.push_back(views::addLabel(tab, tr(name), 0, white()));
         }
     }
 
@@ -391,7 +394,7 @@ SidePanel::SidePanel(MainWindow& owner)
     , m_tabs(addChild<Tabs>(owner))
     , m_playlistPage(addChild<View>())
     , m_list(m_playlistPage->addChild<ListView>())
-    , m_emptyLabel(views::addLabel(m_playlistPage, "Drop files here to add them.", 0, white(0.6)))
+    , m_emptyLabel(views::addLabel(m_playlistPage, tr("Drop files here to add them."), 0, white(0.6)))
     , m_repeat(m_playlistPage->addChild<views::ControlButton>("repeat"))
     , m_add(m_playlistPage->addChild<views::ControlButton>("add"))
     , m_tracksView(addChild<ScrollView>())
@@ -417,7 +420,7 @@ SidePanel::SidePanel(MainWindow& owner)
     m_emptyLabel->setWrap(true);
     m_emptyLabel->setTextAlignment(Label::TextAlignment::Center);
     m_emptyLabel->setVerticallyCentered(true);
-    m_add->setToolTipText("Add Files…");
+    m_add->setToolTipText(tr("Add Files…"));
     m_repeat->onClicked = [this] {
         Playlist& playlist = m_owner.app().playlist();
         playlist.setRepeatMode(Playlist::RepeatMode((int(playlist.repeatMode()) + 1) % 3));
@@ -443,9 +446,9 @@ void SidePanel::refreshPlaylist()
     const auto mode = playlist.repeatMode();
     m_repeat->setIcon(mode == Playlist::RepeatMode::One ? "repeat-one" : "repeat");
     m_repeat->setChecked(mode != Playlist::RepeatMode::Off);
-    m_repeat->setToolTipText(mode == Playlist::RepeatMode::Off   ? "Repeat Off"
-                             : mode == Playlist::RepeatMode::One ? "Repeat One"
-                                                                 : "Repeat All");
+    m_repeat->setToolTipText(mode == Playlist::RepeatMode::Off   ? tr("Repeat Off")
+                             : mode == Playlist::RepeatMode::One ? tr("Repeat One")
+                                                                 : tr("Repeat All"));
     if (m_list->rowCount() != size_t(playlist.count()))
         m_list->setRowCount(size_t(playlist.count()));
     m_list->reload();
@@ -469,8 +472,9 @@ void SidePanel::refreshTracks()
     m_tracksKey = key;
     m_tracks->clear();
 
-    m_tracks->addSection("Subtitles", true);
-    auto* off = m_tracks->addRow<PanelRow>("Off", true);
+    m_tracks->addSection(tr("Subtitles"), true);
+    // TRANSLATORS: no subtitles shown.
+    auto* off = m_tracks->addRow<PanelRow>(tr("Off"), true);
     off->setChecked(player.subtitleTrack() == 0);
     off->onClicked = [this] { m_owner.selectSubtitle(0); };
     for (const auto& track : player.subtitleTracks()) {
@@ -479,14 +483,14 @@ void SidePanel::refreshTracks()
         const int id = track.id;
         row->onClicked = [this, id] { m_owner.selectSubtitle(id); };
     }
-    auto* addFile = m_tracks->addRow<PanelRow>("Add Subtitle File…", true);
+    auto* addFile = m_tracks->addRow<PanelRow>(tr("Add Subtitle File…"), true);
     addFile->onClicked = [this] { m_owner.openSubtitleFile(); };
     auto* timing = m_tracks->addRow<TimingRow>(m_owner);
     timing->update(player.subtitleDelay(), player.subtitleTrack() > 0);
 
-    m_tracks->addSection("Audio");
+    m_tracks->addSection(tr("Audio"));
     if (player.audioTracks().empty()) {
-        auto* none = m_tracks->addRow<PanelRow>("No Audio Tracks", true);
+        auto* none = m_tracks->addRow<PanelRow>(tr("No Audio Tracks"), true);
         none->setEnabled(false);
     }
     for (const auto& track : player.audioTracks()) {
@@ -511,7 +515,7 @@ void SidePanel::refreshPlayback()
     m_playbackKey = key;
     m_playback->clear();
 
-    m_playback->addSection("Speed", true);
+    m_playback->addSection(tr("Speed"), true);
     auto* speeds = m_playback->addRow<SpeedFlow>();
     for (const double speed : MainWindow::kSpeeds) {
         auto* pill = speeds->addChild<views::PillButton>(MainWindow::speedText(speed),
@@ -519,22 +523,24 @@ void SidePanel::refreshPlayback()
         pill->onClicked = [this, speed] { m_owner.setSpeed(speed); };
     }
 
-    m_playback->addSection("Options");
-    auto* repeat = m_playback->addRow<PanelRow>("Repeat", true);
+    m_playback->addSection(tr("Options"));
+    auto* repeat = m_playback->addRow<PanelRow>(tr("Repeat"), true);
     repeat->setChecked(player.loopFile());
     repeat->onClicked = [this] { m_owner.player().setLoopFile(!m_owner.player().loopFile()); };
-    auto* left = m_playback->addRow<PanelRow>("Rotate Left", true);
+    auto* left = m_playback->addRow<PanelRow>(tr("Rotate Left"), true);
     left->setEnabled(player.hasVideo());
     left->onClicked = [this] { m_owner.player().setRotation(m_owner.player().rotation() - 90); };
-    auto* right = m_playback->addRow<PanelRow>("Rotate Right", true);
+    auto* right = m_playback->addRow<PanelRow>(tr("Rotate Right"), true);
     right->setEnabled(player.hasVideo());
     right->onClicked = [this] { m_owner.player().setRotation(m_owner.player().rotation() + 90); };
 
     if (!player.chapters().empty()) {
-        m_playback->addSection("Chapters");
+        m_playback->addSection(tr("Chapters"));
         int index = 0;
         for (const auto& chapter : player.chapters()) {
-            const std::string title = chapter.title.empty() ? std::format("Chapter {}", index + 1) : chapter.title;
+            const std::string title = chapter.title.empty()
+                    ? format(tr("Chapter {number}"), {{"number", std::to_string(index + 1)}})
+                    : chapter.title;
             auto* row = m_playback->addRow<PanelRow>(title, true,
                                                      ::Application::formatTime(chapter.time, player.duration()));
             row->setChecked(player.chapter() == index);

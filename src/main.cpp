@@ -8,6 +8,7 @@
 
 #include "base/command_line.h"
 #include "base/dbus.h"
+#include "base/i18n.h"
 #include "base/paths.h"
 #include "ui/application.h"
 
@@ -29,6 +30,7 @@ int main(int argc, char** argv)
 
     ui::Application app(argc, argv);
     app.setApplicationId("cutefish-video-player");
+    i18n::setDomain("cutefish-video-player");
     views::registerGlyphs();
 
     std::error_code error;

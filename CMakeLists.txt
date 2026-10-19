@@ -67,7 +67,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE VIDEO_PLAYER_VERSION="${PROJE
 target_link_libraries(${PROJECT_NAME} PRIVATE player-ui)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES cutefish-video-player.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
+cutefish_add_translations(cutefish-video-player SOURCES src DESKTOP_FILES cutefish-video-player.desktop)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cutefish-video-player.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 
 if(BUILD_TESTING)
     add_subdirectory(tests)

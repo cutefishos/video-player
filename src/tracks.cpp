@@ -4,11 +4,12 @@
 #include "tracks.h"
 #include "languages.h"
 
+#include "base/i18n.h"
 #include "base/strings.h"
 
-#include <format>
-
 using namespace cutefish;
+using cutefish::i18n::format;
+using cutefish::i18n::tr;
 
 namespace tracks
 {
@@ -19,12 +20,13 @@ std::string label(const MpvNode& track)
     const std::string language = languages::displayName(track["lang"].toString());
     if (!title.empty() && !language.empty()
             && base::strings::compare(title, language, base::strings::CaseSensitivity::Insensitive) != 0)
-        return std::format("{} ({})", title, language);
+        // TRANSLATORS: a track's own title, then its language.
+        return format(tr("{title} ({language})"), {{"title", title}, {"language", language}});
     if (!title.empty())
         return title;
     if (!language.empty())
         return language;
-    return std::format("Track {}", track["id"].toInt());
+    return format(tr("Track {number}"), {{"number", std::to_string(track["id"].toInt())}});
 }
 
 Split split(const MpvNode& trackList)

@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include "widgets.h"
 
+#include "base/i18n.h"
 #include "base/locale.h"
 #include "base/process.h"
 #include "base/strings.h"
@@ -28,10 +29,12 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
-#include <format>
 
 using namespace cutefish;
 using namespace cutefish::ui;
+using cutefish::i18n::format;
+using cutefish::i18n::tr;
+using cutefish::i18n::trNoop;
 
 namespace
 {
@@ -262,7 +265,7 @@ public:
             return;
         }
         m_window = std::make_unique<Window>();
-        m_window->setTitle("Open URL");
+        m_window->setTitle(tr("Open URL"));
         m_window->setTransientParent(&m_owner.window(), true);
         m_window->setBackgroundColor(ColorId::SecondBackground);
         auto root = std::make_unique<Root>(*this);
@@ -304,10 +307,10 @@ private:
     public:
         explicit Root(OpenUrl& dialog)
             : header(addChild<WindowHeader>(44))
-            , title(views::addLabel(this, "Open URL", 0, std::nullopt, 600))
+            , title(views::addLabel(this, tr("Open URL"), 0, std::nullopt, 600))
             , field(addChild<TextField>())
-            , cancel(addChild<DialogButton>("Cancel"))
-            , open(addChild<DialogButton>("Open", true))
+            , cancel(addChild<DialogButton>(tr("Cancel")))
+            , open(addChild<DialogButton>(tr("Open"), true))
         {
             title->setFontSize(14);
             field->setName("urlField");
@@ -429,8 +432,8 @@ private:
         Root()
             : m_header(addChild<WindowHeader>(40))
             , m_icon(addChild<ThemeIcon>("multimedia-video-player", 64))
-            , m_name(views::addLabel(this, "Video Player", 14))
-            , m_description(views::addLabel(this, "Plays videos with subtitles and playlists."))
+            , m_name(views::addLabel(this, tr("Video Player"), 14))
+            , m_description(views::addLabel(this, tr("Plays videos with subtitles and playlists.")))
             , m_link(addChild<views::Clickable>())
             , m_linkLabel(views::addLabel(m_link, {}))
         {
@@ -509,7 +512,7 @@ void Dialogs::about()
 void Dialogs::mediaInfo(const MpvNode::Map& details, const std::string& name)
 {
     const MpvNode info(details);
-    m_mediaInfo = std::make_unique<DialogWindow>(&m_owner.window(), "Media Info", 440);
+    m_mediaInfo = std::make_unique<DialogWindow>(&m_owner.window(), tr("Media Info"), 440);
     m_mediaInfo->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_mediaInfo.get());
     auto* column = m_mediaInfo->setContent<Column>();
@@ -527,7 +530,8 @@ void Dialogs::mediaInfo(const MpvNode::Map& details, const std::string& name)
         const MpvNode& node = info[key];
         return node.isNone() || node.toDouble() == 0
                 ? std::string()
-                : std::format("{} kb/s", std::lround(node.toDouble() / 1000));
+                // TRANSLATORS: a bit rate in kilobits per second.
+                : format(tr("{rate} kb/s"), {{"rate", std::to_string(std::lround(node.toDouble() / 1000))}});
     };
     const auto addRow = [](Card* card, const char* text, const std::string& rowValue) {
         Row* row = card->addChild<Row>(text, rowValue);
@@ -535,39 +539,43 @@ void Dialogs::mediaInfo(const MpvNode::Map& details, const std::string& name)
     };
 
     auto* file = column->addChild<Card>(44);
-    file->addChild<Row>("Location", value("path"));
-    addRow(file, "Format", value("file-format"));
-    addRow(file, "Size", info["file-size"].isNone() ? std::string()
+    file->addChild<Row>(tr("Location"), value("path"));
+    addRow(file, tr("Format"), value("file-format"));
+    addRow(file, tr("Size"), info["file-size"].isNone() ? std::string()
                                                      : ::Application::formatBytes(info["file-size"].toInt()));
-    addRow(file, "Duration", info["duration"].isNone() || info["duration"].toDouble() == 0
+    addRow(file, tr("Duration"), info["duration"].isNone() || info["duration"].toDouble() == 0
                                      ? std::string()
                                      : ::Application::formatTime(info["duration"].toDouble()));
 
     const bool video = !value("video-codec").empty();
-    column->addSectionLabel("Video")->setVisible(video);
+    column->addSectionLabel(tr("Video"))->setVisible(video);
     auto* videoCard = column->addChild<Card>(44);
     videoCard->setVisible(video);
-    addRow(videoCard, "Codec", value("video-codec"));
-    addRow(videoCard, "Resolution",
+    addRow(videoCard, tr("Codec"), value("video-codec"));
+    addRow(videoCard, tr("Resolution"),
            info["width"].isNone() || info["width"].toInt() == 0
                    ? std::string()
-                   : value("width") + " × " + value("height"));
-    addRow(videoCard, "Frame rate",
+                   // TRANSLATORS: a picture's width and height in pixels.
+                   : format(tr("{width} × {height}"), {{"width", value("width")}, {"height", value("height")}}));
+    addRow(videoCard, tr("Frame rate"),
            info["container-fps"].isNone() || info["container-fps"].toDouble() == 0
                    ? std::string()
-                   : std::format("{} fps", base::Locale::system().toString(info["container-fps"].toDouble(), 2)));
-    addRow(videoCard, "Bit rate", bitrate("video-bitrate"));
+                   // TRANSLATORS: a frame rate in frames per second.
+                   : format(tr("{rate} fps"),
+                            {{"rate", base::Locale::system().toString(info["container-fps"].toDouble(), 2)}}));
+    addRow(videoCard, tr("Bit rate"), bitrate("video-bitrate"));
 
     const bool audio = !value("audio-codec-name").empty();
-    column->addSectionLabel("Audio")->setVisible(audio);
+    column->addSectionLabel(tr("Audio"))->setVisible(audio);
     auto* audioCard = column->addChild<Card>(44);
     audioCard->setVisible(audio);
-    addRow(audioCard, "Codec", value("audio-codec-name"));
-    addRow(audioCard, "Channels", value("audio-params/channel-count"));
-    addRow(audioCard, "Sample rate", info["audio-params/samplerate"].isNone()
+    addRow(audioCard, tr("Codec"), value("audio-codec-name"));
+    addRow(audioCard, tr("Channels"), value("audio-params/channel-count"));
+    addRow(audioCard, tr("Sample rate"), info["audio-params/samplerate"].isNone()
                                              ? std::string()
-                                             : value("audio-params/samplerate") + " Hz");
-    addRow(audioCard, "Bit rate", bitrate("audio-bitrate"));
+                                             // TRANSLATORS: a sample rate in hertz.
+                                             : format(tr("{rate} Hz"), {{"rate", value("audio-params/samplerate")}}));
+    addRow(audioCard, tr("Bit rate"), bitrate("audio-bitrate"));
 
     // The title row is padded as the cards' text.
     title->setName("sectionLabel");
@@ -577,22 +585,23 @@ void Dialogs::mediaInfo(const MpvNode::Map& details, const std::string& name)
 void Dialogs::preferences()
 {
     PlayerSettings& settings = m_owner.app().settings();
-    m_preferences = std::make_unique<DialogWindow>(&m_owner.window(), "Settings", 460);
+    m_preferences = std::make_unique<DialogWindow>(&m_owner.window(), tr("Settings"), 460);
     m_preferences->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_preferences.get());
     auto* column = m_preferences->setContent<Column>();
 
     static const std::vector<std::pair<std::string, std::string>> languages = {
-        {"", "Display Language"}, {"en", "English"},   {"zh", "中文"},      {"ja", "日本語"},
+        // TRANSLATORS: follow the language the desktop is shown in.
+        {"", trNoop("Display Language")}, {"en", "English"},   {"zh", "中文"},      {"ja", "日本語"},
         {"ko", "한국어"},          {"es", "Español"},   {"fr", "Français"}, {"de", "Deutsch"},
         {"it", "Italiano"},       {"pt", "Português"}, {"ru", "Русский"},
     };
     static const std::vector<std::pair<int, std::string>> sizes = {
-        {80, "Small"}, {100, "Medium"}, {125, "Large"}, {150, "Extra Large"},
+        {80, trNoop("Small")}, {100, trNoop("Medium")}, {125, trNoop("Large")}, {150, trNoop("Extra Large")},
     };
     std::vector<std::string> languageNames;
     for (const auto& [code, name] : languages)
-        languageNames.push_back(name);
+        languageNames.push_back(code.empty() ? tr(name.c_str()) : name);
     const auto languageIndex = [](const std::string& code) {
         for (size_t i = 0; i < languages.size(); ++i) {
             if (languages[i].first == code)
@@ -601,25 +610,25 @@ void Dialogs::preferences()
         return 0;
     };
 
-    column->addSectionLabel("Playback");
+    column->addSectionLabel(tr("Playback"));
     auto* playback = column->addChild<Card>(48);
-    auto* resume = playback->addChild<Row>("Resume where you left off")->addControl<Switch>(0);
+    auto* resume = playback->addChild<Row>(tr("Resume where you left off"))->addControl<Switch>(0);
     resume->setName("resumeSwitch");
     resume->setPadding({0, 0, 0, 0});
     resume->setChecked(settings.resumePlayback());
     resume->onToggled = [&settings](bool checked) { settings.setResumePlayback(checked); };
-    auto* folder = playback->addChild<Row>("Play the other videos in the folder")->addControl<Switch>(0);
+    auto* folder = playback->addChild<Row>(tr("Play the other videos in the folder"))->addControl<Switch>(0);
     folder->setName("folderPlaylistSwitch");
     folder->setPadding({0, 0, 0, 0});
     folder->setChecked(settings.folderPlaylist());
     folder->onToggled = [&settings](bool checked) { settings.setFolderPlaylist(checked); };
-    auto* audio = playback->addChild<Row>("Audio language")->addControl<ComboBox>(180, languageNames);
+    auto* audio = playback->addChild<Row>(tr("Audio language"))->addControl<ComboBox>(180, languageNames);
     audio->setCurrentIndex(languageIndex(settings.audioLanguage()));
     audio->onActivated = [&settings](int index) { settings.setAudioLanguage(languages[size_t(index)].first); };
 
-    column->addSectionLabel("Subtitles");
+    column->addSectionLabel(tr("Subtitles"));
     auto* subtitles = column->addChild<Card>(48);
-    auto* subtitle = subtitles->addChild<Row>("Subtitle language")->addControl<ComboBox>(180, languageNames);
+    auto* subtitle = subtitles->addChild<Row>(tr("Subtitle language"))->addControl<ComboBox>(180, languageNames);
     subtitle->setCurrentIndex(languageIndex(settings.subtitleLanguage()));
     subtitle->onActivated = [&settings](int index) {
         settings.setSubtitleLanguage(languages[size_t(index)].first);
@@ -627,25 +636,25 @@ void Dialogs::preferences()
     std::vector<std::string> sizeNames;
     int sizeIndex = 0;
     for (size_t i = 0; i < sizes.size(); ++i) {
-        sizeNames.push_back(sizes[i].second);
+        sizeNames.push_back(tr(sizes[i].second.c_str()));
         if (sizes[i].first == settings.subtitleScale())
             sizeIndex = int(i);
     }
-    auto* size = subtitles->addChild<Row>("Subtitle size")->addControl<ComboBox>(180, sizeNames);
+    auto* size = subtitles->addChild<Row>(tr("Subtitle size"))->addControl<ComboBox>(180, sizeNames);
     size->setCurrentIndex(sizeIndex);
     size->onActivated = [&settings](int index) { settings.setSubtitleScale(sizes[size_t(index)].first); };
 
-    column->addSectionLabel("Screenshots");
+    column->addSectionLabel(tr("Screenshots"));
     auto* screenshots = column->addChild<Card>(48);
-    Row* saveTo = screenshots->addChild<Row>("Save to",
+    Row* saveTo = screenshots->addChild<Row>(tr("Save to"),
                                              std::filesystem::path(settings.screenshotFolder()).filename().string());
     saveTo->value()->setElide(Label::Elide::Middle);
     saveTo->setValueMaximumWidth(200);
-    auto* change = saveTo->addControl<Button>(0, "Change…");
+    auto* change = saveTo->addControl<Button>(0, tr("Change…"));
     change->onClicked = [this, &settings] {
         m_folderChooser = std::make_unique<FileChooser>(m_preferences ? m_preferences->window() : &m_owner.window());
         m_folderChooser->setMode(FileChooser::Mode::OpenFolder);
-        m_folderChooser->setTitle("Save Screenshots To");
+        m_folderChooser->setTitle(tr("Save Screenshots To"));
         m_folderChooser->setCurrentFolder(settings.screenshotFolder());
         m_folderChooser->onAccepted = [this, &settings](const std::vector<std::string>& paths, const std::string&) {
             if (paths.empty())
@@ -663,7 +672,7 @@ void Dialogs::preferences()
 
 void Dialogs::shortcuts()
 {
-    m_shortcuts = std::make_unique<DialogWindow>(&m_owner.window(), "Keyboard Shortcuts", 480);
+    m_shortcuts = std::make_unique<DialogWindow>(&m_owner.window(), tr("Keyboard Shortcuts"), 480);
     m_shortcuts->window()->setBackgroundColor(ColorId::Background);
     closeOnEscape(m_shortcuts.get());
 
@@ -673,35 +682,37 @@ void Dialogs::shortcuts()
         std::vector<std::pair<const char*, const char*>> keys;
     };
     static const std::vector<Section> sections = {
-        {"Playback", {
-            {"Play or pause", "Space, K"},
-            {"Back or forward 5 seconds", "← →"},
-            {"Back or forward 30 seconds", "Shift+← →"},
-            {"Go to the start or the end", "Home, End"},
-            {"Slower, faster, normal speed", "[ ] Backspace"},
-            {"Previous or next frame", ", ."},
-            {"Previous or next chapter", "Page Up, Page Down"},
-            {"Previous or next file", "B, N"},
+        {trNoop("Playback"), {
+            {trNoop("Play or pause"), "Space, K"},
+            {trNoop("Back or forward 5 seconds"), "← →"},
+            {trNoop("Back or forward 30 seconds"), "Shift+← →"},
+            {trNoop("Go to the start or the end"), "Home, End"},
+            {trNoop("Slower, faster, normal speed"), "[ ] Backspace"},
+            {trNoop("Previous or next frame"), ", ."},
+            {trNoop("Previous or next chapter"), "Page Up, Page Down"},
+            {trNoop("Previous or next file"), "B, N"},
         }},
-        {"Sound and Subtitles", {
-            {"Volume up or down", "↑ ↓"},
-            {"Mute", "M"},
-            {"Next audio track", "A"},
-            {"Next or previous subtitle", "J, Shift+J"},
-            {"Show or hide subtitles", "V"},
-            {"Subtitles earlier or later", "Z, Shift+Z"},
+        {trNoop("Sound and Subtitles"), {
+            {trNoop("Volume up or down"), "↑ ↓"},
+            {trNoop("Mute"), "M"},
+            {trNoop("Next audio track"), "A"},
+            {trNoop("Next or previous subtitle"), "J, Shift+J"},
+            {trNoop("Show or hide subtitles"), "V"},
+            {trNoop("Subtitles earlier or later"), "Z, Shift+Z"},
         }},
-        {"Window", {
-            {"Full screen", "F, F11, double-click"},
-            {"Leave full screen", "Esc"},
-            {"Playlist", "P"},
-            {"Open a file", "Ctrl+O"},
-            {"Open a URL", "Ctrl+L"},
-            {"Take a screenshot", "Ctrl+Alt+S"},
-            {"Media info", "Ctrl+I"},
-            {"Settings", "Ctrl+,"},
-            {"Keyboard shortcuts", "Ctrl+?"},
-            {"Close", "Ctrl+W"},
+        {trNoop("Window"), {
+            {trNoop("Full screen"),
+             // TRANSLATORS: key names stay as they are.
+             trNoop("F, F11, double-click")},
+            {trNoop("Leave full screen"), "Esc"},
+            {trNoop("Playlist"), "P"},
+            {trNoop("Open a file"), "Ctrl+O"},
+            {trNoop("Open a URL"), "Ctrl+L"},
+            {trNoop("Take a screenshot"), "Ctrl+Alt+S"},
+            {trNoop("Media info"), "Ctrl+I"},
+            {trNoop("Settings"), "Ctrl+,"},
+            {trNoop("Keyboard shortcuts"), "Ctrl+?"},
+            {trNoop("Close"), "Ctrl+W"},
         }},
     };
 
@@ -716,10 +727,10 @@ void Dialogs::shortcuts()
     scroller->setClipsChildren(true);
     auto* column = scroller->setContent<Column>(4, 12);
     for (const Section& section : sections) {
-        column->addSectionLabel(section.title);
+        column->addSectionLabel(tr(section.title));
         auto* card = column->addChild<Card>(44);
         for (const auto& [text, keys] : section.keys)
-            card->addChild<Row>(text, keys);
+            card->addChild<Row>(tr(text), tr(keys));
     }
     m_shortcuts->show();
 }

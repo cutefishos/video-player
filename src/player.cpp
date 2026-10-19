@@ -5,6 +5,7 @@
 #include "mpvhandle.h"
 #include "urls.h"
 
+#include "base/i18n.h"
 #include "base/logging.h"
 #include "base/strings.h"
 
@@ -13,6 +14,7 @@
 #include <cmath>
 
 using namespace cutefish;
+using cutefish::i18n::tr;
 
 static const base::LogCategory cfMpv("cutefish.videoplayer.mpv", base::LogLevel::Warning);
 
@@ -545,7 +547,7 @@ void Player::reopen(const FileOptions& options)
 void Player::open(const std::string& url, const FileOptions& options, bool paused)
 {
     if (!ensurePlayer()) {
-        playbackFailed.emit("mpv could not be started");
+        playbackFailed.emit(tr("mpv could not be started"));
         return;
     }
     if (m_source != url) {

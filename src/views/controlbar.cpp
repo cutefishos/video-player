@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include "thumbnailer.h"
 
+#include "base/i18n.h"
 #include "ui/cell_layout.h"
 #include "ui/theme.h"
 
@@ -13,6 +14,7 @@
 
 using namespace cutefish::ui;
 using views::white;
+using cutefish::i18n::tr;
 
 static constexpr double kSidePadding = 14;
 static constexpr double kTopPadding = 10;
@@ -313,7 +315,7 @@ void VolumeControl::update(int volume, bool muted)
                     : volume < 34      ? "volume-low"
                     : volume < 67      ? "volume-medium"
                                        : "volume-high");
-    m_mute->setToolTipText(muted ? "Unmute" : "Mute");
+    m_mute->setToolTipText(muted ? tr("Unmute") : tr("Mute"));
     requestPaint();
 }
 
@@ -439,9 +441,9 @@ ControlBar::ControlBar(MainWindow& owner)
         views::setTabular(label);
     m_metrics->setVisible(false);
 
-    m_skipBack->setToolTipText("Back 10 Seconds");
-    m_skipForward->setToolTipText("Forward 10 Seconds");
-    m_panel->setToolTipText("Playlist, Tracks and Playback");
+    m_skipBack->setToolTipText(tr("Back 10 Seconds"));
+    m_skipForward->setToolTipText(tr("Forward 10 Seconds"));
+    m_panel->setToolTipText(tr("Playlist, Tracks and Playback"));
     m_skipBack->onClicked = [this] { m_owner.seekBy(-10); };
     m_play->onClicked = [this] { m_owner.togglePause(false); };
     m_skipForward->onClicked = [this] { m_owner.seekBy(10); };
@@ -462,10 +464,10 @@ void ControlBar::refresh()
     m_skipBack->setEnabled(player.seekable());
     m_skipForward->setEnabled(player.seekable());
     m_play->setIcon(player.endReached() ? "replay" : player.paused() ? "play" : "pause");
-    m_play->setToolTipText(player.endReached() ? "Play Again" : player.paused() ? "Play" : "Pause");
+    m_play->setToolTipText(player.endReached() ? tr("Play Again") : player.paused() ? tr("Play") : tr("Pause"));
     m_panel->setChecked(m_owner.panelOpen());
     m_fullScreen->setIcon(m_owner.isFullScreen() ? "fullscreen-exit" : "fullscreen");
-    m_fullScreen->setToolTipText(m_owner.isFullScreen() ? "Exit Full Screen" : "Full Screen");
+    m_fullScreen->setToolTipText(m_owner.isFullScreen() ? tr("Exit Full Screen") : tr("Full Screen"));
 
     m_seekBar->update(player.duration(), player.position(), player.chapters(),
                       player.hasVideo() ? &m_owner.app().thumbnailer() : nullptr,

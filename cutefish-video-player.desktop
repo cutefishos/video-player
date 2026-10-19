@@ -4,9 +4,7 @@
 [Desktop Entry]
 Version=1.0
 Name=Video Player
-Name[zh_CN]=视频播放器
 Comment=Play videos and other media files
-Comment[zh_CN]=播放视频和其他媒体文件
 Exec=cutefish-video-player %U
 Icon=multimedia-video-player
 Terminal=false
