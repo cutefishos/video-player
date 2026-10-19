@@ -1078,7 +1078,7 @@ void MainWindow::updateMpris()
     m_mpris->setVolume(m_player.muted() ? 0 : m_player.volume() / 100.0);
     m_mpris->setPosition(int64_t(std::lround(m_player.position() * 1e6)));
     MprisServer::Metadata metadata;
-    metadata.trackId = "/com/cutefish/VideoPlayer/Track/" + std::to_string(std::max(0, playlist.currentIndex()));
+    metadata.trackId = "/org/cutefish/VideoPlayer/Track/" + std::to_string(std::max(0, playlist.currentIndex()));
     metadata.title = hasMedia() ? mediaName() : std::string();
     metadata.length = int64_t(std::lround(m_player.duration() * 1e6));
     metadata.url = m_player.source();

@@ -79,7 +79,7 @@ TEST_F(MprisTest, PropertiesAndRequests)
     server.setLoopStatus(MprisServer::LoopStatus::Playlist);
     server.setVolume(1.3);
     server.setPosition(5'000'000);
-    server.setMetadata({"/com/cutefish/VideoPlayer/Track/0", "Film", 60'000'000, "file:///v/Film.mkv", {}});
+    server.setMetadata({"/org/cutefish/VideoPlayer/Track/0", "Film", 60'000'000, "file:///v/Film.mkv", {}});
 
     const char* root = "org.mpris.MediaPlayer2";
     const char* player = "org.mpris.MediaPlayer2.Player";
@@ -92,7 +92,7 @@ TEST_F(MprisTest, PropertiesAndRequests)
     EXPECT_EQ(property(player, "CanGoNext")->get<bool>(), false);
     const auto metadata = property(player, "Metadata")->get<dbus::VariantMap>();
     ASSERT_TRUE(metadata);
-    EXPECT_EQ(metadata->at("mpris:trackid").get<dbus::ObjectPath>()->path, "/com/cutefish/VideoPlayer/Track/0");
+    EXPECT_EQ(metadata->at("mpris:trackid").get<dbus::ObjectPath>()->path, "/org/cutefish/VideoPlayer/Track/0");
     EXPECT_EQ(metadata->at("mpris:length").get<int64_t>(), 60'000'000);
     EXPECT_FALSE(metadata->contains("mpris:artUrl"));
 
@@ -122,9 +122,9 @@ TEST_F(MprisTest, PropertiesAndRequests)
 
     const dbus::Reply wrongTrack = call(player, "SetPosition", dbus::ObjectPath{"/other"}, int64_t(1));
     EXPECT_TRUE(wrongTrack.isError());
-    EXPECT_FALSE(call(player, "SetPosition", dbus::ObjectPath{"/com/cutefish/VideoPlayer/Track/0"}, int64_t(1)).isError());
+    EXPECT_FALSE(call(player, "SetPosition", dbus::ObjectPath{"/org/cutefish/VideoPlayer/Track/0"}, int64_t(1)).isError());
     EXPECT_EQ(positions.size(), 1u);
-    EXPECT_TRUE(call(player, "SetPosition", dbus::ObjectPath{"/com/cutefish/VideoPlayer/Track/0"}, int64_t(-1)).isError());
+    EXPECT_TRUE(call(player, "SetPosition", dbus::ObjectPath{"/org/cutefish/VideoPlayer/Track/0"}, int64_t(-1)).isError());
     EXPECT_EQ(positions.size(), 1u);
 
     EXPECT_FALSE(call("org.freedesktop.DBus.Properties", "Set", std::string(player), std::string("Volume"),

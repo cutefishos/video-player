@@ -19,12 +19,12 @@
 #include <vector>
 
 // What the window works with, and the D-Bus face of the running player
-// (com.cutefish.VideoPlayer at /VideoPlayer): a second launch hands its files
+// (org.cutefish.VideoPlayer at /VideoPlayer): a second launch hands its files
 // over through open().
 class Application
 {
 public:
-    static constexpr const char* kService = "com.cutefish.VideoPlayer";
+    static constexpr const char* kService = "org.cutefish.VideoPlayer";
     static constexpr const char* kPath = "/VideoPlayer";
 
     // settingsFile is video-player.conf; covers go in coverFolder (the
