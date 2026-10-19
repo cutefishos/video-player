@@ -400,7 +400,8 @@ void Player::handlePropertyChange(const mpv_event_property* property)
     } else if (name == "dheight") {
         update(m_videoSize, Size{m_videoSize.width, asInt()}, Property::VideoSize);
     } else if (name == "track-list") {
-        tracks::Split split = tracks::split(asNode());
+        m_trackList = asNode();
+        tracks::Split split = tracks::split(m_trackList);
         m_audioTracks = std::move(split.audio);
         m_subtitleTracks = std::move(split.subtitle);
         m_hasVideo = split.hasVideo;
@@ -523,6 +524,16 @@ void Player::setRotation(int degrees)
 void Player::setLoopFile(bool loop)
 {
     setMpvProperty("loop-file", loop ? "inf" : "no");
+}
+
+void Player::relabelTracks()
+{
+    tracks::Split split = tracks::split(m_trackList);
+    if (split.audio == m_audioTracks && split.subtitle == m_subtitleTracks)
+        return;
+    m_audioTracks = std::move(split.audio);
+    m_subtitleTracks = std::move(split.subtitle);
+    changed.emit(Property::Tracks);
 }
 
 void Player::load(const std::string& url, const FileOptions& options, bool paused)

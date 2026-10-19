@@ -61,7 +61,23 @@ void SleepInhibitor::setMode(Mode mode)
     modeChanged.emit();
     if (wasHeld)
         heldChanged.emit();
+    acquire(mode, generation);
+}
 
+void SleepInhibitor::retranslate()
+{
+    if (m_mode == Mode::Off)
+        return;
+    const bool wasHeld = isHeld();
+    release();
+    const uint64_t generation = ++m_generation;
+    if (wasHeld)
+        heldChanged.emit();
+    acquire(m_mode, generation);
+}
+
+void SleepInhibitor::acquire(Mode mode, uint64_t generation)
+{
     const uint64_t call = s_nextCall++;
     auto weak = m_weakFactory.getWeakPtr();
     if (mode == Mode::Screen) {

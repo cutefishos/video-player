@@ -315,8 +315,13 @@ void VolumeControl::update(int volume, bool muted)
                     : volume < 34      ? "volume-low"
                     : volume < 67      ? "volume-medium"
                                        : "volume-high");
-    m_mute->setToolTipText(muted ? tr("Unmute") : tr("Mute"));
+    retranslate();
     requestPaint();
+}
+
+void VolumeControl::retranslate()
+{
+    m_mute->setToolTipText(m_muted ? tr("Unmute") : tr("Mute"));
 }
 
 RectF VolumeControl::trackRect() const
@@ -441,9 +446,7 @@ ControlBar::ControlBar(MainWindow& owner)
         views::setTabular(label);
     m_metrics->setVisible(false);
 
-    m_skipBack->setToolTipText(tr("Back 10 Seconds"));
-    m_skipForward->setToolTipText(tr("Forward 10 Seconds"));
-    m_panel->setToolTipText(tr("Playlist, Tracks and Playback"));
+    retranslate();
     m_skipBack->onClicked = [this] { m_owner.seekBy(-10); };
     m_play->onClicked = [this] { m_owner.togglePause(false); };
     m_skipForward->onClicked = [this] { m_owner.seekBy(10); };
@@ -455,6 +458,14 @@ ControlBar::ControlBar(MainWindow& owner)
     };
     m_seekBar->onDraggingChanged = [this] { m_owner.stateChanged.emit(); };
     m_volume->onDraggingChanged = [this] { m_owner.stateChanged.emit(); };
+}
+
+void ControlBar::retranslate()
+{
+    m_skipBack->setToolTipText(tr("Back 10 Seconds"));
+    m_skipForward->setToolTipText(tr("Forward 10 Seconds"));
+    m_panel->setToolTipText(tr("Playlist, Tracks and Playback"));
+    m_volume->retranslate();
 }
 
 void ControlBar::refresh()

@@ -111,6 +111,8 @@ public:
     const std::vector<tracks::Track>& audioTracks() const { return m_audioTracks; }
     const std::vector<tracks::Track>& subtitleTracks() const { return m_subtitleTracks; }
     bool hasVideo() const { return m_hasVideo; }
+    // The track labels again, in the language of the moment.
+    void relabelTracks();
     int audioTrack() const { return m_audioTrack; }
     void setAudioTrack(int id);
     int subtitleTrack() const { return m_subtitleTrack; }
@@ -216,6 +218,7 @@ private:
     double m_speed = 1.0;
     std::string m_mediaTitle;
     Size m_videoSize;
+    MpvNode m_trackList;
     std::vector<tracks::Track> m_audioTracks;
     std::vector<tracks::Track> m_subtitleTracks;
     bool m_hasVideo = false;

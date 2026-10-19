@@ -29,6 +29,7 @@ public:
     void preferences();
     void shortcuts();
     void about();
+    void retranslate();
 
 private:
     class OpenUrl;

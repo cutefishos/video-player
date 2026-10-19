@@ -271,6 +271,15 @@ void MprisServer::changedPlayer(const std::vector<std::string>& names)
         m_player->emitPropertiesChanged(names);
 }
 
+void MprisServer::setIdentity(const std::string& identity)
+{
+    if (m_description.identity == identity)
+        return;
+    m_description.identity = identity;
+    if (m_root && m_registered)
+        m_root->emitPropertiesChanged({"Identity"});
+}
+
 void MprisServer::setFullscreen(bool fullscreen)
 {
     if (m_fullscreen == fullscreen)

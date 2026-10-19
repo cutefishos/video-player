@@ -143,9 +143,16 @@ class DropOverlay : public View
 {
 public:
     DropOverlay()
-        : m_label(views::addLabel(this, tr("Drop to Play"), 14, white(), 500))
+        : m_label(views::addLabel(this, {}, 14, white(), 500))
     {
         setVisible(false);
+        retranslate();
+    }
+
+    void retranslate()
+    {
+        m_label->setText(tr("Drop to Play"));
+        requestLayout();
     }
 
 protected:
@@ -550,6 +557,7 @@ MainWindow::MainWindow(::Application& application)
     Thumbnailer& thumbnailer = m_app.thumbnailer();
     m_subscriptions.push_back(thumbnailer.revisionChanged.connect([this] { m_controlBar->refresh(); }));
     m_subscriptions.push_back(thumbnailer.coverChanged.connect([this] { updateMpris(); }));
+    m_languageChanged = cutefish::ui::Application::instance()->languageChanged.connect([this] { retranslate(); });
 
     m_player.setVolume(settings.volume());
     m_player.setMuted(settings.muted());
@@ -571,6 +579,30 @@ MainWindow::~MainWindow()
     m_chrome->onUpdate = nullptr;
     m_chrome.reset();
     m_closingVideo = m_video->takeSurface();
+}
+
+// Only the text around the picture is made again: the player, its file and
+// the video surface go on as they were, as do the window's state, the side
+// panel's lists and the dialogs' input.
+void MainWindow::retranslate()
+{
+    for (Menu* menu : {&m_mainMenu, &m_contextMenu, &m_playlistMenu}) {
+        if (menu->isOpen())
+            menu->close();
+    }
+    m_player.relabelTracks();
+    m_root->empty->retranslate();
+    m_root->error->retranslate();
+    m_root->dropOverlay->retranslate();
+    m_controlBar->retranslate();
+    m_sidePanel->retranslate();
+    m_controlBar->refresh();
+    updateTitle();
+    updateChrome();
+    if (m_mpris)
+        m_mpris->setIdentity(tr("Video Player"));
+    m_app.inhibitor().retranslate();
+    m_dialogs->retranslate();
 }
 
 void MainWindow::show()

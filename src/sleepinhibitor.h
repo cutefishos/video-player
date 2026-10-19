@@ -30,6 +30,9 @@ public:
 
     Mode mode() const { return m_mode; }
     void setMode(Mode mode);
+    // Takes the held inhibition again, its reasons in the language of the
+    // moment.
+    void retranslate();
 
     // The ScreenSaver cookie or logind lock is held.
     bool isHeld() const { return m_cookie != 0 || m_suspendLock.isValid(); }
@@ -39,6 +42,8 @@ public:
     cutefish::base::Signal<> heldChanged;
 
 private:
+    // Asks for mode's inhibition; an answer for an older generation is undone.
+    void acquire(Mode mode, uint64_t generation);
     void release();
     void finish(uint64_t call);
 

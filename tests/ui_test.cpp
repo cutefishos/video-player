@@ -6,6 +6,7 @@
 #include "application.h"
 #include "urls.h"
 #include "views/mainwindow.h"
+#include "views/videoview.h"
 #include "views/widgets.h"
 
 #include "base/file.h"
@@ -382,6 +383,51 @@ TEST_F(UiTest, OutsideClickClosesSidePanel)
     wait(800ms);
     EXPECT_TRUE(m_window->panelOpen());
     EXPECT_FALSE(player.paused());
+}
+
+TEST_F(UiTest, LanguageChangeKeepsPlaying)
+{
+    if (!openClip())
+        GTEST_SKIP() << "ffmpeg is needed to make the test clip";
+    Player& player = m_window->player();
+    runUntil([&] { return !player.paused() && player.position() > 0.5; }, 3s);
+    m_window->setVolume(40);
+    m_window->togglePanel(1, false);
+    wait(30ms);
+    m_window->window().grab();
+    const std::string source = player.source();
+    const VideoView* video = m_window->videoView();
+    const bool surface = video->usesSurface();
+    const ui::View* panel = view("sidePanel");
+    ui::View* tracks = find(view("sidePanel"), "firstSection");
+    ASSERT_TRUE(tracks);
+    // Marks the rows made before; a new row could take an old one's address.
+    tracks->parent()->children()[1]->setName("oldTrackRow");
+    int loads = 0;
+    const base::Subscription loaded = player.fileLoaded.connect([&] { ++loads; });
+    const double position = player.position();
+
+    ui::Application::instance()->languageChanged.emit();
+    wait(300ms);
+    m_window->window().grab();
+    EXPECT_EQ(loads, 0);
+    EXPECT_EQ(player.source(), source);
+    EXPECT_TRUE(player.loaded());
+    EXPECT_FALSE(player.paused());
+    EXPECT_GT(player.position(), position);
+    EXPECT_EQ(player.volume(), 40);
+    EXPECT_EQ(m_window->videoView(), video);
+    EXPECT_EQ(video->usesSurface(), surface);
+    EXPECT_TRUE(m_window->panelOpen());
+    EXPECT_EQ(m_window->panelTab(), 1);
+    EXPECT_EQ(view("sidePanel"), panel);
+    EXPECT_TRUE(visibleInTree(panel));
+    // The track rows are made again, in the language of the moment.
+    EXPECT_TRUE(find(view("sidePanel"), "firstSection"));
+    EXPECT_FALSE(find(view("sidePanel"), "oldTrackRow"));
+    auto* tab = dynamic_cast<ui::Label*>(view("panelTab1")->children().front().get());
+    ASSERT_TRUE(tab);
+    EXPECT_FALSE(tab->text().empty());
 }
 
 int main(int argc, char** argv)

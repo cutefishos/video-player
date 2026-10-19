@@ -264,27 +264,27 @@ public:
             m_window->activate();
             return;
         }
-        m_window = std::make_unique<Window>();
-        m_window->setTitle(tr("Open URL"));
-        m_window->setTransientParent(&m_owner.window(), true);
-        m_window->setBackgroundColor(ColorId::SecondBackground);
-        auto root = std::make_unique<Root>(*this);
-        m_root = root.get();
-        m_window->setContentView(std::move(root));
-        m_window->resize({420, m_root->heightForWidth(420)});
-        m_window->setMinimumSize({420, m_root->heightForWidth(420)});
-        m_window->setMaximumSize({420, m_root->heightForWidth(420)});
-        m_window->onCloseRequested = [this] { close(); };
-        m_window->addShortcut(NoModifier, key::Escape, [this] { close(); });
-        m_window->show();
-        Clipboard::requestText([weak = std::weak_ptr<bool>(m_alive), this](const std::string& text) {
-            if (weak.expired() || !m_root)
+        build();
+        Clipboard::requestText([weak = std::weak_ptr<bool>(m_alive), this, built = m_built](const std::string& text) {
+            if (weak.expired() || !m_root || built != m_built)
                 return;
             m_root->field->setText(::Application::clipboardUrl(text));
             m_root->field->selectAll();
             m_root->update();
         });
-        m_root->field->setFocus();
+    }
+
+    // Made again around the address typed so far.
+    void retranslate()
+    {
+        if (!m_window || m_window->isHidden())
+            return;
+        const std::string text = m_root->field->text();
+        m_root = nullptr;
+        m_window.reset();
+        build();
+        m_root->field->setText(text);
+        m_root->update();
     }
 
     void close()
@@ -302,6 +302,27 @@ public:
     }
 
 private:
+    class Root;
+
+    void build()
+    {
+        ++m_built;
+        m_window = std::make_unique<Window>();
+        m_window->setTitle(tr("Open URL"));
+        m_window->setTransientParent(&m_owner.window(), true);
+        m_window->setBackgroundColor(ColorId::SecondBackground);
+        auto root = std::make_unique<Root>(*this);
+        m_root = root.get();
+        m_window->setContentView(std::move(root));
+        m_window->resize({420, m_root->heightForWidth(420)});
+        m_window->setMinimumSize({420, m_root->heightForWidth(420)});
+        m_window->setMaximumSize({420, m_root->heightForWidth(420)});
+        m_window->onCloseRequested = [this] { close(); };
+        m_window->addShortcut(NoModifier, key::Escape, [this] { close(); });
+        m_window->show();
+        m_root->field->setFocus();
+    }
+
     class Root : public View
     {
     public:
@@ -376,6 +397,8 @@ private:
     MainWindow& m_owner;
     std::unique_ptr<Window> m_window;
     Root* m_root = nullptr;
+    // Counts the windows made, so a clipboard answer fills only its own.
+    uint64_t m_built = 0;
     std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 };
 
@@ -421,6 +444,14 @@ public:
             if (!weak.expired())
                 m_window.reset();
         });
+    }
+
+    void retranslate()
+    {
+        if (!m_window || m_window->isHidden())
+            return;
+        m_window.reset();
+        show();
     }
 
 private:
@@ -498,6 +529,20 @@ Dialogs::Dialogs(MainWindow& owner)
 }
 
 Dialogs::~Dialogs() = default;
+
+// Each open dialog is made again in place; the folder chooser of Settings
+// keeps Settings as it is until it answers.
+void Dialogs::retranslate()
+{
+    m_openUrl->retranslate();
+    m_about->retranslate();
+    if (m_mediaInfo && m_mediaInfo->window())
+        m_owner.showMediaInfo();
+    if (m_preferences && m_preferences->window() && !(m_folderChooser && m_folderChooser->isOpen()))
+        preferences();
+    if (m_shortcuts && m_shortcuts->window())
+        shortcuts();
+}
 
 void Dialogs::openUrl()
 {

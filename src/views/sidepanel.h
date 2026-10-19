@@ -64,6 +64,7 @@ public:
     explicit SidePanel(MainWindow& owner);
 
     void refresh();
+    void retranslate();
     void refreshPlaylist();
     void refreshTracks();
     void refreshPlayback();

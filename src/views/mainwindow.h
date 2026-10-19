@@ -104,6 +104,7 @@ private:
     class Root;
     friend class Root;
 
+    void retranslate();
     void buildMenus();
     void bindShortcuts();
     void bindMpris();
@@ -160,5 +161,6 @@ private:
     bool m_dismissOutside = false;
     cutefish::ui::PointF m_dismissPress;
     std::vector<cutefish::base::Subscription> m_subscriptions;
+    cutefish::base::Subscription m_languageChanged;
     std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 };

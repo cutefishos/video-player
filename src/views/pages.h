@@ -91,6 +91,7 @@ public:
 
     // Re-read on each showing, which leaves out files deleted since.
     void reload();
+    void retranslate();
 
 private:
     class Column;
@@ -119,6 +120,7 @@ public:
     explicit ErrorPage(MainWindow& owner);
 
     void update(const std::string& text, bool hasNext);
+    void retranslate();
 
 protected:
     void layout() override;

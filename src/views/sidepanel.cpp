@@ -216,6 +216,8 @@ private:
     views::ControlButton* m_later;
 };
 
+static const char* const kTabNames[] = {trNoop("Playlist"), trNoop("Tracks"), trNoop("Playback")};
+
 // The segmented tabs.
 class SidePanel::Tabs : public View
 {
@@ -223,7 +225,7 @@ public:
     explicit Tabs(MainWindow& owner)
         : m_owner(owner)
     {
-        for (const char* name : {trNoop("Playlist"), trNoop("Tracks"), trNoop("Playback")}) {
+        for (const char* name : kTabNames) {
             auto* tab = addChild<views::Clickable>();
             const int index = int(m_tabs.size());
             tab->setName("panelTab" + std::to_string(index));
@@ -232,6 +234,13 @@ public:
             m_tabs.push_back(tab);
             m_labels.push_back(views::addLabel(tab, tr(name), 0, white()));
         }
+    }
+
+    void retranslate()
+    {
+        for (size_t i = 0; i < m_labels.size(); ++i)
+            m_labels[i]->setText(tr(kTabNames[i]));
+        requestLayout();
     }
 
     void update(int current)
@@ -394,7 +403,7 @@ SidePanel::SidePanel(MainWindow& owner)
     , m_tabs(addChild<Tabs>(owner))
     , m_playlistPage(addChild<View>())
     , m_list(m_playlistPage->addChild<ListView>())
-    , m_emptyLabel(views::addLabel(m_playlistPage, tr("Drop files here to add them."), 0, white(0.6)))
+    , m_emptyLabel(views::addLabel(m_playlistPage, {}, 0, white(0.6)))
     , m_repeat(m_playlistPage->addChild<views::ControlButton>("repeat"))
     , m_add(m_playlistPage->addChild<views::ControlButton>("add"))
     , m_tracksView(addChild<ScrollView>())
@@ -420,12 +429,23 @@ SidePanel::SidePanel(MainWindow& owner)
     m_emptyLabel->setWrap(true);
     m_emptyLabel->setTextAlignment(Label::TextAlignment::Center);
     m_emptyLabel->setVerticallyCentered(true);
-    m_add->setToolTipText(tr("Add Files…"));
     m_repeat->onClicked = [this] {
         Playlist& playlist = m_owner.app().playlist();
         playlist.setRepeatMode(Playlist::RepeatMode((int(playlist.repeatMode()) + 1) % 3));
     };
     m_add->onClicked = [this] { m_owner.openFiles(true); };
+    retranslate();
+}
+
+// The rows are made again in place, so the lists keep their scroll
+// positions and the playlist its current row.
+void SidePanel::retranslate()
+{
+    m_tabs->retranslate();
+    m_emptyLabel->setText(tr("Drop files here to add them."));
+    m_add->setToolTipText(tr("Add Files…"));
+    m_tracksKey.clear();
+    m_playbackKey.clear();
     refresh();
 }
 

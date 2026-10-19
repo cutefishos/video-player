@@ -52,6 +52,7 @@ public:
 
     bool isRegistered() const { return m_registered; }
 
+    void setIdentity(const std::string& identity);
     void setFullscreen(bool fullscreen);
     void setCanControl(bool can);
     void setCanPlay(bool can);

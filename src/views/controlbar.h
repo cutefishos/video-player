@@ -73,6 +73,7 @@ public:
     explicit VolumeControl(MainWindow& owner);
 
     void update(int volume, bool muted);
+    void retranslate();
     bool isDragging() const { return m_dragging; }
     cutefish::ui::SizeF sizeHint() const override { return {36 + 2 + 72, 36}; }
     bool acceptsPointer() const override { return true; }
@@ -113,6 +114,8 @@ public:
 
     // Pulls the player's and the window's state.
     void refresh();
+    // The tooltips that refresh() leaves as they are.
+    void retranslate();
     bool isBusy() const { return m_seekBar->isDragging() || m_volume->isDragging(); }
     bool isHoveredBar() const { return isHovered(); }
     cutefish::ui::SizeF sizeHint() const override { return {kWidth, kHeight}; }
