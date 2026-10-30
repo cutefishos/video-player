@@ -94,12 +94,12 @@ static void addPlate(Path& path, const RectF& rect, double radius, bool continuo
     path.close();
 }
 
-// The title and the main menu button.
+// The media's name and the main menu button.
 class HeaderContent : public View
 {
 public:
     explicit HeaderContent(MainWindow& owner)
-        : title(views::addLabel(this, tr("Video Player"), 0, white()))
+        : title(views::addLabel(this, {}, 0, white()))
         , menu(addChild<HeaderButton>("menu", 32))
     {
         title->setName("windowTitle");
@@ -118,12 +118,13 @@ protected:
         const double height = geometry().height;
         double right = width;
         if (menu->isVisible()) {
+            right -= 4;
             menu->setGeometry({right - 32, std::floor((height - 32) / 2), 32, 32});
             right -= 32 + 12;
         }
         const SizeF size = title->sizeHint();
-        title->setGeometry({20, views::layoutCenter(height, size.height),
-                            std::max(0.0, right - 20), size.height});
+        title->setGeometry({12, views::layoutCenter(height, size.height),
+                            std::max(0.0, right - 12), size.height});
     }
 };
 
@@ -1141,8 +1142,9 @@ void MainWindow::updateTitle()
 {
     const std::string title = hasMedia() ? mediaName() : tr("Video Player");
     m_window.setTitle(title);
-    if (m_root->content->title->text() != title) {
-        m_root->content->title->setText(title);
+    const std::string headerTitle = hasMedia() ? title : std::string();
+    if (m_root->content->title->text() != headerTitle) {
+        m_root->content->title->setText(headerTitle);
         m_root->content->requestLayout();
     }
 }
