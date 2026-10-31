@@ -176,6 +176,14 @@ public:
     {
     }
 
+    // Room at the sides and below, for a column that scrolls past a dialog's padding.
+    void setInsets(double side, double bottom)
+    {
+        m_side = side;
+        m_bottom = bottom;
+        requestLayout();
+    }
+
     Label* addSectionLabel(const std::string& text)
     {
         Label* label = views::addLabel(this, text, 0, ColorId::DisabledText);
@@ -186,6 +194,7 @@ public:
 
     double heightForWidth(double width) const override
     {
+        width = std::max(0.0, width - 2 * m_side);
         double height = m_top;
         bool first = true;
         for (const auto& child : children()) {
@@ -196,14 +205,14 @@ public:
             first = false;
             height += std::ceil(childHeight(child.get(), width));
         }
-        return height;
+        return height + m_bottom;
     }
     SizeF sizeHint() const override { return {0, heightForWidth(geometry().width)}; }
 
 protected:
     void layout() override
     {
-        const double width = geometry().width;
+        const double width = std::max(0.0, geometry().width - 2 * m_side);
         double y = m_top;
         bool first = true;
         for (const auto& child : children()) {
@@ -214,9 +223,9 @@ protected:
             first = false;
             const double height = childHeight(child.get(), width);
             if (child->name() == "sectionLabel")
-                child->setGeometry({16, y, std::max(0.0, width - 32), height});
+                child->setGeometry({m_side + 16, y, std::max(0.0, width - 32), height});
             else
-                child->setGeometry({0, y, width, height});
+                child->setGeometry({m_side, y, width, height});
             y += std::ceil(height);
         }
     }
@@ -231,6 +240,8 @@ private:
 
     double m_top;
     double m_spacing;
+    double m_side = 0;
+    double m_bottom = 0;
 };
 
 std::string number(const MpvNode& value)
@@ -762,15 +773,29 @@ void Dialogs::shortcuts()
     };
 
     // 600 tall in all; the list scrolls inside.
-    class Scroller : public ScrollView
+    class Scroller : public View
     {
     public:
+        Scroller()
+            : scroll(addChild<ScrollView>())
+        {
+            scroll->setScrollDirections(false, true);
+        }
+
         double heightForWidth(double) const override { return 600 - 44 - 16; }
+
+        ScrollView* scroll;
+
+    protected:
+        void layout() override
+        {
+            // The scroll area spans the window under the title, past the dialog's padding.
+            scroll->setGeometry({-16, 0, geometry().width + 32, geometry().height + 16});
+        }
     };
     auto* scroller = m_shortcuts->setContent<Scroller>();
-    scroller->setScrollDirections(false, true);
-    scroller->setClipsChildren(true);
-    auto* column = scroller->setContent<Column>(4, 12);
+    auto* column = scroller->scroll->setContent<Column>(4, 12);
+    column->setInsets(16, 16);
     for (const Section& section : sections) {
         column->addSectionLabel(tr(section.title));
         auto* card = column->addChild<Card>(44);
