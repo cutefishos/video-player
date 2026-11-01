@@ -68,7 +68,6 @@ public:
     void openShortcuts();
     void openAbout();
     void showMediaInfo();
-    void openMainMenu(cutefish::ui::View* button);
     void openContextMenu(cutefish::ui::PointF windowPosition);
     void openPlaylistMenu(int index, cutefish::ui::PointF windowPosition);
     void playIndex(int index);
@@ -106,6 +105,11 @@ private:
 
     void retranslate();
     void buildMenus();
+    void buildMainMenu();
+    void fillSubtitleMenu(cutefish::ui::Menu& subtitles);
+    void fillAudioMenu(cutefish::ui::Menu& audio);
+    void fillSpeedMenu(cutefish::ui::Menu& speed);
+    void fillChapterMenu(cutefish::ui::Menu& chapters);
     void bindShortcuts();
     void bindMpris();
     void applyLanguages();
@@ -124,6 +128,8 @@ private:
 
     Application& m_app;
     Player m_player;
+    // Outlives the window that shows it.
+    std::unique_ptr<cutefish::ui::Menu> m_mainMenu;
     // Goes after the window, which then closes with the picture still in it.
     std::unique_ptr<VideoSurface> m_closingVideo;
     cutefish::ui::Window m_window;
@@ -147,7 +153,6 @@ private:
     std::vector<std::string> m_pendingSubtitles;
     double m_appliedInset = -1;
 
-    cutefish::ui::Menu m_mainMenu;
     cutefish::ui::Menu m_contextMenu;
     cutefish::ui::Menu m_playlistMenu;
     int m_playlistMenuIndex = -1;

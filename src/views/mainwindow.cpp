@@ -16,7 +16,6 @@
 #include "ui/progress_bar.h"
 #include "ui/application.h"
 #include "ui/drag.h"
-#include "ui/header_button.h"
 #include "ui/keys.h"
 #include "ui/path.h"
 #include "ui/cell_layout.h"
@@ -94,37 +93,27 @@ static void addPlate(Path& path, const RectF& rect, double radius, bool continuo
     path.close();
 }
 
-// The media's name and the main menu button.
+// The media's name.
 class HeaderContent : public View
 {
 public:
-    explicit HeaderContent(MainWindow& owner)
+    HeaderContent()
         : title(views::addLabel(this, {}, 0, white()))
-        , menu(addChild<HeaderButton>("menu", 32))
     {
         title->setName("windowTitle");
         title->setElide(Label::Elide::Middle);
-        menu->setName("mainMenuButton");
-        menu->onClicked = [&owner, this] { owner.openMainMenu(menu); };
     }
 
     Label* title;
-    HeaderButton* menu;
 
 protected:
     void layout() override
     {
         const double width = geometry().width;
         const double height = geometry().height;
-        double right = width;
-        if (menu->isVisible()) {
-            right -= 4;
-            menu->setGeometry({right - 32, std::floor((height - 32) / 2), 32, 32});
-            right -= 32 + 12;
-        }
         const SizeF size = title->sizeHint();
         title->setGeometry({12, views::layoutCenter(height, size.height),
-                            std::max(0.0, right - 12), size.height});
+                            std::max(0.0, width - 24), size.height});
     }
 };
 
@@ -194,7 +183,7 @@ public:
         dropOverlay = addChild<DropOverlay>();
         header = addChild<WindowHeader>(kHeaderHeight);
         header->setButtonsCentered(true);
-        content = header->setContent<HeaderContent>(owner);
+        content = header->setContent<HeaderContent>();
         setTracksHover(true);
         m_singleClick.setSingleShot(true);
         m_singleClick.onTimeout = [this] { m_owner.togglePause(true); };
@@ -469,8 +458,6 @@ MainWindow::MainWindow(::Application& application)
         m_root->header->setMinimizeVisible(!fullScreen);
         m_root->header->setMaximizeVisible(!fullScreen);
         m_root->header->setCloseVisible(!fullScreen);
-        m_root->content->menu->setVisible(!fullScreen);
-        m_root->content->requestLayout();
         stateChanged.emit();
     };
     m_window.onInteractiveResizeChanged = [this] { m_player.setResizing(m_window.isInteractivelyResized()); };
@@ -587,10 +574,11 @@ MainWindow::~MainWindow()
 // panel's lists and the dialogs' input.
 void MainWindow::retranslate()
 {
-    for (Menu* menu : {&m_mainMenu, &m_contextMenu, &m_playlistMenu}) {
+    for (Menu* menu : {&m_contextMenu, &m_playlistMenu}) {
         if (menu->isOpen())
             menu->close();
     }
+    buildMainMenu();
     m_player.relabelTracks();
     m_root->empty->retranslate();
     m_root->error->retranslate();
@@ -622,7 +610,7 @@ std::string MainWindow::mediaName() const
 
 bool MainWindow::menuOpen() const
 {
-    return m_mainMenu.isOpen() || m_contextMenu.isOpen() || m_playlistMenu.isOpen();
+    return m_contextMenu.isOpen() || m_playlistMenu.isOpen();
 }
 
 bool MainWindow::controlsVisible() const
@@ -836,39 +824,186 @@ void MainWindow::showMediaInfo()
         m_dialogs->mediaInfo(m_player.mediaInfo(), mediaName());
 }
 
+void MainWindow::fillSubtitleMenu(Menu& subtitles)
+{
+    // TRANSLATORS: no subtitles shown.
+    const size_t off = subtitles.addItem(tr("Off"), [this] { selectSubtitle(0); });
+    subtitles.setItemChecked(off, m_player.subtitleTrack() == 0);
+    for (const auto& track : m_player.subtitleTracks()) {
+        const int id = track.id;
+        const size_t item = subtitles.addItem(track.label, [this, id] { selectSubtitle(id); });
+        subtitles.setItemChecked(item, m_player.subtitleTrack() == id);
+    }
+    subtitles.addSeparator();
+    const size_t add = subtitles.addItem(tr("Add Subtitle File…"), [this] { openSubtitleFile(); });
+    Menu* timing = subtitles.addSubmenu(tr("Subtitle Timing"));
+    timing->addItem(tr("Show Earlier"), [this] { shiftSubtitles(-0.1); }, "Z");
+    timing->addItem(tr("Show Later"), [this] { shiftSubtitles(0.1); }, "Shift+Z");
+    const size_t reset = timing->addItem(format(tr("Reset ({delay})"), {{"delay", delayText(m_player.subtitleDelay())}}),
+                                         [this] { shiftSubtitles(-m_player.subtitleDelay()); });
+    timing->setItemEnabled(reset, m_player.subtitleDelay() != 0);
+    subtitles.setItemEnabled(add + 1, m_player.subtitleTrack() > 0);
+}
+
+void MainWindow::fillAudioMenu(Menu& audio)
+{
+    if (m_player.audioTracks().empty()) {
+        const size_t none = audio.addItem(tr("No Audio Tracks"), nullptr);
+        audio.setItemEnabled(none, false);
+    }
+    for (const auto& track : m_player.audioTracks()) {
+        const int id = track.id;
+        const size_t item = audio.addItem(track.label, [this, id] { selectAudio(id); });
+        audio.setItemChecked(item, m_player.audioTrack() == id);
+    }
+}
+
+void MainWindow::fillSpeedMenu(Menu& speed)
+{
+    for (const double value : kSpeeds) {
+        // TRANSLATORS: the normal playback speed.
+        const size_t item = speed.addItem(value == 1 ? tr("Normal") : speedText(value), [this, value] { setSpeed(value); });
+        speed.setItemChecked(item, std::abs(m_player.speed() - value) < 0.001);
+    }
+}
+
+void MainWindow::fillChapterMenu(Menu& chapters)
+{
+    int index = 0;
+    for (const auto& chapter : m_player.chapters()) {
+        const std::string title = chapter.title.empty()
+                ? format(tr("Chapter {number}"), {{"number", std::to_string(index + 1)}})
+                : chapter.title;
+        const size_t item = chapters.addItem(title + "    " + ::Application::formatTime(chapter.time, m_player.duration()),
+                                             [this, index] { m_player.setChapter(index); });
+        chapters.setItemChecked(item, m_player.chapter() == index);
+        ++index;
+    }
+}
+
+void MainWindow::buildMainMenu()
+{
+    m_window.setMainMenu(nullptr);
+    m_mainMenu = std::make_unique<Menu>();
+    const uint32_t ctrl = ControlModifier;
+    const uint32_t alt = AltModifier;
+    const auto refill = [this](Menu* menu, void (MainWindow::*fill)(Menu&)) {
+        menu->onAboutToShow = [this, menu, fill] {
+            menu->clear();
+            (this->*fill)(*menu);
+        };
+    };
+
+    Menu* application = m_mainMenu->addSubmenu(tr("Video Player"));
+    application->setRole(MenuRole::Application);
+    application->addItem(tr("About Video Player"), [this] { openAbout(); });
+    application->addSeparator();
+    const size_t settings = application->addItem(tr("Settings…"), [this] { openPreferences(); });
+    application->setItemKeyEquivalent(settings, ",", ctrl);
+    application->addSeparator();
+    application->addItem(tr("Hide Video Player"), [this] { m_window.hideApplication(); });
+    application->addSeparator();
+    const size_t quit = application->addItem(tr("Quit Video Player"), [this] { close(); });
+    application->setItemKeyEquivalent(quit, "q", ctrl);
+
+    Menu* file = m_mainMenu->addSubmenu(tr("File"));
+    const size_t open = file->addItem(tr("Open File…"), [this] { openFiles(false); });
+    file->setItemKeyEquivalent(open, "o", ctrl);
+    const size_t openUrl = file->addItem(tr("Open URL…"), [this] { openUrlDialog(); });
+    file->setItemKeyEquivalent(openUrl, "l", ctrl);
+    const size_t recentRow = openUrl + 1;
+    Menu* recent = file->addSubmenu(tr("Open Recent"));
+    recent->onAboutToShow = [this, recent] {
+        recent->clear();
+        for (const auto& recentFile : m_app.settings().recentFiles()) {
+            const std::string url = recentFile.url;
+            recent->addItem(recentFile.name, [this, url] { m_app.openUrls({url}); });
+        }
+        recent->addSeparator();
+        recent->addItem(tr("Clear Recent"), [this] { m_app.settings().clearRecentFiles(); });
+    };
+    file->addSeparator();
+    const size_t show = file->addItem(tr("Show in Files"), [this] { m_app.showInFolder(m_player.source()); });
+    const size_t screenshot = file->addItem(tr("Take Screenshot"), [this] { takeScreenshot(); });
+    file->setItemKeyEquivalent(screenshot, "s", ctrl | alt);
+    const size_t info = file->addItem(tr("Media Info"), [this] { showMediaInfo(); });
+    file->setItemKeyEquivalent(info, "i", ctrl);
+    file->addSeparator();
+    const size_t closeWindow = file->addItem(tr("Close Window"), [this] { close(); });
+    file->setItemKeyEquivalent(closeWindow, "w", ctrl);
+    file->onAboutToShow = [this, file, recentRow, show, screenshot, info] {
+        file->setItemEnabled(recentRow, !m_app.settings().recentFiles().empty());
+        file->setItemEnabled(show, hasMedia() && urls::isLocalFile(m_player.source()));
+        file->setItemEnabled(screenshot, m_player.loaded() && m_player.hasVideo());
+        file->setItemEnabled(info, m_player.loaded());
+    };
+
+    Menu* playback = m_mainMenu->addSubmenu(tr("Playback"));
+    const size_t play = playback->addItem(tr("Play"), [this] {
+        if (hasMedia())
+            togglePause(false);
+    });
+    playback->setItemKeyEquivalent(play, "Space", NoModifier);
+    const size_t previous = playback->addItem(tr("Previous"), [this] { playPrevious(); });
+    playback->setItemKeyEquivalent(previous, "b", NoModifier);
+    const size_t next = playback->addItem(tr("Next"), [this] { playNext(false); });
+    playback->setItemKeyEquivalent(next, "n", NoModifier);
+    playback->addSeparator();
+    const size_t subtitlesRow = next + 2;
+    refill(playback->addSubmenu(tr("Subtitles")), &MainWindow::fillSubtitleMenu);
+    refill(playback->addSubmenu(tr("Audio")), &MainWindow::fillAudioMenu);
+    refill(playback->addSubmenu(tr("Speed")), &MainWindow::fillSpeedMenu);
+    const size_t chaptersRow = subtitlesRow + 3;
+    refill(playback->addSubmenu(tr("Chapters")), &MainWindow::fillChapterMenu);
+    const size_t repeat = playback->addItem(tr("Repeat"), [this] { m_player.setLoopFile(!m_player.loopFile()); });
+    playback->onAboutToShow = [this, playback, play, previous, next, subtitlesRow, chaptersRow, repeat] {
+        const bool media = hasMedia();
+        playback->setItemText(play, m_player.paused() || m_player.endReached() ? tr("Play") : tr("Pause"));
+        playback->setItemEnabled(play, media);
+        playback->setItemEnabled(previous, m_app.playlist().hasPrevious() || (media && m_player.position() > 5));
+        playback->setItemEnabled(next, m_app.playlist().hasNext());
+        for (size_t row = subtitlesRow; row < chaptersRow; ++row)
+            playback->setItemEnabled(row, m_player.loaded());
+        playback->setItemEnabled(chaptersRow, !m_player.chapters().empty());
+        playback->setItemEnabled(repeat, media);
+        playback->setItemChecked(repeat, m_player.loopFile());
+    };
+
+    Menu* view = m_mainMenu->addSubmenu(tr("View"));
+    const size_t playlist = view->addItem(tr("Playlist"), [this] {
+        if (hasMedia())
+            togglePanel(0, false);
+    });
+    view->setItemKeyEquivalent(playlist, "p", NoModifier);
+    view->addSeparator();
+    const size_t fullScreen = view->addItem(tr("Enter Full Screen"), [this] {
+        if (hasMedia())
+            toggleFullScreen();
+    });
+    view->setItemKeyEquivalent(fullScreen, "f", NoModifier);
+    view->onAboutToShow = [this, view, playlist, fullScreen] {
+        view->setItemEnabled(playlist, hasMedia());
+        view->setItemChecked(playlist, m_panelOpen && m_panelTab == 0);
+        view->setItemEnabled(fullScreen, hasMedia());
+        view->setItemText(fullScreen, isFullScreen() ? tr("Exit Full Screen") : tr("Enter Full Screen"));
+    };
+
+    Menu* windowMenu = m_mainMenu->addSubmenu(tr("Window"));
+    windowMenu->setRole(MenuRole::Windows);
+    windowMenu->addItem(tr("Minimize"), [this] { m_window.minimize(); });
+    windowMenu->addItem(tr("Zoom"), [this] { m_window.setMaximized(!m_window.states().maximized); });
+
+    Menu* help = m_mainMenu->addSubmenu(tr("Help"));
+    help->setRole(MenuRole::Help);
+    const size_t shortcuts = help->addItem(tr("Keyboard Shortcuts"), [this] { openShortcuts(); });
+    help->setItemKeyEquivalent(shortcuts, "?", ctrl);
+
+    m_window.setMainMenu(m_mainMenu.get());
+}
+
 void MainWindow::buildMenus()
 {
-    m_mainMenu.onAboutToShow = [this] {
-        m_mainMenu.clear();
-        m_mainMenu.addItem(tr("Open File…"), [this] { openFiles(false); }, "Ctrl+O");
-        m_mainMenu.addItem(tr("Open URL…"), [this] { openUrlDialog(); }, "Ctrl+L");
-        const std::vector<PlayerSettings::RecentFile> recent = m_app.settings().recentFiles();
-        Menu* recentMenu = m_mainMenu.addSubmenu(tr("Recent"));
-        for (const auto& file : recent) {
-            const std::string url = file.url;
-            recentMenu->addItem(file.name, [this, url] { m_app.openUrls({url}); });
-        }
-        recentMenu->addSeparator();
-        recentMenu->addItem(tr("Clear Recent"), [this] { m_app.settings().clearRecentFiles(); });
-        m_mainMenu.setItemEnabled(2, !recent.empty());
-        m_mainMenu.addSeparator();
-        const size_t show = m_mainMenu.addItem(tr("Show in Files"), [this] { m_app.showInFolder(m_player.source()); });
-        m_mainMenu.setItemEnabled(show, hasMedia() && urls::isLocalFile(m_player.source()));
-        const size_t screenshot = m_mainMenu.addItem(tr("Take Screenshot"), [this] { takeScreenshot(); }, "Ctrl+Alt+S");
-        m_mainMenu.setItemEnabled(screenshot, m_player.loaded() && m_player.hasVideo());
-        const size_t info = m_mainMenu.addItem(tr("Media Info"), [this] { showMediaInfo(); }, "Ctrl+I");
-        m_mainMenu.setItemEnabled(info, m_player.loaded());
-        m_mainMenu.addSeparator();
-        m_mainMenu.addItem(tr("Settings"), [this] { openPreferences(); }, "Ctrl+,");
-        m_mainMenu.addItem(tr("Keyboard Shortcuts"), [this] { openShortcuts(); }, "Ctrl+?");
-        m_mainMenu.addItem(tr("About Video Player"), [this] { openAbout(); });
-        m_root->content->menu->setChecked(true);
-        updateChrome();
-    };
-    m_mainMenu.onClosed = [this] {
-        m_root->content->menu->setChecked(false);
-        updateChrome();
-    };
+    buildMainMenu();
 
     m_contextMenu.onAboutToShow = [this] {
         Menu& menu = m_contextMenu;
@@ -884,57 +1019,11 @@ void MainWindow::buildMenus()
         menu.setItemEnabled(next, m_app.playlist().hasNext());
         menu.addSeparator();
 
-        Menu* subtitles = menu.addSubmenu(tr("Subtitles"));
-        // TRANSLATORS: no subtitles shown.
-        const size_t off = subtitles->addItem(tr("Off"), [this] { selectSubtitle(0); });
-        subtitles->setItemChecked(off, m_player.subtitleTrack() == 0);
-        for (const auto& track : m_player.subtitleTracks()) {
-            const int id = track.id;
-            const size_t item = subtitles->addItem(track.label, [this, id] { selectSubtitle(id); });
-            subtitles->setItemChecked(item, m_player.subtitleTrack() == id);
-        }
-        subtitles->addSeparator();
-        subtitles->addItem(tr("Add Subtitle File…"), [this] { openSubtitleFile(); });
-        Menu* timing = subtitles->addSubmenu(tr("Subtitle Timing"));
-        timing->addItem(tr("Show Earlier"), [this] { shiftSubtitles(-0.1); }, "Z");
-        timing->addItem(tr("Show Later"), [this] { shiftSubtitles(0.1); }, "Shift+Z");
-        const size_t reset = timing->addItem(format(tr("Reset ({delay})"), {{"delay", delayText(m_player.subtitleDelay())}}),
-                                             [this] { shiftSubtitles(-m_player.subtitleDelay()); });
-        timing->setItemEnabled(reset, m_player.subtitleDelay() != 0);
-        // Off, the tracks, the separator, Add Subtitle File, then the timing.
-        subtitles->setItemEnabled(m_player.subtitleTracks().size() + 3, m_player.subtitleTrack() > 0);
-
-        Menu* audio = menu.addSubmenu(tr("Audio"));
-        if (m_player.audioTracks().empty()) {
-            const size_t none = audio->addItem(tr("No Audio Tracks"), nullptr);
-            audio->setItemEnabled(none, false);
-        }
-        for (const auto& track : m_player.audioTracks()) {
-            const int id = track.id;
-            const size_t item = audio->addItem(track.label, [this, id] { selectAudio(id); });
-            audio->setItemChecked(item, m_player.audioTrack() == id);
-        }
-
-        Menu* speed = menu.addSubmenu(tr("Speed"));
-        for (const double value : kSpeeds) {
-            // TRANSLATORS: the normal playback speed.
-            const size_t item = speed->addItem(value == 1 ? tr("Normal") : speedText(value), [this, value] { setSpeed(value); });
-            speed->setItemChecked(item, std::abs(m_player.speed() - value) < 0.001);
-        }
-
-        if (!m_player.chapters().empty()) {
-            Menu* chapters = menu.addSubmenu(tr("Chapters"));
-            int index = 0;
-            for (const auto& chapter : m_player.chapters()) {
-                const std::string title = chapter.title.empty()
-                        ? format(tr("Chapter {number}"), {{"number", std::to_string(index + 1)}})
-                        : chapter.title;
-                const size_t item = chapters->addItem(title + "    " + ::Application::formatTime(chapter.time, m_player.duration()),
-                                                      [this, index] { m_player.setChapter(index); });
-                chapters->setItemChecked(item, m_player.chapter() == index);
-                ++index;
-            }
-        }
+        fillSubtitleMenu(*menu.addSubmenu(tr("Subtitles")));
+        fillAudioMenu(*menu.addSubmenu(tr("Audio")));
+        fillSpeedMenu(*menu.addSubmenu(tr("Speed")));
+        if (!m_player.chapters().empty())
+            fillChapterMenu(*menu.addSubmenu(tr("Chapters")));
         const size_t repeat = menu.addItem(tr("Repeat"), [this] { m_player.setLoopFile(!m_player.loopFile()); });
         menu.setItemChecked(repeat, m_player.loopFile());
         menu.addSeparator();
@@ -964,11 +1053,6 @@ void MainWindow::buildMenus()
         updateChrome();
     };
     m_playlistMenu.onClosed = [this] { updateChrome(); };
-}
-
-void MainWindow::openMainMenu(View* button)
-{
-    m_mainMenu.popupFor(button, 4);
 }
 
 void MainWindow::openContextMenu(PointF windowPosition)

@@ -15,6 +15,7 @@
 #include "ui/application.h"
 #include "ui/icon.h"
 #include "ui/label.h"
+#include "ui/menu.h"
 #include "ui/scroll_view.h"
 #include "ui/test_input.h"
 #include "ui/theme.h"
@@ -428,6 +429,38 @@ TEST_F(UiTest, LanguageChangeKeepsPlaying)
     auto* tab = dynamic_cast<ui::Label*>(view("panelTab1")->children().front().get());
     ASSERT_TRUE(tab);
     EXPECT_FALSE(tab->text().empty());
+}
+
+TEST_F(UiTest, WindowShowsItsMenusInTheStatusBar)
+{
+    EXPECT_FALSE(view("mainMenuButton"));
+    ui::Menu* menu = m_window->window().mainMenu();
+    ASSERT_TRUE(menu);
+    const std::vector<ui::MenuRole> roles{ui::MenuRole::Application, ui::MenuRole::None, ui::MenuRole::None,
+                                          ui::MenuRole::None, ui::MenuRole::Windows, ui::MenuRole::Help};
+    for (size_t i = 0; i < roles.size(); ++i) {
+        ASSERT_TRUE(menu->submenu(i)) << i;
+        EXPECT_EQ(menu->submenu(i)->role(), roles[i]) << i;
+    }
+    EXPECT_FALSE(menu->submenu(roles.size()));
+
+    // The playback menu's lists fill as they open: Subtitles, Audio, Speed
+    // and Chapters after Play, Previous, Next and a separator.
+    ui::Menu* playback = menu->submenu(2);
+    ASSERT_TRUE(playback->onAboutToShow);
+    playback->onAboutToShow();
+    for (size_t i = 4; i < 8; ++i) {
+        ASSERT_TRUE(playback->submenu(i)) << i;
+        ASSERT_TRUE(playback->submenu(i)->onAboutToShow) << i;
+        playback->submenu(i)->onAboutToShow();
+    }
+    // With no tracks: Off, a separator, Add Subtitle File, then the timing.
+    EXPECT_TRUE(playback->submenu(4)->submenu(3));
+
+    ui::Application::instance()->languageChanged.emit();
+    wait(300ms);
+    ASSERT_TRUE(m_window->window().mainMenu());
+    EXPECT_EQ(m_window->window().mainMenu()->submenu(0)->role(), ui::MenuRole::Application);
 }
 
 int main(int argc, char** argv)
