@@ -11,6 +11,7 @@
 class MainWindow;
 
 namespace cutefish::ui {
+class AboutDialog;
 class DialogWindow;
 class FileChooser;
 class Window;
@@ -33,13 +34,12 @@ public:
 
 private:
     class OpenUrl;
-    class About;
 
     MainWindow& m_owner;
     std::unique_ptr<OpenUrl> m_openUrl;
     std::unique_ptr<cutefish::ui::DialogWindow> m_mediaInfo;
     std::unique_ptr<cutefish::ui::DialogWindow> m_preferences;
     std::unique_ptr<cutefish::ui::DialogWindow> m_shortcuts;
-    std::unique_ptr<About> m_about;
+    std::unique_ptr<cutefish::ui::AboutDialog> m_about;
     std::unique_ptr<cutefish::ui::FileChooser> m_folderChooser;
 };

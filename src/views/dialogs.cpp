@@ -7,8 +7,8 @@
 
 #include "base/i18n.h"
 #include "base/locale.h"
-#include "base/process.h"
 #include "base/strings.h"
+#include "ui/about_dialog.h"
 #include "ui/application.h"
 #include "ui/button.h"
 #include "ui/clipboard.h"
@@ -16,7 +16,6 @@
 #include "ui/combo_box.h"
 #include "ui/dialog_window.h"
 #include "ui/file_chooser.h"
-#include "ui/icon.h"
 #include "ui/keys.h"
 #include "ui/cell_layout.h"
 #include "ui/scroll_bar.h"
@@ -413,129 +412,9 @@ private:
     std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 };
 
-class Dialogs::About
-{
-public:
-    explicit About(MainWindow& owner)
-        : m_owner(owner)
-    {
-    }
-
-    void show()
-    {
-        if (m_window) {
-            m_window->activate();
-            return;
-        }
-        m_window = std::make_unique<Window>();
-        // No visible title; the window carries the application id.
-        m_window->setTitle("cutefish-video-player");
-        m_window->setTransientParent(&m_owner.window(), true);
-        // A translucent, blurred background.
-        m_window->setBackgroundColor(withAlpha(ColorId::Background, 0.8));
-        auto root = std::make_unique<Root>();
-        Root* rootView = root.get();
-        m_window->setContentView(std::move(root));
-        const double height = rootView->heightForWidth(300);
-        m_window->resize({300, height});
-        m_window->setMinimumSize({300, height});
-        m_window->setMaximumSize({300, height});
-        m_window->setBackgroundBlur({0, 0, 300, height}, Theme::current().windowRadius);
-        m_window->onCloseRequested = [this] { close(); };
-        m_window->addShortcut(NoModifier, key::Escape, [this] { close(); });
-        m_window->show();
-    }
-
-    void close()
-    {
-        if (!m_window)
-            return;
-        m_window->hide();
-        base::EventLoop::current()->post([this, weak = std::weak_ptr<bool>(m_alive)] {
-            if (!weak.expired())
-                m_window.reset();
-        });
-    }
-
-    void retranslate()
-    {
-        if (!m_window || m_window->isHidden())
-            return;
-        m_window.reset();
-        show();
-    }
-
-private:
-    static constexpr const char* kLink = "https://github.com/cutefishos/video-player";
-
-    class Root : public View
-    {
-    public:
-        Root()
-            : m_header(addChild<WindowHeader>(40))
-            , m_icon(addChild<ThemeIcon>("multimedia-video-player", 64))
-            , m_name(views::addLabel(this, tr("Video Player"), 14))
-            , m_description(views::addLabel(this, tr("Plays videos with subtitles and playlists.")))
-            , m_link(addChild<views::Clickable>())
-            , m_linkLabel(views::addLabel(m_link, {}))
-        {
-            m_header->setMinimizeVisible(false);
-            m_header->setMaximizeVisible(false);
-            m_linkLabel->setSpans({{kLink, 0, ColorId::Highlight, false, true, kLink}});
-            m_link->setCursorShape(CursorShape::Pointer);
-            m_link->onClicked = [] { base::Process::startDetached("xdg-open", {kLink}, {}); };
-        }
-
-        double heightForWidth(double) const override
-        {
-            // The column, then a header's height below it, under the header.
-            return 40 + columnHeight() + 40;
-        }
-
-    protected:
-        void layout() override
-        {
-            const double width = geometry().width;
-            m_header->setGeometry({0, 0, width, 40});
-            double y = 40;
-            m_icon->setGeometry({rounding::centeredStart(width, 64), y, 64, 64});
-            y += 64 + 5 + 12 + 5;
-            for (Label* label : {m_name, m_description}) {
-                const SizeF size = label->sizeHint();
-                label->setGeometry({rounding::centeredStart(width, std::ceil(size.width)), y, std::ceil(size.width),
-                                    size.height});
-                y += std::ceil(size.height) + 5;
-            }
-            const SizeF link = m_linkLabel->sizeHint();
-            m_link->setGeometry({rounding::centeredStart(width, std::ceil(link.width)), y, std::ceil(link.width),
-                                 link.height});
-            m_linkLabel->setGeometry({0, 0, std::ceil(link.width), link.height});
-        }
-
-    private:
-        double columnHeight() const
-        {
-            return 64 + 5 + 12 + 5 + std::ceil(m_name->sizeHint().height) + 5
-                    + std::ceil(m_description->sizeHint().height) + 5 + std::ceil(m_linkLabel->sizeHint().height) + 5;
-        }
-
-        WindowHeader* m_header;
-        ThemeIcon* m_icon;
-        Label* m_name;
-        Label* m_description;
-        views::Clickable* m_link;
-        Label* m_linkLabel;
-    };
-
-    MainWindow& m_owner;
-    std::unique_ptr<Window> m_window;
-    std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
-};
-
 Dialogs::Dialogs(MainWindow& owner)
     : m_owner(owner)
     , m_openUrl(std::make_unique<OpenUrl>(owner))
-    , m_about(std::make_unique<About>(owner))
 {
 }
 
@@ -546,7 +425,10 @@ Dialogs::~Dialogs() = default;
 void Dialogs::retranslate()
 {
     m_openUrl->retranslate();
-    m_about->retranslate();
+    if (m_about && m_about->isShown()) {
+        m_about.reset();
+        about();
+    }
     if (m_mediaInfo && m_mediaInfo->window())
         m_owner.showMediaInfo();
     if (m_preferences && m_preferences->window() && !(m_folderChooser && m_folderChooser->isOpen()))
@@ -562,6 +444,12 @@ void Dialogs::openUrl()
 
 void Dialogs::about()
 {
+    if (!m_about) {
+        m_about = std::make_unique<AboutDialog>(&m_owner.window());
+        m_about->setName(tr("Video Player"));
+        m_about->setDescription(tr("Plays videos with subtitles and playlists."));
+        m_about->setIconSource("multimedia-video-player");
+    }
     m_about->show();
 }
 
