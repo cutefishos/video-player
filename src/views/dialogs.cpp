@@ -349,6 +349,8 @@ private:
             field->setInputPurpose(TextPurpose::Url);
             header->setMinimizeVisible(false);
             header->setMaximizeVisible(false);
+            // Cancel closes it.
+            header->setCloseVisible(false);
             header->setButtonMargin(8);
             cancel->onClicked = [&dialog] { dialog.close(); };
             open->onClicked = [&dialog] { dialog.accept(); };
@@ -379,7 +381,7 @@ private:
             const double width = geometry().width;
             double y = 16;
             const SizeF titleSize = title->sizeHint();
-            title->setGeometry({16, y, std::min(std::ceil(titleSize.width), width - 32 - 32), titleSize.height});
+            title->setGeometry({16, y, std::min(std::ceil(titleSize.width), width - 32), titleSize.height});
             y += std::ceil(titleSize.height) + 16;
             const double fieldHeight = std::ceil(field->heightForWidth(width - 32));
             field->setGeometry({16, y, width - 32, fieldHeight});
