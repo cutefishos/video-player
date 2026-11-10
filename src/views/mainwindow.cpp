@@ -678,9 +678,9 @@ void MainWindow::updateGlass()
     const bool controls = hasMedia() && m_controlBar->isVisible() && opacity > 0;
     const bool side = m_sidePanel->isVisible();
     if (!controls && !side) {
-        m_window.setBackgroundGlass(std::nullopt);
-        m_window.setBackgroundBlurShape(Path());
-        m_window.setBackgroundBlur({}, 0);
+        m_window.setSubsurfaceBlurFill({});
+        m_window.setSubsurfaceBlurShape(Path());
+        m_window.setSubsurfaceBlur({}, 0);
         return;
     }
     const bool continuous = Theme::current().continuousCorners;
@@ -704,26 +704,23 @@ void MainWindow::updateGlass()
         add(m_controlBar->geometry());
     if (side)
         add(m_sidePanel->geometry());
-    // Frosted video: a refraction-free glass, blurred, desaturated and
-    // tinted; it fades with the controls.
+    // Frosted video: the video subsurface sits below the window, so only the
+    // blur over subsurfaces reaches it. Tinted, then desaturated by a grey
+    // blended in saturation mode; the fill fades with the controls.
     const double fade = side ? 1 : opacity;
-    GlassMaterial glass;
-    glass.blurSigma = 26 * fade;
-    glass.bevel = 0;
-    glass.displacement = 0;
-    glass.chroma = 0;
-    glass.specularIntensity = 0;
-    glass.sheen = 0;
-    glass.ambientOcclusion = 0;
-    glass.saturation = 1 - 0.35 * fade;
-    glass.tintRed = 0.07;
-    glass.tintGreen = 0.07;
-    glass.tintBlue = 0.08;
-    glass.tintAlpha = 0.62 * fade;
-    glass.rim = 0;
-    m_window.setBackgroundBlur(bounds, 20);
-    m_window.setBackgroundBlurShape(shape);
-    m_window.setBackgroundGlass(glass);
+    BackdropFill fill;
+    fill.tint[0] = 0.07;
+    fill.tint[1] = 0.07;
+    fill.tint[2] = 0.08;
+    fill.tint[3] = 0.62 * fade;
+    fill.blend = BackdropFill::Blend::Saturation;
+    fill.color[0] = 0.5;
+    fill.color[1] = 0.5;
+    fill.color[2] = 0.5;
+    fill.color[3] = 0.35 * fade;
+    m_window.setSubsurfaceBlur(bounds, 20);
+    m_window.setSubsurfaceBlurShape(shape);
+    m_window.setSubsurfaceBlurFill(fill);
 }
 
 void MainWindow::showOsd(const std::string& message, int timeoutMs, std::string actionText,
