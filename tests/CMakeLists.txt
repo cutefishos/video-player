@@ -10,7 +10,9 @@ add_executable(video-player-backend-tests
     mpris_test.cpp
 )
 target_link_libraries(video-player-backend-tests PRIVATE player-backend GTest::gtest)
-gtest_discover_tests(video-player-backend-tests)
+# The ScreenSaver cases each own org.freedesktop.ScreenSaver on the shared
+# session bus.
+gtest_discover_tests(video-player-backend-tests PROPERTIES RESOURCE_LOCK video-player-screensaver)
 
 # Real playback through libmpv on clips ffmpeg makes for the test.
 add_executable(video-player-media-tests
