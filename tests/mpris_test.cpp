@@ -155,8 +155,11 @@ TEST_F(MprisTest, ChangesAreAnnounced)
                         changed.push_back(name);
                 }
             });
-    // The bus installs the match rule asynchronously.
-    runFor(m_loop, std::chrono::milliseconds(200));
+    // The rule is added without waiting for it; the bus answers a later call
+    // only once it has taken the rule.
+    const dbus::Reply id = m_client->call(
+            m_client->newMethodCall("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "GetId"));
+    ASSERT_FALSE(id.isError()) << id.error().name << ": " << id.error().message;
     server.setPlaybackStatus(MprisServer::PlaybackStatus::Playing);
     server.setPosition(1);
     server.setVolume(0.7);
