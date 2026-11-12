@@ -4,6 +4,8 @@ The video player of Cutefish Desktop. It plays local files and network
 streams through libmpv, with subtitles, folder playlists, resume and seek-bar
 previews, behind overlay controls that hide while the video plays.
 
+<img src="screenshots/video-player.png" alt="Video Player" width="913">
+
 ## Dependencies
 
 Video Player uses cutefish-toolkit, libmpv and ICU.
