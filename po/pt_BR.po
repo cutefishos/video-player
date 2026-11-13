@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 12:00+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "Não foi possível iniciar o mpv"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "Reproduzindo um vídeo"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "Reprodutor de vídeo"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "Reproduzindo áudio"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title} ({language})"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "Faixa {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "Ativar som"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "Silenciar"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "Voltar 10 segundos"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "Avançar 10 segundos"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "Playlist, faixas e reprodução"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "Reproduzir novamente"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "Reproduzir"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "Pausar"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "Sair da tela cheia"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "Tela cheia"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "Abrir URL"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "Abrir"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "Reproduz vídeos com legendas e playlists."
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "Informações da mídia"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "Local"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "Formato"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "Tamanho"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "Duração"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "Vídeo"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "Codec"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "Resolução"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "Taxa de quadros"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "Taxa de bits"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "Áudio"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "Canais"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "Taxa de amostragem"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate} Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "Configurações"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "Idioma da interface"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "Pequeno"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "Médio"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "Grande"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "Extragrande"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "Reprodução"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "Continuar de onde parou"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "Reproduzir os outros vídeos da pasta"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "Idioma do áudio"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "Legendas"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "Idioma das legendas"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "Tamanho das legendas"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "Capturas de tela"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "Salvar em"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "Alterar…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "Salvar capturas de tela em"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "Atalhos de teclado"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "Reproduzir ou pausar"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "Voltar ou avançar 5 segundos"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "Voltar ou avançar 30 segundos"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "Ir para o início ou o fim"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "Mais lento, mais rápido, velocidade normal"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "Quadro anterior ou seguinte"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "Capítulo anterior ou seguinte"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "Arquivo anterior ou seguinte"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "Som e legendas"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "Aumentar ou diminuir o volume"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "Próxima faixa de áudio"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "Legenda seguinte ou anterior"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "Mostrar ou ocultar legendas"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "Adiantar ou atrasar legendas"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "Janela"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "Tela cheia"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F, F11, clique duplo"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "Sair da tela cheia"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "Playlist"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "Abrir um arquivo"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "Abrir uma URL"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "Fazer uma captura de tela"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "Informações da mídia"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "Atalhos de teclado"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "Fechar"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "Solte para reproduzir"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "Captura de tela salva"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "Mostrar"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "Não foi possível salvar a captura de tela"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "Não foi possível abrir o arquivo de legendas"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "Adicionar à playlist"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "Abrir vídeo"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "Vídeos e áudio ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "Todos os arquivos (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "Adicionar arquivo de legendas"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "Legendas (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "Desativadas"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "Adicionar arquivo de legendas…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "Sincronização das legendas"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "Mostrar antes"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "Mostrar depois"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "Redefinir ({delay})"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "Nenhuma faixa de áudio"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "Normal"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "Capítulo {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "Sobre o Reprodutor de vídeo"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "Configurações…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "Ocultar Reprodutor de vídeo"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "Encerrar Reprodutor de vídeo"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "Arquivo"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "Abrir arquivo…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "Abrir URL…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "Abrir recente"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "Limpar recentes"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "Mostrar no Arquivos"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "Fazer captura de tela"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "Fechar janela"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "Anterior"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "Próximo"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "Velocidade"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "Capítulos"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "Repetir"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "Visualizar"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "Entrar em tela cheia"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "Minimizar"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "Zoom"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "Ajuda"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "Remover da playlist"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "Retomado em {time}"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "Fim da playlist"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} s   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "Volume {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "Silenciado"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "Velocidade {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "Legendas desativadas"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "Legendas: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "Áudio: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "Atraso das legendas {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "Solte um vídeo aqui"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "Ou abra um arquivo ou um endereço da web para começar a assistir."
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "Recentes"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "Limpar"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "Não é possível reproduzir este arquivo"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "Abrir outro arquivo…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "Próximo arquivo"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "Sincronização"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "Faixas"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "Solte arquivos aqui para adicioná-los."
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "Adicionar arquivos…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "Repetição desativada"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "Repetir um"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "Repetir todos"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "Opções"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "Girar para a esquerda"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "Girar para a direita"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "Reproduza vídeos e outros arquivos de mídia"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Vídeo;Filme;Reprodutor;Player;Legendas;Video;Movie;"

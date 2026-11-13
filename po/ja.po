@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 15:22+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "mpv を起動できませんでした"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "ビデオを再生中"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "ビデオプレーヤ"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "オーディオを再生中"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title}（{language}）"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "トラック {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "消音を解除"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "消音"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "10 秒戻る"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "10 秒進む"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "プレイリスト、トラック、再生"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "もう一度再生"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "再生"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "一時停止"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "フルスクリーンを解除"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "フルスクリーン"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "URL を開く"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "開く"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "字幕やプレイリストに対応したビデオを再生します。"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "メディア情報"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "場所"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "フォーマット"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "サイズ"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "長さ"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "ビデオ"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "コーデック"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "解像度"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "フレームレート"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "ビットレート"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "オーディオ"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "チャンネル"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "サンプルレート"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate} Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "設定"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "表示言語"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "小"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "中"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "大"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "特大"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "再生"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "前回の続きから再生"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "フォルダ内のほかのビデオを再生"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "オーディオの言語"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "字幕"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "字幕の言語"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "字幕のサイズ"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "スクリーンショット"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "保存先"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "変更…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "スクリーンショットの保存先"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "キーボードショートカット"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "再生または一時停止"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "5 秒戻る/進む"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "30 秒戻る/進む"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "先頭または末尾へ移動"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "遅く、速く、標準速度"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "前または次のフレーム"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "前または次のチャプタ"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "前または次のファイル"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "サウンドと字幕"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "音量を上げる/下げる"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "次のオーディオトラック"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "次または前の字幕"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "字幕の表示/非表示"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "字幕を早める/遅らせる"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "ウインドウ"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "フルスクリーン"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F、F11、ダブルクリック"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "フルスクリーンを解除"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "プレイリスト"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "ファイルを開く"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "URL を開く"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "スクリーンショットを撮る"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "メディア情報"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "キーボードショートカット"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "閉じる"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "ドロップして再生"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "スクリーンショットを保存しました"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "表示"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "スクリーンショットを保存できませんでした"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "字幕ファイルを開けませんでした"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "プレイリストに追加"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "ビデオを開く"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "ビデオとオーディオ ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "すべてのファイル (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "字幕ファイルを追加"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "字幕 (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "オフ"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "字幕ファイルを追加…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "字幕のタイミング"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "早く表示"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "遅く表示"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "リセット（{delay}）"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "オーディオトラックなし"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "標準"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "チャプタ {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "ビデオプレーヤについて"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "設定…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "ビデオプレーヤを非表示"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "ビデオプレーヤを終了"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "ファイル"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "ファイルを開く…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "URL を開く…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "最近使った項目を開く"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "最近使った項目を消去"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "「ファイル」で表示"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "スクリーンショットを撮る"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "ウインドウを閉じる"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "前へ"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "次へ"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "速度"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "チャプタ"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "リピート"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "表示"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "フルスクリーンにする"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "最小化"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "ズーム"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "ヘルプ"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "プレイリストから削除"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "{time} から再開しました"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "プレイリストの最後です"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} 秒   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "音量 {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "消音中"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "速度 {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "字幕オフ"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "字幕: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "オーディオ: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "字幕の遅延 {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "ここにビデオをドロップ"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "または、ファイルや Web アドレスを開いて視聴を開始します。"
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "最近使った項目"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "消去"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "このファイルを再生できません"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "別のファイルを開く…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "次のファイル"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "タイミング"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "トラック"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "ここにファイルをドロップして追加します。"
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "ファイルを追加…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "リピートなし"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "1 つをリピート"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "すべてをリピート"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "オプション"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "左に回転"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "右に回転"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "ビデオやその他のメディアファイルを再生します"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Video;Movie;Film;Player;Subtitles;ビデオ;動画;映画;プレーヤ;プレーヤー;字幕;"

@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 15:22+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "mpv를 시작할 수 없습니다"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "동영상 재생 중"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "비디오 플레이어"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "오디오 재생 중"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title}({language})"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "트랙 {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "음소거 해제"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "음소거"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "10초 뒤로"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "10초 앞으로"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "재생 목록, 트랙 및 재생"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "다시 재생"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "재생"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "일시 정지"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "전체 화면 종료"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "전체 화면"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "URL 열기"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "취소"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "열기"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "자막과 재생 목록을 지원하는 동영상 플레이어입니다."
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "미디어 정보"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate}kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "위치"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "형식"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "크기"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "재생 시간"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "비디오"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "코덱"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "해상도"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "프레임률"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate}fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "비트 전송률"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "오디오"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "채널"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "샘플 레이트"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate}Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "설정"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "표시 언어"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "작게"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "중간"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "크게"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "매우 크게"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "재생"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "중단한 곳부터 이어서 재생"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "폴더의 다른 동영상 재생"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "오디오 언어"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "자막"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "자막 언어"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "자막 크기"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "스크린샷"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "저장 위치"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "변경…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "스크린샷 저장 위치"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "키보드 단축키"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "재생 또는 일시 정지"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "5초 뒤로 또는 앞으로"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "30초 뒤로 또는 앞으로"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "처음 또는 끝으로 이동"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "느리게, 빠르게, 보통 속도"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "이전 또는 다음 프레임"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "이전 또는 다음 챕터"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "이전 또는 다음 파일"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "사운드 및 자막"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "음량 높이기 또는 낮추기"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "다음 오디오 트랙"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "다음 또는 이전 자막"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "자막 보기 또는 가리기"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "자막을 더 일찍 또는 더 늦게"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "창"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "전체 화면"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F, F11, 더블 클릭"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "전체 화면 종료"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "재생 목록"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "파일 열기"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "URL 열기"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "스크린샷 찍기"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "미디어 정보"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "키보드 단축키"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "닫기"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "놓아서 재생"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "스크린샷 저장됨"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "보기"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "스크린샷을 저장할 수 없음"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "자막 파일을 열 수 없음"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "재생 목록에 추가"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "동영상 열기"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "동영상 및 오디오({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "모든 파일 (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "자막 파일 추가"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "자막 (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "끔"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "자막 파일 추가…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "자막 타이밍"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "더 일찍 표시"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "더 늦게 표시"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "재설정({delay})"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "오디오 트랙 없음"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "보통"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "챕터 {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "비디오 플레이어 정보"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "설정…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "비디오 플레이어 숨기기"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "비디오 플레이어 종료"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "파일"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "파일 열기…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "URL 열기…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "최근 항목 열기"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "최근 항목 지우기"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "파일에서 보기"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "스크린샷 찍기"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "창 닫기"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "이전"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "다음"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "속도"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "챕터"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "반복"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "보기"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "전체 화면 시작"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "최소화"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "확대/축소"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "도움말"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "재생 목록에서 제거"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "{time}부터 이어서 재생"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "재생 목록의 끝"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds}초   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "음량 {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "음소거됨"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "속도 {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "자막 끔"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "자막: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "오디오: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds}ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "자막 지연 {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "여기에 동영상을 놓으십시오"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "또는 파일이나 웹 주소를 열어 시청을 시작하십시오."
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "최근 항목"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "지우기"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "이 파일을 재생할 수 없음"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "다른 파일 열기…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "다음 파일"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "타이밍"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "트랙"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "파일을 여기에 놓아 추가하십시오."
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "파일 추가…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "반복 끔"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "한 항목 반복"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "모두 반복"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "옵션"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "왼쪽으로 회전"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "오른쪽으로 회전"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "동영상 및 기타 미디어 파일을 재생합니다"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "동영상;비디오;영화;플레이어;자막;Video;Movie;Film;Player;Subtitles;"

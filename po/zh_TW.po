@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 16:33+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "無法啟動 mpv"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "正在播放影片"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "影片播放器"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "正在播放音訊"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title}（{language}）"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "軌道 {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "取消靜音"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "靜音"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "倒退 10 秒"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "快轉 10 秒"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "播放列表、軌道與播放"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "重新播放"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "播放"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "暫停"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "結束全螢幕"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "全螢幕"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "開啟網址"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "取消"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "開啟"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "播放影片，支援字幕與播放列表。"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "媒體資訊"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "位置"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "格式"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "大小"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "長度"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "視訊"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "編碼"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "解析度"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "影格速率"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "位元速率"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "音訊"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "聲道"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "取樣率"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate} Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "設定"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "顯示語言"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "小"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "中"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "大"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "特大"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "播放"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "從上次停止的位置繼續播放"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "播放資料夾中的其他影片"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "音訊語言"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "字幕"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "字幕語言"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "字幕大小"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "截圖"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "儲存至"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "更改…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "截圖儲存位置"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "鍵盤快速鍵"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "播放或暫停"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "倒退或快轉 5 秒"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "倒退或快轉 30 秒"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "前往開頭或結尾"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "減速、加速、正常速度"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "上一個或下一個影格"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "上一個或下一個章節"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "上一個或下一個檔案"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "聲音與字幕"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "調高或調低音量"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "下一個音軌"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "下一個或上一個字幕"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "顯示或隱藏字幕"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "字幕提前或延後"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "視窗"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "全螢幕"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F、F11、按兩下"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "離開全螢幕"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "播放列表"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "開啟檔案"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "開啟網址"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "截圖"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "媒體資訊"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "鍵盤快速鍵"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "關閉"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "拖放到此處以播放"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "已儲存截圖"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "顯示"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "無法儲存截圖"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "無法開啟字幕檔案"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "加入播放列表"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "開啟影片"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "影片與音訊 ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "所有檔案 (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "加入字幕檔案"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "字幕 (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "關閉"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "加入字幕檔案…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "字幕時間"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "提前顯示"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "延後顯示"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "重置（{delay}）"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "沒有音軌"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "正常"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "第 {number} 章"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "關於影片播放器"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "設定…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "隱藏影片播放器"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "結束影片播放器"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "檔案"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "開啟檔案…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "開啟網址…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "開啟最近使用的檔案"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "清除最近使用的項目"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "在「檔案」中顯示"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "截圖"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "關閉視窗"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "上一個"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "下一個"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "速度"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "章節"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "重複播放"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "檢視"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "進入全螢幕"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "最小化"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "縮放"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "說明"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "從播放列表中移除"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "已從 {time} 繼續播放"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "播放列表已結束"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} 秒   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "音量 {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "已靜音"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "速度 {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "已關閉字幕"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "字幕：{track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "音訊：{track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} 毫秒"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "字幕延遲 {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "將影片拖放到此處"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "或開啟檔案或網址以開始觀看。"
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "最近使用"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "清除"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "無法播放此檔案"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "開啟其他檔案…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "下一個檔案"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "時間"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "軌道"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "將檔案拖放到此處以加入。"
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "加入檔案…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "不重複"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "重複單一項目"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "重複全部項目"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "選項"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "向左旋轉"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "向右旋轉"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "播放影片及其他媒體檔案"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Video;Movie;Film;Player;Subtitles;影片;電影;播放器;字幕;視訊;"
