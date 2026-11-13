@@ -761,8 +761,10 @@ void MainWindow::openFiles(bool append)
     m_fileChooser->setTitle(append ? tr("Add to Playlist") : tr("Open Video"));
     const std::string last = urls::toLocalFile(m_app.settings().lastFolder());
     m_fileChooser->setCurrentFolder(!last.empty() ? last : base::paths::userDirectory(base::paths::UserDirectory::Videos));
+    // TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
     m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter(format(tr("Videos and audio ({patterns})"),
                                                                           {{"patterns", kMediaPatterns}})),
+                               // TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
                                FileChooser::Filter::fromNameFilter(tr("All files (*)"))});
     m_fileChooser->onAccepted = [this, append](const std::vector<std::string>& paths, const std::string&) {
         if (paths.empty())
@@ -786,7 +788,9 @@ void MainWindow::openSubtitleFile()
     m_fileChooser->setTitle(tr("Add Subtitle File"));
     if (urls::isLocalFile(m_player.source()))
         m_fileChooser->setCurrentFolder(std::filesystem::path(urls::toLocalFile(m_player.source())).parent_path().string());
+    // TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
     m_fileChooser->setFilters({FileChooser::Filter::fromNameFilter(tr("Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)")),
+                               // TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
                                FileChooser::Filter::fromNameFilter(tr("All files (*)"))});
     m_fileChooser->onAccepted = [this](const std::vector<std::string>& paths, const std::string&) {
         if (!paths.empty())
