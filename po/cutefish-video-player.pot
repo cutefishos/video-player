@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cutefish-video-player\n"
 "Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
-"POT-Creation-Date: 2026-10-19 22:33+0800\n"
+"POT-Creation-Date: 2026-11-13 15:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -172,7 +172,7 @@ msgstr ""
 msgid "{rate} Hz"
 msgstr ""
 
-#: src/views/dialogs.cpp src/views/mainwindow.cpp
+#: src/views/dialogs.cpp
 msgid "Settings"
 msgstr ""
 
@@ -197,7 +197,7 @@ msgstr ""
 msgid "Extra Large"
 msgstr ""
 
-#: src/views/dialogs.cpp src/views/sidepanel.cpp
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
 msgid "Playback"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr ""
 msgid "Subtitles earlier or later"
 msgstr ""
 
-#: src/views/dialogs.cpp
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
 msgid "Window"
 msgstr ""
 
@@ -397,42 +397,6 @@ msgstr ""
 msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
 msgstr ""
 
-#: src/views/mainwindow.cpp src/views/pages.cpp
-msgid "Open File…"
-msgstr ""
-
-#: src/views/mainwindow.cpp src/views/pages.cpp
-msgid "Open URL…"
-msgstr ""
-
-#: src/views/mainwindow.cpp src/views/pages.cpp
-msgid "Recent"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "Clear Recent"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "Show in Files"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "Take Screenshot"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "About Video Player"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "Previous"
-msgstr ""
-
-#: src/views/mainwindow.cpp
-msgid "Next"
-msgstr ""
-
 #. TRANSLATORS: no subtitles shown.
 #: src/views/mainwindow.cpp src/views/sidepanel.cpp
 msgid "Off"
@@ -463,17 +427,9 @@ msgstr ""
 msgid "No Audio Tracks"
 msgstr ""
 
-#: src/views/mainwindow.cpp src/views/sidepanel.cpp
-msgid "Speed"
-msgstr ""
-
 #. TRANSLATORS: the normal playback speed.
 #: src/views/mainwindow.cpp
 msgid "Normal"
-msgstr ""
-
-#: src/views/mainwindow.cpp src/views/sidepanel.cpp
-msgid "Chapters"
 msgstr ""
 
 #: src/views/mainwindow.cpp src/views/sidepanel.cpp
@@ -481,8 +437,92 @@ msgstr ""
 msgid "Chapter {number}"
 msgstr ""
 
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr ""
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr ""
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr ""
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr ""
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr ""
+
 #: src/views/mainwindow.cpp src/views/sidepanel.cpp
 msgid "Repeat"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr ""
+
+#: src/views/mainwindow.cpp
+msgid "Help"
 msgstr ""
 
 #: src/views/mainwindow.cpp
@@ -549,6 +589,10 @@ msgstr ""
 
 #: src/views/pages.cpp
 msgid "Or open a file or a web address to start watching."
+msgstr ""
+
+#: src/views/pages.cpp
+msgid "Recent"
 msgstr ""
 
 #: src/views/pages.cpp
