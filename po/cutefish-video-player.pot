@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cutefish-video-player\n"
 "Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
-"POT-Creation-Date: 2026-11-13 15:22+0800\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -380,11 +380,13 @@ msgstr ""
 msgid "Open Video"
 msgstr ""
 
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
 #: src/views/mainwindow.cpp
 #, python-brace-format
 msgid "Videos and audio ({patterns})"
 msgstr ""
 
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
 #: src/views/mainwindow.cpp
 msgid "All files (*)"
 msgstr ""
@@ -393,6 +395,7 @@ msgstr ""
 msgid "Add Subtitle File"
 msgstr ""
 
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
 #: src/views/mainwindow.cpp
 msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
 msgstr ""
