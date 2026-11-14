@@ -670,6 +670,7 @@ void Dialogs::shortcuts()
             : scroll(addChild<ScrollView>())
         {
             scroll->setScrollDirections(false, true);
+            scroll->setBottomCornerRadius(Theme::current().windowRadius);
         }
 
         double heightForWidth(double) const override { return 600 - 44 - 16; }
