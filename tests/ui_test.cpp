@@ -431,7 +431,7 @@ TEST_F(UiTest, LanguageChangeKeepsPlaying)
     EXPECT_FALSE(tab->text().empty());
 }
 
-TEST_F(UiTest, WindowShowsItsMenusInTheStatusBar)
+TEST_F(UiTest, WindowShowsItsMenusInTheMenuBar)
 {
     EXPECT_FALSE(view("mainMenuButton"));
     ui::Menu* menu = m_window->window().mainMenu();
