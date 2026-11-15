@@ -410,7 +410,7 @@ MainWindow::MainWindow(::Application& application)
     , m_chrome(std::make_unique<views::Tween>(1, 200ms))
 {
     m_window.setTitle(tr("Video Player"));
-    m_window.resize({960, 600});
+    m_window.resize({579, 405});
     m_window.setMinimumSize({480, 320});
     // A video given at launch still fits the window to itself over this.
     m_window.setRestoresSize("Main");
