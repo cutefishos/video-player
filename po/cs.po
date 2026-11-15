@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 16:33+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "mpv nelze spustit"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "Přehrávání videa"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "Přehrávač videa"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "Přehrávání zvuku"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title} ({language})"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "Stopa {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "Zapnout zvuk"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "Ztlumit"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "O 10 sekund zpět"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "O 10 sekund vpřed"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "Seznam skladeb, stopy a přehrávání"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "Přehrát znovu"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "Přehrát"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "Pozastavit"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "Ukončit celou obrazovku"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "Celá obrazovka"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "Otevřít URL"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "Otevřít"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "Přehrává videa s titulky a seznamy skladeb."
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "Informace o médiu"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "Umístění"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "Formát"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "Velikost"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "Délka"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "Video"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "Kodek"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "Rozlišení"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "Snímková frekvence"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "Datový tok"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "Zvuk"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "Kanály"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "Vzorkovací frekvence"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate} Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "Nastavení"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "Jazyk prostředí"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "Malá"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "Střední"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "Velká"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "Velmi velká"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "Přehrávání"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "Pokračovat tam, kde jste skončili"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "Přehrát ostatní videa ve složce"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "Jazyk zvuku"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "Titulky"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "Jazyk titulků"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "Velikost titulků"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "Snímky obrazovky"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "Uložit do"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "Změnit…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "Ukládat snímky obrazovky do"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "Klávesové zkratky"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "Přehrát nebo pozastavit"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "O 5 sekund zpět nebo vpřed"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "O 30 sekund zpět nebo vpřed"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "Přejít na začátek nebo konec"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "Pomaleji, rychleji, normální rychlost"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "Předchozí nebo další snímek"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "Předchozí nebo další kapitola"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "Předchozí nebo další soubor"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "Zvuk a titulky"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "Zesílit nebo zeslabit hlasitost"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "Další zvuková stopa"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "Další nebo předchozí titulky"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "Zobrazit nebo skrýt titulky"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "Titulky dříve nebo později"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "Okno"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "Celá obrazovka"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F, F11, dvojité kliknutí"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "Opustit celou obrazovku"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "Seznam skladeb"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "Otevřít soubor"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "Otevřít URL"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "Pořídit snímek obrazovky"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "Informace o médiu"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "Klávesové zkratky"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "Zavřít"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "Přetáhněte sem k přehrání"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "Snímek obrazovky uložen"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "Zobrazit"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "Snímek obrazovky nelze uložit"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "Soubor s titulky nelze otevřít"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "Přidat do seznamu skladeb"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "Otevřít video"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "Videa a zvuk ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "Všechny soubory (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "Přidat soubor s titulky"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "Titulky (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "Vypnuto"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "Přidat soubor s titulky…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "Časování titulků"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "Zobrazit dříve"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "Zobrazit později"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "Resetovat ({delay})"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "Žádné zvukové stopy"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "Normální"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "Kapitola {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "O aplikaci Přehrávač videa"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "Nastavení…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "Skrýt Přehrávač videa"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "Ukončit Přehrávač videa"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "Soubor"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "Otevřít soubor…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "Otevřít URL…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "Otevřít nedávné"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "Vymazat nedávné"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "Zobrazit v Souborech"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "Pořídit snímek obrazovky"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "Zavřít okno"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "Předchozí"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "Další"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "Rychlost"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "Kapitoly"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "Opakovat"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "Zobrazení"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "Přejít na celou obrazovku"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "Minimalizovat"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "Zvětšit"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "Nápověda"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "Odebrat ze seznamu skladeb"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "Pokračuje od {time}"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "Konec seznamu skladeb"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} s   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "Hlasitost {percent} %"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "Ztlumeno"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "Rychlost {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "Titulky vypnuty"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "Titulky: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "Zvuk: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "Zpoždění titulků {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "Přetáhněte sem video"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "Nebo otevřete soubor či webovou adresu a začněte sledovat."
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "Nedávné"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "Vymazat"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "Tento soubor nelze přehrát"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "Otevřít jiný soubor…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "Další soubor"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "Časování"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "Stopy"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "Přetáhněte sem soubory a přidejte je."
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "Přidat soubory…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "Neopakovat"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "Opakovat jednu"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "Opakovat vše"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "Možnosti"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "Otočit doleva"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "Otočit doprava"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "Přehrávání videí a dalších multimediálních souborů"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Video;Film;Přehrávač;Titulky;Movie;Player;Subtitles;"

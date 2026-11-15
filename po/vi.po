@@ -1,0 +1,663 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: 2026-11-13 16:33+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "Không thể khởi động mpv"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "Đang phát video"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "Trình phát video"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "Đang phát âm thanh"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title} ({language})"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "Rãnh {number}"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "Bật tiếng"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "Tắt tiếng"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "Lùi 10 giây"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "Tới 10 giây"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "Danh sách phát, rãnh và phát lại"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "Phát lại"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "Phát"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "Tạm dừng"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "Thoát toàn màn hình"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "Toàn màn hình"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "Mở URL"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "Hủy"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "Mở"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "Phát video có phụ đề và danh sách phát."
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "Thông tin phương tiện"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/s"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "Vị trí"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "Định dạng"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "Kích thước"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "Thời lượng"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "Video"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "Codec"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "Độ phân giải"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "Tốc độ khung hình"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "Tốc độ bit"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "Âm thanh"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "Kênh"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "Tần số lấy mẫu"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate} Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "Cài đặt"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "Ngôn ngữ hiển thị"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "Nhỏ"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "Vừa"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "Lớn"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "Rất lớn"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "Phát lại"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "Tiếp tục từ chỗ đã dừng"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "Phát các video khác trong thư mục"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "Ngôn ngữ âm thanh"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "Phụ đề"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "Ngôn ngữ phụ đề"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "Cỡ phụ đề"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "Ảnh chụp màn hình"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "Lưu vào"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "Thay đổi…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "Lưu ảnh chụp màn hình vào"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "Phím tắt"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "Phát hoặc tạm dừng"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "Lùi hoặc tới 5 giây"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "Lùi hoặc tới 30 giây"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "Về đầu hoặc tới cuối"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "Chậm hơn, nhanh hơn, tốc độ bình thường"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "Khung hình trước hoặc tiếp theo"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "Chương trước hoặc tiếp theo"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "Tệp trước hoặc tiếp theo"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "Âm thanh và phụ đề"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "Tăng hoặc giảm âm lượng"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "Rãnh âm thanh tiếp theo"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "Phụ đề tiếp theo hoặc trước đó"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "Hiện hoặc ẩn phụ đề"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "Phụ đề sớm hơn hoặc muộn hơn"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "Cửa sổ"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "Toàn màn hình"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F, F11, nhấp đúp"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "Thoát toàn màn hình"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "Danh sách phát"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "Mở tệp"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "Mở URL"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "Chụp màn hình"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "Thông tin phương tiện"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "Phím tắt"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "Đóng"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "Thả vào để phát"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "Đã lưu ảnh chụp màn hình"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "Hiện"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "Không thể lưu ảnh chụp màn hình"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "Không thể mở tệp phụ đề"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "Thêm vào danh sách phát"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "Mở video"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "Video và âm thanh ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "Tất cả tệp (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "Thêm tệp phụ đề"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "Phụ đề (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "Tắt"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "Thêm tệp phụ đề…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "Thời gian phụ đề"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "Hiện sớm hơn"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "Hiện muộn hơn"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "Đặt lại ({delay})"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "Không có rãnh âm thanh"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "Bình thường"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "Chương {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "Giới thiệu về Trình phát video"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "Cài đặt…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "Ẩn Trình phát video"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "Thoát Trình phát video"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "Tệp"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "Mở tệp…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "Mở URL…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "Mở gần đây"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "Xóa danh sách gần đây"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "Hiện trong Tệp"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "Chụp màn hình"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "Đóng cửa sổ"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "Trước"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "Tiếp"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "Tốc độ"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "Chương"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "Lặp lại"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "Xem"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "Vào toàn màn hình"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "Thu nhỏ"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "Phóng to"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "Trợ giúp"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "Xóa khỏi danh sách phát"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "Tiếp tục từ {time}"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "Hết danh sách phát"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} s   {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "Âm lượng {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "Đã tắt tiếng"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "Tốc độ {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "Tắt phụ đề"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "Phụ đề: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "Âm thanh: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "Độ trễ phụ đề {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "Thả video vào đây"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "Hoặc mở một tệp hay địa chỉ web để bắt đầu xem."
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "Gần đây"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "Xóa"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "Không thể phát tệp này"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "Mở tệp khác…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "Tệp tiếp theo"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "Thời gian"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "Rãnh"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "Thả tệp vào đây để thêm."
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "Thêm tệp…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "Tắt lặp lại"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "Lặp lại một mục"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "Lặp lại tất cả"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "Tùy chọn"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "Xoay trái"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "Xoay phải"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "Phát video và các tệp đa phương tiện khác"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Video;Phim;Trình phát;Phụ đề;Movie;Player;"
