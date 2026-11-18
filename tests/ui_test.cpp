@@ -135,14 +135,19 @@ TEST_F(UiTest, EmptyWindow)
     EXPECT_FALSE(visibleInTree(bar));
     EXPECT_EQ(m_window->window().size().width, 960);
 
-    // The welcome column sits centred under the header at the smallest size.
+    // The welcome column sits centred on the window, and under the header at
+    // the smallest size.
+    auto* page = dynamic_cast<ui::ScrollView*>(empty);
+    ASSERT_TRUE(page);
     for (const ui::SizeF size : {ui::SizeF{960, 600}, ui::SizeF{480, 320}}) {
         m_window->window().resize(size);
         wait(30ms);
         m_window->window().grab();
+        const ui::RectF icon = windowRect(page->contentView()->children().front().get());
         const ui::RectF button = windowRect(view("openFileButton"));
-        EXPECT_GE(button.y, 44);
+        EXPECT_GE(icon.y, 44);
         EXPECT_LE(button.y + button.height, size.height);
+        EXPECT_NEAR(icon.y + button.y + button.height, size.height, 1);
     }
 }
 

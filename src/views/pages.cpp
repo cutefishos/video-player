@@ -349,7 +349,10 @@ void EmptyPage::layoutColumn(double pageWidth, double pageHeight)
     const double cardHeight = 52.0 * double(m_rows.size());
     const double total = stackHeight(height(m_title), height(m_subtitle), recentRow, m_rows.size());
     const double left = rounding::centeredStart(pageWidth, width);
-    double y = rounding::centeredStart(pageHeight, total);
+    // Centred on the window rather than on the page under the header, while
+    // that keeps the margin below the header.
+    const double header = MainWindow::kHeaderHeight;
+    double y = std::max(24.0, rounding::centeredStart(pageHeight + header, total) - header);
 
     m_icon->setGeometry({left + rounding::centeredStart(width, 72), y, 72, 72});
     y += 72 + 16;
