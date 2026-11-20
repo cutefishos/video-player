@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // The window headless: layout of the welcome page and the controls, clicks
-// on the video and the side panel.
+// on the video and the side panel, the shortcuts dialog's scrolling.
 #include "application.h"
 #include "urls.h"
 #include "views/mainwindow.h"
@@ -466,6 +466,54 @@ TEST_F(UiTest, WindowShowsItsMenusInTheMenuBar)
     wait(300ms);
     ASSERT_TRUE(m_window->window().mainMenu());
     EXPECT_EQ(m_window->window().mainMenu()->submenu(0)->role(), ui::MenuRole::Application);
+}
+
+// The shortcuts list spans the dialog under its title, its bar at the
+// window's right edge, and takes the pointer to every edge.
+TEST_F(UiTest, ShortcutsScrollFromEveryEdge)
+{
+    m_window->openShortcuts();
+    wait(30ms);
+    ui::Window* dialog = nullptr;
+    for (ui::Window* window : ui::Application::instance()->windows()) {
+        if (window->transientParent() == &m_window->window() && !window->isHidden())
+            dialog = window;
+    }
+    ASSERT_TRUE(dialog);
+    dialog->grab();
+    ui::ScrollView* scroll = nullptr;
+    const std::function<void(ui::View*)> collect = [&](ui::View* view) {
+        if (auto* found = dynamic_cast<ui::ScrollView*>(view))
+            scroll = found;
+        for (const auto& child : view->children())
+            collect(child.get());
+    };
+    collect(dialog->contentView());
+    ASSERT_TRUE(scroll);
+    const ui::SizeF size = dialog->size();
+    EXPECT_EQ(size, (ui::SizeF{480, 42 + 600 - 44}));
+    EXPECT_EQ(windowRect(scroll), (ui::RectF{0, 42, size.width, size.height - 42}));
+    ASSERT_GT(scroll->contentSize().height, scroll->geometry().height);
+
+    // A drag of the handle, which starts under the bar's top, at the edge.
+    const ui::PointF grab{size.width - 4, 42 + 4};
+    ui::TestInput::press(*dialog, grab);
+    ui::TestInput::movePointer(*dialog, {grab.x, grab.y + 60});
+    ui::TestInput::release(*dialog, {grab.x, grab.y + 60});
+    dialog->grab();
+    EXPECT_GT(scroll->scrollPosition().y, 0) << "the drag at the edge";
+
+    ui::ScrollEvent wheel;
+    wheel.value120Y = 120;
+    wheel.deltaY = 10;
+    const double middle = 42 + (size.height - 42) / 2;
+    for (const ui::PointF point : {ui::PointF{size.width - 1, middle}, ui::PointF{4, middle},
+                                   ui::PointF{size.width / 2, size.height - 4}}) {
+        scroll->setScrollPosition({0, 0});
+        ui::TestInput::scroll(*dialog, point, wheel);
+        dialog->grab();
+        EXPECT_GT(scroll->scrollPosition().y, 0) << "the wheel at " << point.x << ", " << point.y;
+    }
 }
 
 int main(int argc, char** argv)

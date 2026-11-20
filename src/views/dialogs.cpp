@@ -673,17 +673,17 @@ void Dialogs::shortcuts()
             scroll->setBottomCornerRadius(Theme::current().windowRadius);
         }
 
-        double heightForWidth(double) const override { return 600 - 44 - 16; }
+        double heightForWidth(double) const override { return 600 - 44; }
 
         ScrollView* scroll;
 
     protected:
         void layout() override
         {
-            // The scroll area spans the window under the title, past the dialog's padding.
-            scroll->setGeometry({-16, 0, geometry().width + 32, geometry().height + 16});
+            scroll->setGeometry(localRect());
         }
     };
+    m_shortcuts->setEdgeToEdge(true);
     auto* scroller = m_shortcuts->setContent<Scroller>();
     auto* column = scroller->scroll->setContent<Column>(4, 12);
     column->setInsets(16, 16);
