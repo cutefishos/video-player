@@ -273,6 +273,7 @@ EmptyPage::EmptyPage(MainWindow& owner)
 {
     setName("emptyPage");
     setScrollDirections(false, true);
+    setBottomCornerRadius(Theme::current().windowRadius);
     setClipsChildren(true);
     views::darkenBars(this);
     m_openFile->setName("openFileButton");

@@ -10,6 +10,7 @@
 #include "ui/keys.h"
 #include "ui/list_view.h"
 #include "ui/cell_layout.h"
+#include "ui/scroll_bar.h"
 #include "ui/scroll_view.h"
 #include "ui/theme.h"
 
@@ -21,6 +22,10 @@ using views::white;
 using cutefish::i18n::format;
 using cutefish::i18n::tr;
 using cutefish::i18n::trNoop;
+
+// The plate's corner radius, and the gap its tabs and rows keep to its edges.
+static constexpr double kRadius = 20;
+static constexpr double kInset = 8;
 
 PanelRow::PanelRow(std::string text, bool checkable, std::string detail)
     : m_check(addChild<Icon>(views::glyph("check"), 16))
@@ -103,6 +108,7 @@ SizeF PanelColumn::sizeHint() const
 
 double PanelColumn::heightForWidth(double width) const
 {
+    width = std::max(0.0, width - 2 * m_sideInset);
     double height = 0;
     for (const auto& child : children()) {
         if (child->isVisible())
@@ -113,7 +119,8 @@ double PanelColumn::heightForWidth(double width) const
 
 void PanelColumn::layout()
 {
-    const double width = geometry().width;
+    const double x = m_sideInset;
+    const double width = std::max(0.0, geometry().width - 2 * x);
     double y = 0;
     for (const auto& child : children()) {
         if (!child->isVisible())
@@ -121,9 +128,9 @@ void PanelColumn::layout()
         const double height = childHeight(child.get(), width);
         if (auto* label = dynamic_cast<Label*>(child.get())) {
             const double top = label->name() == "firstSection" ? 0 : 8;
-            label->setGeometry({10, y + top, std::max(0.0, width - 20), label->sizeHint().height});
+            label->setGeometry({x + 10, y + top, std::max(0.0, width - 20), label->sizeHint().height});
         } else {
-            child->setGeometry({0, y, width, height});
+            child->setGeometry({x, y, width, height});
         }
         y += height;
     }
@@ -416,9 +423,16 @@ SidePanel::SidePanel(MainWindow& owner)
     m_repeat->setName("repeatButton");
     m_add->setName("addFilesButton");
     m_list->setRowHeight(36);
+    m_list->setMargins({kInset, 0, kInset, 0});
     m_list->setClipsChildren(true);
+    m_tracks->setSideInset(kInset);
+    m_playback->setSideInset(kInset);
     m_tracksView->setClipsChildren(true);
     m_playbackView->setClipsChildren(true);
+    // The bars end clear of the plate's bottom corners, which lie one inset below the views.
+    const double bottom = ScrollBar::cornerPadding(kRadius) - kInset;
+    m_tracksView->setVerticalBarPadding(ScrollBar::inset, bottom);
+    m_playbackView->setVerticalBarPadding(ScrollBar::inset, bottom);
     m_tracksView->setScrollDirections(false, true);
     m_playbackView->setScrollDirections(false, true);
     m_list->setScrollDirections(false, true);
@@ -679,9 +693,11 @@ bool SidePanel::keyPress(const KeyEvent& event)
 
 void SidePanel::layout()
 {
-    const RectF content = localRect().adjusted(8, 8, -8, -8);
+    const RectF content = localRect().adjusted(kInset, kInset, -kInset, -kInset);
     m_tabs->setGeometry({content.x, content.y, content.width, 30});
-    const RectF page{content.x, content.y + 30 + 6, content.width, std::max(0.0, content.height - 36)};
+    // The pages span the panel's width, so their bars sit at its edge; the
+    // rows keep the inset.
+    const RectF page{0, content.y + 30 + 6, geometry().width, std::max(0.0, content.height - 36)};
     m_playlistPage->setGeometry(page);
     m_tracksView->setGeometry(page);
     m_playbackView->setGeometry(page);
@@ -689,12 +705,12 @@ void SidePanel::layout()
     const double footer = 36;
     const double listHeight = std::max(0.0, page.height - footer - 4);
     m_list->setGeometry({0, 0, page.width, listHeight});
-    m_emptyLabel->setGeometry({0, 0, page.width, listHeight});
-    m_repeat->setGeometry({0, listHeight + 4, 36, 36});
-    m_add->setGeometry({page.width - 36, listHeight + 4, 36, 36});
+    m_emptyLabel->setGeometry({kInset, 0, std::max(0.0, page.width - 2 * kInset), listHeight});
+    m_repeat->setGeometry({kInset, listHeight + 4, 36, 36});
+    m_add->setGeometry({page.width - kInset - 36, listHeight + 4, 36, 36});
 }
 
 void SidePanel::paint(Painter& painter)
 {
-    views::paintPlate(painter, localRect(), 20);
+    views::paintPlate(painter, localRect(), kRadius);
 }

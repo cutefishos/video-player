@@ -49,12 +49,17 @@ public:
         return addChild<T>(std::forward<Args>(args)...);
     }
     void clear() { while (!children().empty()) takeChild(children().back().get()); }
+    // Room on both sides, so the scroll view and its bar reach the panel's edges.
+    void setSideInset(double inset) { m_sideInset = inset; }
 
     cutefish::ui::SizeF sizeHint() const override;
     double heightForWidth(double width) const override;
 
 protected:
     void layout() override;
+
+private:
+    double m_sideInset = 0;
 };
 
 // The playlist, the tracks and playback settings.
