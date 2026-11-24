@@ -1,0 +1,665 @@
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: cutefish-video-player\n"
+"Report-Msgid-Bugs-To: https://github.com/cutefishos\n"
+"POT-Creation-Date: 2026-11-13 16:33+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/player.cpp
+msgid "mpv could not be started"
+msgstr "mpv başlatılamadı"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing a video"
+msgstr "Video oynatılıyor"
+
+#: src/sleepinhibitor.cpp src/views/dialogs.cpp src/views/mainwindow.cpp
+#: cutefish-video-player.desktop
+msgid "Video Player"
+msgstr "Video Oynatıcı"
+
+#: src/sleepinhibitor.cpp
+msgid "Playing audio"
+msgstr "Ses çalınıyor"
+
+#. TRANSLATORS: a track's own title, then its language.
+#: src/tracks.cpp
+#, python-brace-format
+msgid "{title} ({language})"
+msgstr "{title} ({language})"
+
+#: src/tracks.cpp
+#, python-brace-format
+msgid "Track {number}"
+msgstr "{number} parçasını izle"
+
+#: src/views/controlbar.cpp
+msgid "Unmute"
+msgstr "Sesi aç"
+
+#: src/views/controlbar.cpp src/views/dialogs.cpp
+msgid "Mute"
+msgstr "Sesi kapat"
+
+#: src/views/controlbar.cpp
+msgid "Back 10 Seconds"
+msgstr "10 Saniye Geri"
+
+#: src/views/controlbar.cpp
+msgid "Forward 10 Seconds"
+msgstr "10 Saniye İleri"
+
+#: src/views/controlbar.cpp
+msgid "Playlist, Tracks and Playback"
+msgstr "Çalma Listesi, Parçalar ve Oynatma"
+
+#: src/views/controlbar.cpp
+msgid "Play Again"
+msgstr "Tekrar Oynat"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Play"
+msgstr "Oynat"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Pause"
+msgstr "Duraklat"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Exit Full Screen"
+msgstr "Tam Ekrandan Çık"
+
+#: src/views/controlbar.cpp src/views/mainwindow.cpp
+msgid "Full Screen"
+msgstr "Tam ekran"
+
+#: src/views/dialogs.cpp
+msgid "Open URL"
+msgstr "URL'yi aç"
+
+#: src/views/dialogs.cpp
+msgid "Cancel"
+msgstr "İptal"
+
+#: src/views/dialogs.cpp
+msgid "Open"
+msgstr "Aç"
+
+#: src/views/dialogs.cpp
+msgid "Plays videos with subtitles and playlists."
+msgstr "Videoları altyazılı ve oynatma listeli olarak oynatır."
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Media Info"
+msgstr "Medya Bilgisi"
+
+#. TRANSLATORS: a bit rate in kilobits per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} kb/s"
+msgstr "{rate} kb/sn"
+
+#: src/views/dialogs.cpp
+msgid "Location"
+msgstr "Konum"
+
+#: src/views/dialogs.cpp
+msgid "Format"
+msgstr "Biçim"
+
+#: src/views/dialogs.cpp
+msgid "Size"
+msgstr "Boyut"
+
+#: src/views/dialogs.cpp
+msgid "Duration"
+msgstr "Süre"
+
+#: src/views/dialogs.cpp
+msgid "Video"
+msgstr "Video"
+
+#: src/views/dialogs.cpp
+msgid "Codec"
+msgstr "Kodlayıcı"
+
+#: src/views/dialogs.cpp
+msgid "Resolution"
+msgstr "Çözünürlük"
+
+#. TRANSLATORS: a picture's width and height in pixels.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{width} × {height}"
+msgstr "{width} × {height}"
+
+#: src/views/dialogs.cpp
+msgid "Frame rate"
+msgstr "Kare hızı"
+
+#. TRANSLATORS: a frame rate in frames per second.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} fps"
+msgstr "{rate} fps"
+
+#: src/views/dialogs.cpp
+msgid "Bit rate"
+msgstr "Bit hızı"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Audio"
+msgstr "Ses"
+
+#: src/views/dialogs.cpp
+msgid "Channels"
+msgstr "Kanallar"
+
+#: src/views/dialogs.cpp
+msgid "Sample rate"
+msgstr "Örnekleme oranı"
+
+#. TRANSLATORS: a sample rate in hertz.
+#: src/views/dialogs.cpp
+#, python-brace-format
+msgid "{rate} Hz"
+msgstr "{rate}Hz"
+
+#: src/views/dialogs.cpp
+msgid "Settings"
+msgstr "Ayarlar"
+
+#. TRANSLATORS: follow the language the desktop is shown in.
+#: src/views/dialogs.cpp
+msgid "Display Language"
+msgstr "Ekran Dili"
+
+#: src/views/dialogs.cpp
+msgid "Small"
+msgstr "Küçük"
+
+#: src/views/dialogs.cpp
+msgid "Medium"
+msgstr "Orta"
+
+#: src/views/dialogs.cpp
+msgid "Large"
+msgstr "Büyük"
+
+#: src/views/dialogs.cpp
+msgid "Extra Large"
+msgstr "Ekstra Büyük"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playback"
+msgstr "Kayıttan Yürütme"
+
+#: src/views/dialogs.cpp
+msgid "Resume where you left off"
+msgstr "Kaldığınız yerden devam edin"
+
+#: src/views/dialogs.cpp
+msgid "Play the other videos in the folder"
+msgstr "Klasördeki diğer videoları oynatın"
+
+#: src/views/dialogs.cpp
+msgid "Audio language"
+msgstr "Ses dili"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Subtitles"
+msgstr "Altyazılar"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle language"
+msgstr "Altyazı dili"
+
+#: src/views/dialogs.cpp
+msgid "Subtitle size"
+msgstr "Altyazı boyutu"
+
+#: src/views/dialogs.cpp
+msgid "Screenshots"
+msgstr "Ekran görüntüleri"
+
+#: src/views/dialogs.cpp
+msgid "Save to"
+msgstr "Kaydet"
+
+#: src/views/dialogs.cpp
+msgid "Change…"
+msgstr "Değiştir…"
+
+#: src/views/dialogs.cpp
+msgid "Save Screenshots To"
+msgstr "Ekran Görüntülerini Şuraya Kaydet:"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Keyboard Shortcuts"
+msgstr "Klavye Kısayolları"
+
+#: src/views/dialogs.cpp
+msgid "Play or pause"
+msgstr "Oynat veya duraklat"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 5 seconds"
+msgstr "5 saniye geri veya ileri"
+
+#: src/views/dialogs.cpp
+msgid "Back or forward 30 seconds"
+msgstr "30 saniye geri veya ileri"
+
+#: src/views/dialogs.cpp
+msgid "Go to the start or the end"
+msgstr "Başa veya sona git"
+
+#: src/views/dialogs.cpp
+msgid "Slower, faster, normal speed"
+msgstr "Daha yavaş, daha hızlı, normal hız"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next frame"
+msgstr "Önceki veya sonraki kare"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next chapter"
+msgstr "Önceki veya sonraki bölüm"
+
+#: src/views/dialogs.cpp
+msgid "Previous or next file"
+msgstr "Önceki veya sonraki dosya"
+
+#: src/views/dialogs.cpp
+msgid "Sound and Subtitles"
+msgstr "Ses ve Altyazı"
+
+#: src/views/dialogs.cpp
+msgid "Volume up or down"
+msgstr "Sesi artır veya azalt"
+
+#: src/views/dialogs.cpp
+msgid "Next audio track"
+msgstr "Sonraki ses parçası"
+
+#: src/views/dialogs.cpp
+msgid "Next or previous subtitle"
+msgstr "Sonraki veya önceki altyazı"
+
+#: src/views/dialogs.cpp
+msgid "Show or hide subtitles"
+msgstr "Altyazıları göster veya gizle"
+
+#: src/views/dialogs.cpp
+msgid "Subtitles earlier or later"
+msgstr "Altyazılar erken veya geç"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp
+msgid "Window"
+msgstr "Pencere"
+
+#: src/views/dialogs.cpp
+msgid "Full screen"
+msgstr "Tam ekran"
+
+#. TRANSLATORS: key names stay as they are.
+#: src/views/dialogs.cpp
+msgid "F, F11, double-click"
+msgstr "F, F11, çift tıklayın"
+
+#: src/views/dialogs.cpp
+msgid "Leave full screen"
+msgstr "Tam ekrandan ayrıl"
+
+#: src/views/dialogs.cpp src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Playlist"
+msgstr "Çalma listesi"
+
+#: src/views/dialogs.cpp
+msgid "Open a file"
+msgstr "Bir dosya aç"
+
+#: src/views/dialogs.cpp
+msgid "Open a URL"
+msgstr "Bir URL açın"
+
+#: src/views/dialogs.cpp
+msgid "Take a screenshot"
+msgstr "Ekran görüntüsü al"
+
+#: src/views/dialogs.cpp
+msgid "Media info"
+msgstr "Medya bilgisi"
+
+#: src/views/dialogs.cpp
+msgid "Keyboard shortcuts"
+msgstr "Klavye kısayolları"
+
+#: src/views/dialogs.cpp
+msgid "Close"
+msgstr "Kapat"
+
+#: src/views/mainwindow.cpp
+msgid "Drop to Play"
+msgstr "Oynatmak için Bırak"
+
+#: src/views/mainwindow.cpp
+msgid "Screenshot saved"
+msgstr "Ekran görüntüsü kaydedildi"
+
+#: src/views/mainwindow.cpp
+msgid "Show"
+msgstr "Göster"
+
+#: src/views/mainwindow.cpp
+msgid "Could not save the screenshot"
+msgstr "Ekran görüntüsü kaydedilemedi"
+
+#: src/views/mainwindow.cpp
+msgid "Could not open the subtitle file"
+msgstr "Altyazı dosyası açılamadı"
+
+#. TRANSLATORS: a file's name, then why it could not be played.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{name} — {error}"
+msgstr "{name} — {error}"
+
+#: src/views/mainwindow.cpp
+msgid "Add to Playlist"
+msgstr "Oynatma Listesine Ekle"
+
+#: src/views/mainwindow.cpp
+msgid "Open Video"
+msgstr "Videoyu Aç"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Videos and audio ({patterns})"
+msgstr "Videolar ve ses ({patterns})"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "All files (*)"
+msgstr "Tüm dosyalar (*)"
+
+#: src/views/mainwindow.cpp
+msgid "Add Subtitle File"
+msgstr "Altyazı Dosyası Ekle"
+
+#. TRANSLATORS: keep the ASCII parentheses and the pattern in them unchanged.
+#: src/views/mainwindow.cpp
+msgid "Subtitles (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+msgstr "Altyazılar (*.srt *.ass *.ssa *.vtt *.sub *.idx *.sup *.smi)"
+
+#. TRANSLATORS: no subtitles shown.
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Off"
+msgstr "Kapalı"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Add Subtitle File…"
+msgstr "Altyazı Dosyası Ekle…"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitle Timing"
+msgstr "Altyazı Zamanlaması"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Earlier"
+msgstr "Daha Önce Göster"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Show Later"
+msgstr "Daha Sonra Göster"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Reset ({delay})"
+msgstr "Sıfırla ({delay})"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "No Audio Tracks"
+msgstr "Ses Parçası Yok"
+
+#. TRANSLATORS: the normal playback speed.
+#: src/views/mainwindow.cpp
+msgid "Normal"
+msgstr "Normal"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+#, python-brace-format
+msgid "Chapter {number}"
+msgstr "Bölüm {number}"
+
+#: src/views/mainwindow.cpp
+msgid "About Video Player"
+msgstr "Video Oynatıcı Hakkında"
+
+#: src/views/mainwindow.cpp
+msgid "Settings…"
+msgstr "Ayarlar…"
+
+#: src/views/mainwindow.cpp
+msgid "Hide Video Player"
+msgstr "Video Oynatıcıyı Gizle"
+
+#: src/views/mainwindow.cpp
+msgid "Quit Video Player"
+msgstr "Video Oynatıcıdan Çık"
+
+#: src/views/mainwindow.cpp
+msgid "File"
+msgstr "Dosya"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open File…"
+msgstr "Dosyayı Aç…"
+
+#: src/views/mainwindow.cpp src/views/pages.cpp
+msgid "Open URL…"
+msgstr "URL'yi aç…"
+
+#: src/views/mainwindow.cpp
+msgid "Open Recent"
+msgstr "Son Kullanılanları Aç"
+
+#: src/views/mainwindow.cpp
+msgid "Clear Recent"
+msgstr "Son Kullanılanları Temizle"
+
+#: src/views/mainwindow.cpp
+msgid "Show in Files"
+msgstr "Dosyalarda Göster"
+
+#: src/views/mainwindow.cpp
+msgid "Take Screenshot"
+msgstr "Ekran Görüntüsü Al"
+
+#: src/views/mainwindow.cpp
+msgid "Close Window"
+msgstr "Pencereyi Kapat"
+
+#: src/views/mainwindow.cpp
+msgid "Previous"
+msgstr "Önceki"
+
+#: src/views/mainwindow.cpp
+msgid "Next"
+msgstr "Sonraki"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Speed"
+msgstr "Hız"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Chapters"
+msgstr "Bölümler"
+
+#: src/views/mainwindow.cpp src/views/sidepanel.cpp
+msgid "Repeat"
+msgstr "Tekrarla"
+
+#: src/views/mainwindow.cpp
+msgid "View"
+msgstr "Görünüm"
+
+#: src/views/mainwindow.cpp
+msgid "Enter Full Screen"
+msgstr "Tam Ekran Yap"
+
+#: src/views/mainwindow.cpp
+msgid "Minimize"
+msgstr "Küçült"
+
+#: src/views/mainwindow.cpp
+msgid "Zoom"
+msgstr "Yakınlaştır"
+
+#: src/views/mainwindow.cpp
+msgid "Help"
+msgstr "Yardım"
+
+#: src/views/mainwindow.cpp
+msgid "Remove from Playlist"
+msgstr "Oynatma Listesinden kaldır"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Resumed from {time}"
+msgstr "{time} tarihinden itibaren devam ettirildi"
+
+#: src/views/mainwindow.cpp
+msgid "End of playlist"
+msgstr "Çalma listesinin sonu"
+
+#. TRANSLATORS: a jump such as "+10 s", then the time it lands on.
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{seconds} s   {time}"
+msgstr "{sign}{seconds} {time}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Volume {percent}%"
+msgstr "Hacim {percent}%"
+
+#: src/views/mainwindow.cpp
+msgid "Muted"
+msgstr "Sessize alındı"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Speed {speed}"
+msgstr "Hız {speed}"
+
+#: src/views/mainwindow.cpp
+msgid "Subtitles off"
+msgstr "Altyazılar kapalı"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitles: {track}"
+msgstr "Altyazılar: {track}"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Audio: {track}"
+msgstr "Ses: {track}"
+
+#. TRANSLATORS: a subtitle delay such as "+100 ms".
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "{sign}{milliseconds} ms"
+msgstr "{sign}{milliseconds} ms"
+
+#: src/views/mainwindow.cpp
+#, python-brace-format
+msgid "Subtitle delay {delay}"
+msgstr "Altyazı gecikmesi {delay}"
+
+#: src/views/pages.cpp
+msgid "Drop a Video Here"
+msgstr "Buraya bir video bırakın"
+
+#: src/views/pages.cpp
+msgid "Or open a file or a web address to start watching."
+msgstr "Veya izlemeye başlamak için bir dosya veya web adresi açın."
+
+#: src/views/pages.cpp
+msgid "Recent"
+msgstr "Son"
+
+#: src/views/pages.cpp
+msgid "Clear"
+msgstr "Temizle"
+
+#: src/views/pages.cpp
+msgid "Unable to Play This File"
+msgstr "Bu Dosya Yürütülemiyor"
+
+#: src/views/pages.cpp
+msgid "Open Another File…"
+msgstr "Başka Bir Dosya Aç…"
+
+#: src/views/pages.cpp
+msgid "Next File"
+msgstr "Sonraki Dosya"
+
+#: src/views/sidepanel.cpp
+msgid "Timing"
+msgstr "Zamanlama"
+
+#: src/views/sidepanel.cpp
+msgid "Tracks"
+msgstr "Parçalar"
+
+#: src/views/sidepanel.cpp
+msgid "Drop files here to add them."
+msgstr "Eklemek için dosyaları buraya bırakın."
+
+#: src/views/sidepanel.cpp
+msgid "Add Files…"
+msgstr "Dosya Ekle…"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat Off"
+msgstr "Tekrarlama Kapalı"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat One"
+msgstr "Birini Tekrarla"
+
+#: src/views/sidepanel.cpp
+msgid "Repeat All"
+msgstr "Tümünü Tekrarla"
+
+#: src/views/sidepanel.cpp
+msgid "Options"
+msgstr "Seçenekler"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Left"
+msgstr "Sola Döndür"
+
+#: src/views/sidepanel.cpp
+msgid "Rotate Right"
+msgstr "Sağa Döndür"
+
+#: cutefish-video-player.desktop
+msgid "Play videos and other media files"
+msgstr "Videoları ve diğer medya dosyalarını oynatın"
+
+#: cutefish-video-player.desktop
+msgid "Video;Movie;Film;Player;Subtitles;"
+msgstr "Video;Film;Film;Oynatıcı;Altyazı;"
